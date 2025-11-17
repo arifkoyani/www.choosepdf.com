@@ -1,64 +1,21 @@
 "use client"
 
-import { useEffect, useState, useCallback, useMemo, useRef } from "react"
+import { useState, useCallback, useMemo, useRef } from "react"
 import Link from "next/link"
-import { Sun } from 'lucide-react';
-import { Moon } from 'lucide-react';
-import { MonitorCog } from 'lucide-react';
+import { usePathname } from "next/navigation"
+import { ChevronDown } from 'lucide-react'
+import { ChevronUp } from 'lucide-react'
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ")
 }
 
 export default function Navbar() {
-	const [theme, setTheme] = useState("system")
+	const pathname = usePathname()
 	const [isConvertOpen, setIsConvertOpen] = useState(false)
-	const [systemDark, setSystemDark] = useState(false)
+	const [isAllToolsOpen, setIsAllToolsOpen] = useState(false)
 	const hoverTimeoutRef = useRef(null)
-    
- 
-    
-	// Initialize theme from localStorage or system
-	useEffect(() => {
-		const stored = typeof window !== "undefined" ? localStorage.getItem("theme") : null
-		if (stored === "light" || stored === "dark") {
-			setTheme(stored)
-		} else {
-			setTheme("system")
-		}
-	}, [])
-
-	// Track OS color scheme and update when it changes
-	useEffect(() => {
-		if (typeof window === "undefined") return
-		const mql = window.matchMedia("(prefers-color-scheme: dark)")
-		const update = () => setSystemDark(Boolean(mql.matches))
-		update()
-		mql.addEventListener?.("change", update)
-		// Safari/old Chrome fallback
-		mql.addListener?.(update)
-		return () => {
-			mql.removeEventListener?.("change", update)
-			mql.removeListener?.(update)
-		}
-	}, [])
-
-	// Resolve theme locally (navbar-only)
-	const resolvedTheme = theme === "system" ? (systemDark ? "dark" : "light") : theme
-	const isDark = resolvedTheme === "dark"
-
-	const setLight = useCallback(() => {
-		setTheme("light")
-		if (typeof window !== "undefined") localStorage.setItem("theme", "light")
-	}, [])
-	const setDark = useCallback(() => {
-		setTheme("dark")
-		if (typeof window !== "undefined") localStorage.setItem("theme", "dark")
-	}, [])
-	const setSystem = useCallback(() => {
-		setTheme("system")
-		if (typeof window !== "undefined") localStorage.setItem("theme", "system")
-	}, [])
+	const allToolsHoverTimeoutRef = useRef(null)
 
 	const navItems = useMemo(
 		() => [
@@ -66,7 +23,7 @@ export default function Navbar() {
 			{ label: "AI SUMMARIZER", href: "/ai-summarizer" },
 			{ label: "COMPRESS PDF", href: "/compress-pdf" },
 			// "Convert PDF" handled separately for dropdown
-			{ label: "All PDF tools", href: "/all-tools" },
+			{ label: "PDF Lab", href: "/PDF Lab" },
 		],
 		[]
 	)
@@ -112,10 +69,79 @@ export default function Navbar() {
 		[]
 	)
 
-	const isLightActive = theme === "light" || (theme === "system" && !systemDark)
-	const isDarkActive = theme === "dark" || (theme === "system" && systemDark)
-	const activeBg = "bg-[#f57222] text-white"
-	const inactiveText = isDark ? "text-gray-300" : "text-gray-600"
+	const organizePdfItems = useMemo(
+		() => [
+			{ label: " Merge PDF", href: "/organize/merge-pdf" },
+			{ label: "Split PDF", href: "/organize/split-pdf" },
+			{ label: "Rotate PDF", href: "/organize/rotate-pdf" },
+			{ label: "Reorder PDF Pages", href: "/organize/reorder-pdf" },
+			{ label: "Delete PDF Pages", href: "/organize/delete-pdf-pages" },
+			{ label: "Extract PDF Pages", href: "/organize/extract-pdf-pages" },
+		],
+		[]
+	)
+
+	const optimizePdfItems = useMemo(
+		() => [
+			{ label: "Searchable PDF", href: "/optimize/searchable-pdf" },
+			{ label: "Not Searchable PDF", href: "/optimize/not-searchable-pdf" },
+			{ label: "Reduce PDF Size", href: "/optimize/reduce-pdf-size" }
+		],
+		[]
+	)
+
+	const editPdfItems = useMemo(
+		() => [
+			{ label: "Add Text to PDF", href: "/edit/add-text-to-pdf" },
+			{ label: "Add Image to PDF", href: "/edit/add-image-to-pdf" },
+			{ label: "Add Watermark", href: "/edit/add-watermark" },
+			{ label: "Remove Watermark", href: "/edit/remove-watermark" },
+			{ label: "Annotate PDF", href: "/edit/annotate-pdf" },
+			{ label: "Sign PDF", href: "/edit/sign-pdf" },
+		],
+		[]
+	)
+
+	const pdfSecurityItems = useMemo(
+		() => [
+			{ label: "Password Protect PDF", href: "/security/password-protect-pdf" },
+			{ label: "Unlock PDF", href: "/security/unlock-pdf" },
+			{ label: "Remove Password", href: "/security/remove-password" },
+			{ label: "Encrypt PDF", href: "/security/encrypt-pdf" },
+		],
+		[]
+	)
+
+	const modifyPdfItems = useMemo(
+		() => [
+			{ label: "MERGE ANY to PDF", href: "/convert/merge-any-to-pdf" },
+			{ label: "PDFS to PDF", href: "/convert/pdfs-to-pdf" },
+			{ label: "Split PDF", href: "/modify/split-pdf" },
+			{ label: "Split PDF by Text", href: "/modify/split-pdf-by-text" },
+			{ label: "Rotate Pages using AI", href: "/modify/rotate-pages-ai" },
+			{ label: "Rotate Selected Pages", href: "/modify/rotate-selected-pages" },
+			{ label: "PDF Delete Pages", href: "/modify/delete-pages" },,
+			{ label: "Compress PDF", href: "/compress-pdf" },
+		],
+		[]
+	)
+
+	const editPdfLabItems = useMemo(
+		() => [
+			{ label: "Search Text & Delete", href: "/edit/search-text-delete" },
+			{ label: "Search Text & Replace", href: "/edit/search-text-replace" },
+			{ label: "Search Text Replace Image", href: "/edit/search-text-replace-image" },
+		],
+		[]
+	)
+
+	const pdfSecurityLabItems = useMemo(
+		() => [
+			{ label: "Add Password to PDF", href: "/security/add-password" },
+			{ label: "Remove Password from PDF", href: "/security/remove-password" },
+		],
+		[]
+	)
 
 	// Delayed hover handlers to prevent flicker when moving to panel
 	const openWithDelay = useCallback(() => {
@@ -127,55 +153,50 @@ export default function Navbar() {
 		hoverTimeoutRef.current = setTimeout(() => setIsConvertOpen(false), 180)
 	}, [])
 
+	// Delayed hover handlers for All Tools dropdown
+	const openAllToolsWithDelay = useCallback(() => {
+		if (allToolsHoverTimeoutRef.current) clearTimeout(allToolsHoverTimeoutRef.current)
+		allToolsHoverTimeoutRef.current = setTimeout(() => setIsAllToolsOpen(true), 80)
+	}, [])
+	const closeAllToolsWithDelay = useCallback(() => {
+		if (allToolsHoverTimeoutRef.current) clearTimeout(allToolsHoverTimeoutRef.current)
+		allToolsHoverTimeoutRef.current = setTimeout(() => setIsAllToolsOpen(false), 180)
+	}, [])
+
 	return (
-		<nav
-			className={classNames(
-				"w-full border-b backdrop-blur",
-				isDark
-					? "border-gray-800 bg-neutral-900/70 supports-[backdrop-filter]:bg-neutral-900/60"
-					: "border-gray-200 bg-white/70 supports-[backdrop-filter]:bg-white"
-			)}
-		>
+		<nav className="w-full border-b border-gray-200 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white">
 			<div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
-				<div className="flex w-full h-16 items-center  justify-between">
+				<div className="flex w-full h-20 gap-10 items-center justify-between">
 					{/* Left: Logo */}
-					<div className="flex items-center ">
+					<div className="flex items-center">
 						<Link href="/" className="flex items-center gap-2">
-							<span
-								className={classNames(
-									"inline-flex h-8 w-8 items-center justify-center rounded-md text-white",
-									isDark ? "bg-primary-500" : "bg-primary-600"
-								)}
-							>
+							<span className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white bg-primary-600">
 								P
 							</span>
-							<span
-								className={classNames(
-									"text-base font-semibold tracking-tight",
-									isDark ? "text-gray-100" : "text-gray-900"
-								)}
-							>
+							<span className="text-base font-semibold tracking-tight text-gray-900">
 								ChoosePDF
 							</span>
 						</Link>
 					</div>
 
 					{/* Center: Navigation */}
-					<div className="hidden md:flex flex-1 items-center justify-center  mx-10 whitespace-nowrap">
-						<ul className="flex items-center gap-12 w-full justify-center">
-							{navItems.slice(0, 3).map((item) => (
-								<li key={item.label}>
-									<Link
-										href={item.href}
-										className={classNames(
-											"text-sm font-medium cursor-pointer leading-tight transition-colors",
-											isDark ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
-										)}
-									>
-										{item.label}
-									</Link>
-								</li>
-							))}
+					<div className="hidden md:flex flex-1 items-center justify-center mx-10 whitespace-nowrap">
+						<ul className="flex items-center gap-12 w-full justif-between">
+							{navItems.slice(0, 3).map((item) => {
+								const isActive = pathname === item.href
+								return (
+									<li key={item.label}>
+										<Link
+											href={item.href}
+											className={`text-lg font-medium cursor-pointer leading-tight transition-colors ${
+												isActive ? "text-[#ff911d]" : "text-gray-700 hover:text-[#ff911d]"
+											}`}
+										>
+											{item.label}
+										</Link>
+									</li>
+								)
+							})}
 
 							{/* Convert PDF with hover panel */}
 							<li
@@ -185,41 +206,32 @@ export default function Navbar() {
 							>
 								<button
 									type="button"
-									className={classNames(
-										"text-sm font-medium cursor-pointer transition-colors",
-										isDark
-											? isConvertOpen
-												? "text-white"
-												: "text-gray-300 hover:text-white"
-											: isConvertOpen
-											? "text-gray-900"
-											: "text-gray-700 hover:text-gray-900"
-									)}
+									className={`flex items-center gap-1  text-lg font-medium cursor-pointer transition-colors ${
+										pathname?.startsWith("/convert") 
+											? "text-[#ff911d]" 
+											: isConvertOpen 
+											? "text-[#ff911d]" 
+											: "text-gray-700 hover:text-[#ff911d]"
+									}`}
 									aria-haspopup="menu"
 									aria-expanded={isConvertOpen}
 								>
 									CONVERT PDF
+									{isConvertOpen ? <ChevronUp className="h-6 w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth  /> : <ChevronDown className="h-6 w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth  />}
 								</button>
 
 								{/* Hover window (mega dropdown) */}
 								<div
 									onMouseEnter={openWithDelay}
 									onMouseLeave={closeWithDelay}
-									className={classNames(
-										"absolute left-1/2 z-30 mt-6 w-[min(75vw,450px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl",
-										isDark ? "border border-gray-800 bg-neutral-900" : "border border-gray-200 bg-white",
+									className={`absolute left-1/2 z-30 mt-8 w-[min(75vw,450px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl border border-gray-200 bg-white ${
 										isConvertOpen ? "block" : "hidden"
-									)}
+									}`}
 									role="menu"
 								>
 									<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 										<section>
-											<h3
-												className={classNames(
-													"mb-2 text-xs font-semibold leading-tight cursor-pointer uppercase tracking-wider",
-													isDark ? "text-gray-400" : "text-gray-500"
-												)}
-											>
+											<h3 className="mb-1 text-xs font-semibold leading-tight cursor-pointer uppercase tracking-wider text-gray-500">
 												Convert to PDF
 											</h3>
 											<ul className="space-y-0">
@@ -227,10 +239,7 @@ export default function Navbar() {
 													<li key={item.label}>
 														<Link
 															href={item.href}
-															className={classNames(
-																"flex items-center justify-between rounded-md px-2 py-1 text-xs leading-tight cursor-pointer",
-																isDark ? "text-gray-300 hover:bg-[#fff5f0] hover:text-white" : "text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
-															)}
+															className="flex items-center text-sm font-medium justify-between rounded-md px-2 py-1 leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
 														>
 															{item.label}
 														</Link>
@@ -239,12 +248,7 @@ export default function Navbar() {
 											</ul>
 										</section>
 										<section>
-											<h3
-												className={classNames(
-													"mb-2 text-xs font-semibold uppercase tracking-wider",
-													isDark ? "text-gray-400" : "text-gray-500"
-												)}
-											>
+											<h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
 												Convert from PDF
 											</h3>
 											<ul className="space-y-0">
@@ -252,10 +256,7 @@ export default function Navbar() {
 													<li key={item.label}>
 														<Link
 															href={item.href}
-															className={classNames(
-																"flex items-center justify-between rounded-md px-2 py-1 text-sm leading-tight cursor-pointer",
-																isDark ? "text-gray-300 hover:bg-[#fff5f0] hover:text-white" : "text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
-															)}
+															className="flex items-center justify-between rounded-md px-2 py-1  font-medium text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
 														>
 															{item.label}
 														</Link>
@@ -267,126 +268,64 @@ export default function Navbar() {
 								</div>
 							</li>
 
-							<li>
-								<Link
-									href={navItems[3].href}
-									className={classNames(
-										"text-sm font-medium cursor-pointer transition-colors",
-										isDark ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
-									)}
+							{/* All PDF TOOLS with hover panel */}
+							<li
+								className="relative"
+								onMouseEnter={openAllToolsWithDelay}
+								onMouseLeave={closeAllToolsWithDelay}
+							>
+								<button
+									type="button"
+									className={`flex items-center gap-1 text-lg font-medium cursor-pointer transition-colors ${
+										pathname === navItems[3].href
+											? "text-[#ff911d]"
+											: isAllToolsOpen 
+											? "text-[#ff911d]" 
+											: "text-gray-700 hover:text-[#ff911d]"
+									}`}
+									aria-haspopup="menu"
+									aria-expanded={isAllToolsOpen}
 								>
 									{navItems[3].label}
-								</Link>
-							</li>
-						</ul>
-					</div>
+									{isAllToolsOpen ? <ChevronUp className="h-6 w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth /> : <ChevronDown className="h-6 w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth />}
+								</button>
 
-					{/* Right: Theme toggles */}
-					<div className="flex flex-1 items-center justify-end gap-2">
-						<div
-							className={classNames(
-								"hidden sm:flex items-center overflow-hidden rounded-lg p-0.5",
-								isDark ? "border border-gray-800 bg-neutral-900" : "border border-gray-200 bg-white"
-							)}
-						>
-							<button
-								type="button"
-								onClick={setLight}
-								aria-pressed={isLightActive}
-								className={classNames(
-									"group flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
-									isLightActive ? activeBg : inactiveText
-								)}
-							>
-								<Sun className="h-4 w-4" />
-								<span className="hidden md:inline">Light</span>
-							</button>
-							<button
-								type="button"
-								onClick={setDark}
-								aria-pressed={isDarkActive}
-								className={classNames(
-									"group flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
-									isDarkActive ? activeBg : inactiveText
-								)}
-							>
-								<Moon className="h-4 w-4" />
-								<span className="hidden md:inline">Dark</span>
-							</button>
-							<button
-								type="button"
-								onClick={setSystem}
-								aria-pressed={theme === "system"}
-								className={classNames(
-									"group flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
-									inactiveText
-								)}
-								title="Use system theme"
-							>
-								<span className="inline-flex"><MonitorCog className="h-4 w-4" /></span>
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			{/* Mobile center nav (below bar) */}
-			<div
-				className={classNames("md:hidden border-t", isDark ? "border-gray-800" : "border-gray-200")}
-			>
-				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-					<div className="flex flex-wrap items-center justify-center gap-4 py-3">
-						{navItems.map((item) => (
-							<Link
-								key={item.label}
-								href={item.href}
-								className={classNames(
-									"text-sm font-medium cursor-pointer transition-colors",
-									isDark ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
-								)}
-							>
-								{item.label}
-							</Link>
-						))}
-						<div className="relative">
-							<button
-								type="button"
-								onClick={() => setIsConvertOpen((v) => !v)}
-								className={classNames(
-									"text-sm font-medium cursor-pointer transition-colors",
-									isDark ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
-								)}
-								aria-haspopup="menu"
-								aria-expanded={isConvertOpen}
-							>
-								Convert PDF
-							</button>
-							{isConvertOpen && (
+								{/* Hover window (mega dropdown) */}
 								<div
-									className={classNames(
-										"mt-2 w-[min(92vw,640px)] rounded-xl p-4 shadow-xl",
-										isDark ? "border border-gray-800 bg-neutral-900" : "border border-gray-200 bg-white"
-									)}
+									onMouseEnter={openAllToolsWithDelay}
+									onMouseLeave={closeAllToolsWithDelay}
+									className={`fixed left-1/2 z-30 w-[min(95vw,1200px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl border border-gray-200 bg-white ${
+										isAllToolsOpen ? "block" : "hidden"
+									}`}
+									style={{ top: '5.5rem' }}
+									role="menu"
 								>
-									<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+									<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 										<section>
-											<h3
-												className={classNames(
-													"mb-2 text-xs font-semibold uppercase tracking-wider",
-													isDark ? "text-gray-400" : "text-gray-500"
-												)}
-											>
-												Convert to PDF
+											<h3 className="mb-1 text-xs font-semibold leading-tight cursor-pointer uppercase tracking-wider text-gray-500">
+												MODIFY a PDF
 											</h3>
 											<ul className="space-y-0">
-												{convertToPdfItems.map((item) => (
+												{modifyPdfItems.map((item) => (
 													<li key={item.label}>
 														<Link
 															href={item.href}
-															className={classNames(
-																"block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer",
-																isDark ? "text-gray-300 hover:bg-[#fff5f0] hover:text-white" : "text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
-															)}
+															className="flex items-center text-sm font-medium justify-between rounded-md px-2 py-1 leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+														>
+															{item.label}
+														</Link>
+													</li>
+												))}
+											</ul>
+											<h3 className="mb-1 mt-4 text-xs font-semibold leading-tight cursor-pointer uppercase tracking-wider text-gray-500">
+												PDF Security
+											</h3>
+											<ul className="space-y-0">
+												{pdfSecurityLabItems.map((item) => (
+													<li key={item.label}>
+														<Link
+															href={item.href}
+															className="flex items-center text-sm font-medium justify-between rounded-md px-2 py-1 leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
 														>
 															{item.label}
 														</Link>
@@ -395,12 +334,61 @@ export default function Navbar() {
 											</ul>
 										</section>
 										<section>
-											<h3
-												className={classNames(
-													"mb-2 text-xs font-semibold uppercase tracking-wider",
-													isDark ? "text-gray-400" : "text-gray-500"
-												)}
-											>
+											<h3 className="mb-1 text-xs font-semibold leading-tight cursor-pointer uppercase tracking-wider text-gray-500">
+												Optimize PDF
+											</h3>
+											<ul className="space-y-0">
+												{optimizePdfItems.map((item) => (
+													<li key={item.label}>
+														<Link
+															href={item.href}
+															className="flex items-center text-sm font-medium justify-between rounded-md px-2 py-1 leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+														>
+															{item.label}
+														</Link>
+													</li>
+												))}
+											</ul>
+											<h3 className="mb-1 mt-4 text-xs font-semibold leading-tight cursor-pointer uppercase tracking-wider text-gray-500">
+												Edit PDF
+											</h3>
+											<ul className="space-y-0">
+												{editPdfLabItems.map((item) => (
+													<li key={item.label}>
+														<Link
+															href={item.href}
+															className="flex items-center text-sm font-medium justify-between rounded-md px-2 py-1 leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+														>
+															{item.label}
+														</Link>
+													</li>
+												))}
+											</ul>
+										</section>
+										<section>
+											<h3 className="mb-1 text-xs font-semibold leading-tight cursor-pointer uppercase tracking-wider text-gray-500">
+												Convert to PDF
+											</h3>
+											<ul className="space-y-0">
+												{convertToPdfItems
+													.filter((item) => 
+														item.href !== "/convert/merge-any-to-pdf" && 
+														item.href !== "/convert/pdfs-to-pdf"
+													)
+													.map((item) => (
+														<li key={item.label}>
+															<Link
+																href={item.href}
+																className="flex items-center text-sm font-medium justify-between rounded-md px-2 py-1 leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+															>
+																{item.label}
+															</Link>
+														</li>
+													))}
+											</ul>
+										</section>
+										<section>
+											<h3 className="mb-1 text-xs font-semibold leading-tight cursor-pointer uppercase tracking-wider text-gray-500">
 												Convert from PDF
 											</h3>
 											<ul className="space-y-0">
@@ -408,10 +396,214 @@ export default function Navbar() {
 													<li key={item.label}>
 														<Link
 															href={item.href}
-															className={classNames(
-																"block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer",
-																isDark ? "text-gray-300 hover:bg-[#fff5f0] hover:text-white" : "text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
-															)}
+															className="flex items-center justify-between rounded-md px-2 py-1 font-medium text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+														>
+															{item.label}
+														</Link>
+													</li>
+												))}
+											</ul>
+										</section>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			{/* Mobile center nav (below bar) */}
+			<div className="md:hidden border-t border-gray-200">
+				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+					<div className="flex flex-wrap items-center justify-center gap-4 py-3">
+						{navItems.slice(0, 3).map((item) => {
+							const isActive = pathname === item.href
+							return (
+								<Link
+									key={item.label}
+									href={item.href}
+									className={`text-sm font-medium cursor-pointer transition-colors ${
+										isActive ? "text-[#ff911d]" : "text-gray-700 hover:text-[#ff911d]"
+									}`}
+								>
+									{item.label}
+								</Link>
+							)
+						})}
+						<div className="relative">
+							<button
+								type="button"
+								onClick={() => setIsConvertOpen((v) => !v)}
+								className={`flex items-center gap-1 text-sm font-medium cursor-pointer transition-colors ${
+									pathname?.startsWith("/convert") 
+										? "text-[#ff911d]" 
+										: isConvertOpen 
+										? "text-[#ff911d]" 
+										: "text-gray-700 hover:text-[#ff911d]"
+								}`}
+								aria-haspopup="menu"
+								aria-expanded={isConvertOpen}
+							>
+								Convert PDF
+								{isConvertOpen ? <ChevronUp className="h-6 w-6"  color="#ff911d" strokeWidth={1} absoluteStrokeWidth  /> : <ChevronDown className="h-6 w-6"  color="#ff911d" strokeWidth={1} absoluteStrokeWidth />}
+							</button>
+							{isConvertOpen && (
+								<div className="mt-2 w-[min(92vw,640px)] rounded-xl p-4 shadow-xl border border-gray-200 bg-white">
+									<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+										<section>
+											<h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+												Convert to PDF
+											</h3>
+											<ul className="space-y-0">
+												{convertToPdfItems.map((item) => (
+													<li key={item.label}>
+														<Link
+															href={item.href}
+															className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+														>
+															{item.label}
+														</Link>
+													</li>
+												))}
+											</ul>
+										</section>
+										<section>
+											<h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+												Convert from PDF
+											</h3>
+											<ul className="space-y-0">
+												{convertFromPdfItems.map((item) => (
+													<li key={item.label}>
+														<Link
+															href={item.href}
+															className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+														>
+															{item.label}
+														</Link>
+													</li>
+												))}
+											</ul>
+										</section>
+									</div>
+								</div>
+							)}
+						</div>
+						<div className="relative">
+							<button
+								type="button"
+								onClick={() => setIsAllToolsOpen((v) => !v)}
+								className={`flex items-center gap-1 text-sm font-medium cursor-pointer transition-colors ${
+									pathname === navItems[3].href
+										? "text-[#ff911d]"
+										: isAllToolsOpen 
+										? "text-[#ff911d]" 
+										: "text-gray-700 hover:text-[#ff911d]"
+								}`}
+								aria-haspopup="menu"
+								aria-expanded={isAllToolsOpen}
+							>
+								{navItems[3].label}
+								{isAllToolsOpen ? <ChevronUp className="h-6 w-6" color="#f26924" strokeWidth={1} absoluteStrokeWidth /> : <ChevronDown className="h-6 w-6" color="#f26924" strokeWidth={1} absoluteStrokeWidth />}
+							</button>
+							{isAllToolsOpen && (
+								<div className="mt-2 w-[min(95vw,1200px)] rounded-xl p-4 shadow-xl border border-gray-200 bg-white">
+									<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+										<section>
+											<h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+												MODIFY a PDF
+											</h3>
+											<ul className="space-y-0">
+												{modifyPdfItems.map((item) => (
+													<li key={item.label}>
+														<Link
+															href={item.href}
+															className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+														>
+															{item.label}
+														</Link>
+													</li>
+												))}
+											</ul>
+											<h3 className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+												PDF Security
+											</h3>
+											<ul className="space-y-0">
+												{pdfSecurityLabItems.map((item) => (
+													<li key={item.label}>
+														<Link
+															href={item.href}
+															className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+														>
+															{item.label}
+														</Link>
+													</li>
+												))}
+											</ul>
+										</section>
+										<section>
+											<h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+												Optimize PDF
+											</h3>
+											<ul className="space-y-0">
+												{optimizePdfItems.map((item) => (
+													<li key={item.label}>
+														<Link
+															href={item.href}
+															className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+														>
+															{item.label}
+														</Link>
+													</li>
+												))}
+											</ul>
+											<h3 className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+												Edit PDF
+											</h3>
+											<ul className="space-y-0">
+												{editPdfLabItems.map((item) => (
+													<li key={item.label}>
+														<Link
+															href={item.href}
+															className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+														>
+															{item.label}
+														</Link>
+													</li>
+												))}
+											</ul>
+										</section>
+										<section>
+											<h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+												Convert to PDF
+											</h3>
+											<ul className="space-y-0">
+												{convertToPdfItems
+													.filter((item) => 
+														item.href !== "/convert/merge-any-to-pdf" && 
+														item.href !== "/convert/pdfs-to-pdf"
+													)
+													.map((item) => (
+														<li key={item.label}>
+															<Link
+																href={item.href}
+																className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+															>
+																{item.label}
+															</Link>
+														</li>
+													))}
+											</ul>
+										</section>
+										<section>
+											<h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+												Convert from PDF
+											</h3>
+											<ul className="space-y-0">
+												{convertFromPdfItems.map((item) => (
+													<li key={item.label}>
+														<Link
+															href={item.href}
+															className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
 														>
 															{item.label}
 														</Link>
@@ -429,5 +621,3 @@ export default function Navbar() {
 		</nav>
 	)
 }
-
-
