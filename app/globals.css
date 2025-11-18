@@ -14,13 +14,13 @@
 
 /* Enable class-based dark mode toggling with .dark on <html> */
 .dark {
-  --background: #0a0a0a;
+  --background: #fffefe;
   --foreground: #ededed;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background:#fffefe;
     --foreground: #ededed;
   }
 }

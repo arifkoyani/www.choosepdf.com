@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { ChevronDown } from 'lucide-react'
 import { ChevronUp } from 'lucide-react'
 
+
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ")
 }
@@ -31,8 +32,6 @@ export default function Navbar() {
 	const convertToPdfItems = useMemo(
 		() => [
 			{ label: "EXCEL to PDF", href: "/convert/excel-to-pdf" },
-			{ label: "TXTS to PDF", href: "/convert/txts-to-pdf" },
-			{ label: "RTFS to PDF", href: "/convert/rtfs-to-pdf" },
 			{ label: "HTML to PDF", href: "/convert/html-to-pdf" },
 			{ label: "EMAIL to PDF", href: "/convert/email-to-pdf" },
 			{ label: "ZIP to PDF", href: "/convert/zip-to-pdf" },
@@ -69,59 +68,28 @@ export default function Navbar() {
 		[]
 	)
 
-	const organizePdfItems = useMemo(
-		() => [
-			{ label: " Merge PDF", href: "/organize/merge-pdf" },
-			{ label: "Split PDF", href: "/organize/split-pdf" },
-			{ label: "Rotate PDF", href: "/organize/rotate-pdf" },
-			{ label: "Reorder PDF Pages", href: "/organize/reorder-pdf" },
-			{ label: "Delete PDF Pages", href: "/organize/delete-pdf-pages" },
-			{ label: "Extract PDF Pages", href: "/organize/extract-pdf-pages" },
-		],
-		[]
-	)
+	
 
 	const optimizePdfItems = useMemo(
 		() => [
 			{ label: "Searchable PDF", href: "/optimize/searchable-pdf" },
 			{ label: "Not Searchable PDF", href: "/optimize/not-searchable-pdf" },
-			{ label: "Reduce PDF Size", href: "/optimize/reduce-pdf-size" }
+			{ label: "Compress PDF", href: "/compress-pdf" },
 		],
 		[]
 	)
 
-	const editPdfItems = useMemo(
-		() => [
-			{ label: "Add Text to PDF", href: "/edit/add-text-to-pdf" },
-			{ label: "Add Image to PDF", href: "/edit/add-image-to-pdf" },
-			{ label: "Add Watermark", href: "/edit/add-watermark" },
-			{ label: "Remove Watermark", href: "/edit/remove-watermark" },
-			{ label: "Annotate PDF", href: "/edit/annotate-pdf" },
-			{ label: "Sign PDF", href: "/edit/sign-pdf" },
-		],
-		[]
-	)
-
-	const pdfSecurityItems = useMemo(
-		() => [
-			{ label: "Password Protect PDF", href: "/security/password-protect-pdf" },
-			{ label: "Unlock PDF", href: "/security/unlock-pdf" },
-			{ label: "Remove Password", href: "/security/remove-password" },
-			{ label: "Encrypt PDF", href: "/security/encrypt-pdf" },
-		],
-		[]
-	)
 
 	const modifyPdfItems = useMemo(
 		() => [
 			{ label: "MERGE ANY to PDF", href: "/convert/merge-any-to-pdf" },
+			{ label: "Scan to PDF", href: "/organize/scan-to-pdf" },
 			{ label: "PDFS to PDF", href: "/convert/pdfs-to-pdf" },
 			{ label: "Split PDF", href: "/modify/split-pdf" },
 			{ label: "Split PDF by Text", href: "/modify/split-pdf-by-text" },
 			{ label: "Rotate Pages using AI", href: "/modify/rotate-pages-ai" },
 			{ label: "Rotate Selected Pages", href: "/modify/rotate-selected-pages" },
-			{ label: "PDF Delete Pages", href: "/modify/delete-pages" },,
-			{ label: "Compress PDF", href: "/compress-pdf" },
+			{ label: "PDF Delete Pages", href: "/modify/delete-pages" }
 		],
 		[]
 	)
@@ -312,7 +280,9 @@ export default function Navbar() {
 															href={item.href}
 															className="flex items-center text-sm font-medium justify-between rounded-md px-2 py-1 leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
 														>
-															{item.label}
+															<span className="flex items-center gap-2">
+																{item.label}
+															</span>
 														</Link>
 													</li>
 												))}
@@ -517,7 +487,7 @@ export default function Navbar() {
 													<li key={item.label}>
 														<Link
 															href={item.href}
-															className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+															className="flex items-center gap-2 rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
 														>
 															{item.label}
 														</Link>

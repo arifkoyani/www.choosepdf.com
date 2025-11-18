@@ -1,11 +1,11 @@
-import Image from "next/image";
+import Main from "./components/Main/main";
 
 export default function Home() {
   return (
     <>
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-4xl font-bold">Choose PDF</h1>
-    </div>
+
+      <Main />
+
     </>
   );
 }
