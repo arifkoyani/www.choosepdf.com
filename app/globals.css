@@ -30,3 +30,28 @@ body {
   color: var(--foreground);
   font-family: var(--font-poppins), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
+
+/* Beam Border Animation */
+@keyframes beam-rotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.beam-border-gradient {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 145, 29, 0.15),
+    rgba(255, 145, 29, 0.05),
+    rgba(255, 255, 255, 0.9),
+    rgba(249, 133, 8, 0.947),
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 145, 29, 0.05),
+    rgba(255, 145, 29, 0.15)
+  );
+  background-size: 200% 100%;
+  animation: beam-rotate 3s ease-in-out infinite;
+}
