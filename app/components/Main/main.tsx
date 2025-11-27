@@ -229,7 +229,7 @@ export default function Main() {
 		const searchableText = card.id.replace(/-/g, ' ').toLowerCase()
 		const query = searchQuery.toLowerCase().trim()
 		
-		// First check if the query appears as a whole phrase in the searchable text
+		// First check if the query appears as a whole phrase in- the searchable text
 		if (searchableText.includes(query)) {
 			return matchesTab
 		}
@@ -416,7 +416,7 @@ export default function Main() {
 	}, [])
 
 	return (
-		<div className="flex flex-col items-center bg-[#f4f4f5] justify-start pt-20 px-30 min-h-screen text-center px-4">
+		<div className="flex flex-col items-center bg-[#f4f4f5] justify-start pt-20 px-2 min-h-screen text-center px-4">
 			<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
 				Every tool you need to work with PDFs in one place
 			</h1>
@@ -504,11 +504,10 @@ export default function Main() {
             </div>
            
            {/* Cards grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 mt-14 mb-10 w-full max-w-7xl">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-y-2 mt-14 mb-10 w-fit gap-x-14 px-10 md:px-10" >
                 {sortedCards.map(card => card.component)}
             </div>
-
-
 		</div>
 	)
 }

@@ -36,7 +36,7 @@ export default function Navbar() {
 			{ label: "EMAIL to PDF", href: "/convert/email-to-pdf" },
 			{ label: "ZIP to PDF", href: "/convert/zip-to-pdf" },
 			{ label: "XLSX to PDF", href: "/convert/xlsx-to-pdf" },
-			{ label: "DOCX to PDF", href: "/convert/docx-to-pdf" },
+			{ label: "Word to PDF", href: "/convert/docx-to-pdf" },
 			{ label: "MERGE ANY to PDF", href: "/convert/merge-any-to-pdf" },
 			{ label: "PDFS to PDF", href: "/convert/pdfs-to-pdf" },
 			{ label: "CSV to PDF", href: "/convert/csv-to-pdf" },
@@ -132,11 +132,11 @@ export default function Navbar() {
 	}, [])
 
 	return (
-		<nav className="w-full border-b border-gray-200 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white">
-			<div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
-				<div className="flex w-full h-20 gap-10 items-center justify-between">
+		<nav className="w-full border-b border-gray-200 bg-white backdrop-blur supports-[backdrop-filter]:bg-white">
+			<div className="mx-auto w-full  px-4  lg:px-8">
+				<div className="flex w-full h-20 gap-4 md:gap-6 lg:gap-10 items-center justify-between">
 					{/* Left: Logo */}
-					<div className="flex items-center">
+					<div className="flex items-center flex-shrink-0">
 						<Link href="/" className="flex items-center gap-2">
 							<span className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white bg-primary-600">
 								P
@@ -148,15 +148,15 @@ export default function Navbar() {
 					</div>
 
 					{/* Center: Navigation */}
-					<div className="hidden md:flex flex-1 items-center justify-center mx-10 whitespace-nowrap">
-						<ul className="flex items-center gap-12 w-full justif-between">
+					<div className="hidden md:flex flex-1 items-center justify-center mx-2 md:mx-4 lg:mx-10 whitespace-nowrap min-w-0">
+						<ul className="flex items-center gap-3 md:gap-6 lg:gap-12 justify-center w-full">
 							{navItems.slice(0, 3).map((item) => {
 								const isActive = pathname === item.href
 								return (
 									<li key={item.label}>
 										<Link
 											href={item.href}
-											className={`text-lg font-medium cursor-pointer leading-tight transition-colors ${
+											className={`text-sm md:text-base lg:text-lg font-medium cursor-pointer leading-tight transition-colors ${
 												isActive ? "text-[#ff911d]" : "text-gray-700 hover:text-[#ff911d]"
 											}`}
 										>
@@ -174,7 +174,7 @@ export default function Navbar() {
 							>
 								<button
 									type="button"
-									className={`flex items-center gap-1  text-lg font-medium cursor-pointer transition-colors ${
+									className={`flex items-center  gap-1 text-sm md:text-base lg:text-lg font-medium cursor-pointer transition-colors ${
 										pathname?.startsWith("/convert") 
 											? "text-[#ff911d]" 
 											: isConvertOpen 
@@ -185,14 +185,14 @@ export default function Navbar() {
 									aria-expanded={isConvertOpen}
 								>
 									CONVERT PDF
-									{isConvertOpen ? <ChevronUp className="h-6 w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth  /> : <ChevronDown className="h-6 w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth  />}
+									{isConvertOpen ? <ChevronUp className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth  /> : <ChevronDown className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth  />}
 								</button>
 
 								{/* Hover window (mega dropdown) */}
 								<div
 									onMouseEnter={openWithDelay}
 									onMouseLeave={closeWithDelay}
-									className={`absolute left-1/2 z-30 mt-8 w-[min(75vw,450px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl border border-gray-200 bg-white ${
+									className={`absolute left-1/2 z-30 mt-8 w-[min(90vw,450px)] md:w-[min(85vw,450px)] lg:w-[min(75vw,450px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl border border-gray-200 bg-white ${
 										isConvertOpen ? "block" : "hidden"
 									}`}
 									role="menu"
@@ -244,7 +244,7 @@ export default function Navbar() {
 							>
 								<button
 									type="button"
-									className={`flex items-center gap-1 text-lg font-medium cursor-pointer transition-colors ${
+									className={`flex items-center gap-1 text-sm md:text-base lg:text-lg font-medium cursor-pointer transition-colors ${
 										pathname === navItems[3].href
 											? "text-[#ff911d]"
 											: isAllToolsOpen 
@@ -255,20 +255,19 @@ export default function Navbar() {
 									aria-expanded={isAllToolsOpen}
 								>
 									{navItems[3].label}
-									{isAllToolsOpen ? <ChevronUp className="h-6 w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth /> : <ChevronDown className="h-6 w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth />}
+									{isAllToolsOpen ? <ChevronUp className="h-4 w-4  md:h-5 md:w-5 lg:h-6 lg:w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth /> : <ChevronDown className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" color="#f26924" strokeWidth={1.5} absoluteStrokeWidth />}
 								</button>
 
 								{/* Hover window (mega dropdown) */}
 								<div
 									onMouseEnter={openAllToolsWithDelay}
 									onMouseLeave={closeAllToolsWithDelay}
-									className={`fixed left-1/2 z-30 w-[min(95vw,1200px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl border border-gray-200 bg-white ${
+									className={`fixed left-1/2 z-30 top-20   w-[min(95vw,1200px)] md:w-[min(90vw,1000px)] lg:w-[min(95vw,1200px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl border border-gray-200 bg-white ${
 										isAllToolsOpen ? "block" : "hidden"
 									}`}
-									style={{ top: '5.5rem' }}
 									role="menu"
 								>
-									<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+									<div className="grid grid-cols-1   gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 										<section>
 											<h3 className="mb-1 text-xs font-semibold leading-tight cursor-pointer uppercase tracking-wider text-gray-500">
 												MODIFY a PDF
