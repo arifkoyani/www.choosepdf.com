@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Upload, X, FileText, Send, Plus, Loader2 } from 'lucide-react'
+import { Upload, X, FileText, Send, Plus, Loader2, CheckCircle2, Copy, ThumbsUp, ThumbsDown, Check, MoveUp, CircleStop } from 'lucide-react'
 
 interface Message {
 	id: string
 	role: 'user' | 'assistant'
 	content: string
+	suggested_question?: string
 	timestamp: Date
 }
 
@@ -17,12 +18,28 @@ export default function ChatToPdfUsingAI() {
 	const [isDragging, setIsDragging] = useState(false)
 	const [isUploading, setIsUploading] = useState(false)
 	const [isPdfReady, setIsPdfReady] = useState(false)
+	const [isSendingMessage, setIsSendingMessage] = useState(false)
 	const [webhookResponse, setWebhookResponse] = useState<any>(null)
+	const [userId, setUserId] = useState<string>('')
+	const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
 	const messagesEndRef = useRef<HTMLDivElement>(null)
 	const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
-	const WEBHOOK_URL = 'https://automation.uconnect.work/webhook-test/9473e43d-9399-4511-96d3-39e52e926f32'
+	const WEBHOOK_URL = 'https://automation.uconnect.work/webhook/9473e43d-9399-4511-96d3-39e52e926f32'
+
+	// Generate unique user_id
+	const generateUserId = () => {
+		// Generate 9 random digits
+		const randomDigits = Math.floor(100000000 + Math.random() * 900000000).toString()
+		return `user_pdf_${randomDigits}`
+	}
+
+	// Generate new user_id on component mount (page refresh)
+	useEffect(() => {
+		const newUserId = generateUserId()
+		setUserId(newUserId)
+	}, [])
 
 	// Scroll to bottom when new messages are added
 	useEffect(() => {
@@ -60,15 +77,19 @@ export default function ChatToPdfUsingAI() {
 			setIsUploading(true)
 			setIsPdfReady(false)
 
+			// Generate new unique user_id for this PDF upload
+			const newUserId = generateUserId()
+			setUserId(newUserId)
+
 			// Convert PDF to base64
 			const base64Pdf = await fileToBase64(file)
 
-			// Prepare JSON payload
+			// Prepare JSON payload in the required format
 			const payload = {
-				pdf: base64Pdf,
-				fileName: file.name,
-				fileSize: file.size,
-				fileType: file.type,
+				user_id: newUserId,
+				data_send: {
+					file: base64Pdf,
+				},
 			}
 
 			// Send POST request to webhook
@@ -81,13 +102,42 @@ export default function ChatToPdfUsingAI() {
 			})
 
 			if (!response.ok) {
-				throw new Error(`Webhook request failed: ${response.status} ${response.statusText}`)
+				const errorText = await response.text()
+				throw new Error(`Webhook request failed: ${response.status} ${response.statusText}. ${errorText}`)
 			}
 
-			const responseData = await response.json()
-			setWebhookResponse(responseData)
-			setIsPdfReady(true)
-			setIsUploading(false)
+			// Get response text first to check if it's valid JSON
+			const responseText = await response.text()
+			let responseData
+			
+			try {
+				responseData = JSON.parse(responseText)
+			} catch (parseError) {
+				console.error('Invalid JSON response:', responseText)
+				throw new Error('Invalid JSON response from server')
+			}
+			
+			// Check if response is successful and upload is true
+			if (responseData.success && responseData.upload === true) {
+				setWebhookResponse(responseData)
+				
+				// Add the upload response message to chat
+				if (responseData.answer) {
+					const uploadMessage: Message = {
+						id: Date.now().toString(),
+						role: 'assistant',
+						content: responseData.answer,
+						suggested_question: responseData.suggested_question || undefined,
+						timestamp: new Date(),
+					}
+					setMessages([uploadMessage])
+				}
+				
+				setIsPdfReady(true)
+				setIsUploading(false)
+			} else {
+				throw new Error('PDF upload was not successful')
+			}
 		} catch (error) {
 			console.error('Error sending PDF to webhook:', error)
 			alert('Failed to upload PDF. Please try again.')
@@ -145,19 +195,91 @@ export default function ChatToPdfUsingAI() {
 		setIsPdfReady(false)
 		setIsUploading(false)
 		setWebhookResponse(null)
+		// Generate new user_id for next PDF upload
+		const newUserId = generateUserId()
+		setUserId(newUserId)
 		if (fileInputRef.current) {
 			fileInputRef.current.value = ''
 		}
 	}
 
+	// Send message to webhook
+	const sendMessageToWebhook = async (message: string) => {
+		try {
+			setIsSendingMessage(true)
+
+			// Prepare JSON payload in the required format
+			const payload = {
+				user_id: userId,
+				data_send: {
+					message: message,
+				},
+			}
+
+			// Send POST request to webhook
+			const response = await fetch(WEBHOOK_URL, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(payload),
+			})
+
+			if (!response.ok) {
+				const errorText = await response.text()
+				throw new Error(`Webhook request failed: ${response.status} ${response.statusText}. ${errorText}`)
+			}
+
+			// Get response text first to check if it's valid JSON
+			const responseText = await response.text()
+			let responseData
+			
+			try {
+				// Trim whitespace and parse JSON
+				const trimmedText = responseText.trim()
+				responseData = JSON.parse(trimmedText)
+			} catch (parseError) {
+				console.error('Invalid JSON response:', responseText)
+				throw new Error('Invalid JSON response from server')
+			}
+
+			// Handle array format: [{ "output": { "answer": "...", "suggested_question": "..." } }]
+			if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].output) {
+				const output = responseData[0].output
+				if (output.answer) {
+					return {
+						answer: output.answer,
+						suggested_question: output.suggested_question || undefined,
+					}
+				}
+			}
+			
+			// Handle direct format: { "success": true, "answer": "...", "suggested_question": "..." }
+			if (responseData.success && responseData.answer) {
+				return {
+					answer: responseData.answer,
+					suggested_question: responseData.suggested_question || undefined,
+				}
+			}
+			
+			throw new Error('Invalid response from webhook')
+		} catch (error) {
+			console.error('Error sending message to webhook:', error)
+			throw error
+		} finally {
+			setIsSendingMessage(false)
+		}
+	}
+
 	// Handle send message
-	const handleSendMessage = () => {
-		if (!inputMessage.trim() || !uploadedPdf || !isPdfReady) return
+	const handleSendMessage = async (messageToSend?: string) => {
+		const messageText = (messageToSend || inputMessage).trim()
+		if (!messageText || !uploadedPdf || !isPdfReady || isSendingMessage) return
 
 		const userMessage: Message = {
 			id: Date.now().toString(),
 			role: 'user',
-			content: inputMessage,
+			content: messageText,
 			timestamp: new Date(),
 		}
 
@@ -169,20 +291,60 @@ export default function ChatToPdfUsingAI() {
 			chatInputRef.current?.focus()
 		}, 50)
 
-		// Simulate AI response (replace with actual API call)
-		setTimeout(() => {
+		try {
+			// Send message to webhook and get response
+			const response = await sendMessageToWebhook(messageText)
+
+			// Add AI response to messages
 			const aiMessage: Message = {
 				id: (Date.now() + 1).toString(),
 				role: 'assistant',
-				content: 'This is a placeholder response. Connect to your AI API to get real responses based on the PDF content.',
+				content: response.answer,
+				suggested_question: response.suggested_question,
 				timestamp: new Date(),
 			}
 			setMessages((prev) => [...prev, aiMessage])
+
 			// Focus input after AI response
 			setTimeout(() => {
 				chatInputRef.current?.focus()
 			}, 50)
-		}, 1000)
+		} catch (error) {
+			// Show error message
+			const errorMessage: Message = {
+				id: (Date.now() + 1).toString(),
+				role: 'assistant',
+				content: 'Sorry, I encountered an error while processing your message. Please try again.',
+				timestamp: new Date(),
+			}
+			setMessages((prev) => [...prev, errorMessage])
+
+			// Focus input after error
+			setTimeout(() => {
+				chatInputRef.current?.focus()
+			}, 50)
+		}
+	}
+
+	// Handle copy message
+	const handleCopyMessage = async (text: string, messageId: string) => {
+		try {
+			await navigator.clipboard.writeText(text)
+			// Set copied state to show checkmark
+			setCopiedMessageId(messageId)
+			// Reset after 2 seconds
+			setTimeout(() => {
+				setCopiedMessageId(null)
+			}, 2000)
+		} catch (error) {
+			console.error('Failed to copy text:', error)
+		}
+	}
+
+	// Handle suggested question click
+	const handleSuggestedQuestionClick = (question: string) => {
+		// Send the suggested question directly
+		handleSendMessage(question)
 	}
 
 	// Handle Enter key (with Shift for new line)
@@ -251,6 +413,8 @@ export default function ChatToPdfUsingAI() {
 								<div className="p-2 bg-[#fff5f0] rounded-lg flex-shrink-0">
 									{isUploading ? (
 										<Loader2 className="w-6 h-6 text-[#ff911d] animate-spin" />
+									) : isPdfReady && webhookResponse?.upload === true ? (
+										<CheckCircle2 className="w-6 h-6 text-blue-500" />
 									) : (
 										<FileText className="w-6 h-6 text-[#ff911d]" />
 									)}
@@ -262,6 +426,8 @@ export default function ChatToPdfUsingAI() {
 									<p className="text-sm text-gray-500">
 										{isUploading
 											? 'Uploading and processing PDF...'
+											: isPdfReady && webhookResponse?.upload === true
+											? 'PDF is parsed successfully'
 											: isPdfReady
 											? 'Ready for chat'
 											: `${(uploadedPdf.size / 1024 / 1024).toFixed(2)} MB`}
@@ -297,9 +463,9 @@ export default function ChatToPdfUsingAI() {
 
 				{/* Chat Interface */}
 				{uploadedPdf && (
-					<div className="overflow-hidden flex flex-col h-[600px]">
+					<div className="flex flex-col">
 						{/* Messages Area */}
-						<div className="flex-1 overflow-y-auto p-6 space-y-6 bg-transparent">
+						<div className="p-6 pb-4 space-y-6 bg-transparent">
 							{isUploading ? (
 								<div className="flex flex-col items-center justify-center h-full text-center py-12">
 									<Loader2 className="w-12 h-12 text-[#ff911d] animate-spin mb-4" />
@@ -332,13 +498,63 @@ export default function ChatToPdfUsingAI() {
 											<div
 												className={`max-w-[80%] rounded-2xl px-4 py-3 ${
 													message.role === 'user'
-														? 'bg-[#ff911d] text-white'
+														? 'bg-transparent'
 														: 'bg-transparent text-black'
 												}`}
 											>
-												<p className="text-sm leading-relaxed whitespace-pre-wrap">
+												<p className={`text-sm leading-relaxed whitespace-pre-wrap ${
+													message.role === 'user' ? 'text-black' : 'text-black'
+												}`}>
 													{message.content}
 												</p>
+												
+												{/* Action icons below message - only for assistant messages */}
+												{message.role === 'assistant' && (
+													<div className="flex items-center gap-3 mt-2">
+														<button
+															onClick={() => handleCopyMessage(message.content, message.id)}
+															className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-200 cursor-pointer"
+															title={copiedMessageId === message.id ? "Copied!" : "Copy message"}
+														>
+															{copiedMessageId === message.id ? (
+																<Check className="w-4 h-4 text-green-600" />
+															) : (
+																<Copy className="w-4 h-4 text-gray-600" />
+															)}
+														</button>
+														<button
+															onClick={() => {
+																// Handle like functionality
+																console.log('Message liked:', message.id)
+															}}
+															className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-200 cursor-pointer"
+															title="Like"
+														>
+															<ThumbsUp className="w-4 h-4 text-gray-600" />
+														</button>
+														<button
+															onClick={() => {
+																// Handle dislike functionality
+																console.log('Message disliked:', message.id)
+															}}
+															className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-200 cursor-pointer"
+															title="Dislike"
+														>
+															<ThumbsDown className="w-4 h-4 text-gray-600" />
+														</button>
+													</div>
+												)}
+
+												{message.role === 'assistant' && message.suggested_question && (
+													<div className="mt-3 pt-3 border-t border-gray-200">
+														<button
+															onClick={() => handleSuggestedQuestionClick(message.suggested_question!)}
+															className="text-sm text-black font-semibold hover:text-gray-700 transition-colors duration-200 cursor-pointer hover:underline"
+														>
+															{message.suggested_question}
+														</button>
+													</div>
+												)}
 											</div>
 										</div>
 									))}
@@ -348,32 +564,38 @@ export default function ChatToPdfUsingAI() {
 						</div>
 
 						{/* Input Area */}
-						<div className="border-t border-gray-200 p-4 bg-transparent shadow-xl">
-							<div className="flex items-end gap-3">
-								<div className="flex-1 relative">
+						<div className="sticky bottom-0 border-none pt-2 pb-4 px-4 bg-gray-50 z-10">
+							<div className="flex items-end gap-4 p-2">
+								<div className="flex-1 relative ">
 									<textarea
 										ref={chatInputRef}
 										value={inputMessage}
 										onChange={(e) => setInputMessage(e.target.value)}
 										onKeyDown={handleKeyDown}
 										placeholder={
-											isPdfReady
+											isSendingMessage
+												? 'Sending message...'
+												: isPdfReady
 												? 'Ask a question about your PDF...'
 												: 'Processing PDF...'
 										}
-										disabled={!isPdfReady || isUploading}
-										className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff911d] focus:border-transparent resize-none max-h-32 bg-gray-50 text-gray-900 placeholder-gray-500 caret-[#ff911d] disabled:opacity-50 disabled:cursor-not-allowed"
+										disabled={!isPdfReady || isUploading || isSendingMessage}
+										className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#ff911d] focus:border-transparent resize-none max-h-32 bg-gray-50 text-gray-900 placeholder-gray-500 caret-[#ff911d] disabled:opacity-50 disabled:cursor-not-allowed shadow-4xl"
 										rows={1}
 										autoFocus
 									/>
 								</div>
 								<button
-									onClick={handleSendMessage}
-									disabled={!inputMessage.trim() || !isPdfReady || isUploading}
-									className="p-3 bg-[#ff911d] text-white rounded-xl hover:bg-[#e67e0a] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 shadow-lg hover:shadow-xl"
+									onClick={() => handleSendMessage()}
+									disabled={!inputMessage.trim() || !isPdfReady || isUploading || isSendingMessage}
+									className="p-4 bg-[#ff911d] mb-2 text-white rounded-4xl hover:bg-[#e67e0a] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 shadow-lg hover:shadow-xl"
 									title="Send message"
 								>
-									<Send className="w-5 h-5" />
+									{isSendingMessage ? (
+										<CircleStop  className="w-5 h-5" />
+									) : (
+										<MoveUp className="w-5 h-5" />
+									)}
 								</button>
 							</div>
 							<p className="text-xs text-gray-500 mt-2 text-center">
