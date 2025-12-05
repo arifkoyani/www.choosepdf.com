@@ -20,9 +20,9 @@ export default function Navbar() {
 
 	const navItems = useMemo(
 		() => [
-			{ label: "CHAT TO PDF", href: "/chat-with-pdf" },
-			{ label: "AI SUMMARIZER", href: "/ai-summarizer" },
-			{ label: "COMPRESS PDF", href: "/compress-pdf" },
+			{ label: "CHAT TO PDF", href: "/chat-to-pdf-using-ai" },
+			{ label: "MERGE PDF", href: "/merge-pdf" },
+			{ label: "AI INVOICE PARSER", href: "/ai-invoice-parser" },
 			// "Convert PDF" handled separately for dropdown
 			{ label: "PDF Lab", href: "/PDF Lab" },
 		],
@@ -132,11 +132,11 @@ export default function Navbar() {
 	}, [])
 
 	return (
-		<nav className="w-full border-b border-gray-200 bg-white backdrop-blur supports-[backdrop-filter]:bg-white">
+		<nav className="w-full border-b border-gray-200 bg-white backdrop-blur supports-[backdrop-filter]:bg-white relative z-40">
 			<div className="mx-auto w-full  px-4  lg:px-8">
 				<div className="flex w-full h-20 gap-4 md:gap-6 lg:gap-10 items-center justify-between">
 					{/* Left: Logo */}
-					<div className="flex items-center flex-shrink-0">
+					<div className="flex items-center flex-shrink-0 bg-white">
 						<Link href="/" className="flex items-center gap-2">
 							<span className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white bg-primary-600">
 								P
@@ -148,8 +148,8 @@ export default function Navbar() {
 					</div>
 
 					{/* Center: Navigation */}
-					<div className="hidden md:flex flex-1 items-center justify-center mx-2 md:mx-4 lg:mx-10 whitespace-nowrap min-w-0">
-						<ul className="flex items-center gap-3 md:gap-6 lg:gap-12 justify-center w-full">
+					<div className="hidden md:flex  flex-1 items-center justify-center mx-2 md:mx-4 lg:mx-10 whitespace-nowrap min-w-0 bg-white">
+						<ul className="flex items-center gap-3 md:gap-6 lg:gap-12 justify-start w-full">
 							{navItems.slice(0, 3).map((item) => {
 								const isActive = pathname === item.href
 								return (
@@ -192,7 +192,7 @@ export default function Navbar() {
 								<div
 									onMouseEnter={openWithDelay}
 									onMouseLeave={closeWithDelay}
-									className={`absolute left-1/2 z-30 mt-8 w-[min(90vw,450px)] md:w-[min(85vw,450px)] lg:w-[min(75vw,450px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl border border-gray-200 bg-white ${
+									className={`absolute left-1/2 z-50 mt-8 w-[min(90vw,450px)] md:w-[min(85vw,450px)] lg:w-[min(75vw,450px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl border border-gray-200 bg-white ${
 										isConvertOpen ? "block" : "hidden"
 									}`}
 									role="menu"
@@ -262,7 +262,7 @@ export default function Navbar() {
 								<div
 									onMouseEnter={openAllToolsWithDelay}
 									onMouseLeave={closeAllToolsWithDelay}
-									className={`fixed left-1/2 z-30 top-20   w-[min(95vw,1200px)] md:w-[min(90vw,1000px)] lg:w-[min(95vw,1200px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl border border-gray-200 bg-white ${
+									className={`fixed left-1/2 z-50 top-20   w-[min(95vw,1200px)] md:w-[min(90vw,1000px)] lg:w-[min(95vw,1200px)] -translate-x-1/2 rounded-xl py-6 px-4 shadow-xl border border-gray-200 bg-white ${
 										isAllToolsOpen ? "block" : "hidden"
 									}`}
 									role="menu"

@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useRef, useEffect } from 'react'
 import { Search } from 'lucide-react'
 import BeamBorder from '../ui/BeamBorder'
@@ -424,12 +423,12 @@ export default function Main() {
 				Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
 			</h2>
             
-            <div className="flex flex-wrap gap-10 mt-14 justify-center">
+            <div className="flex flex-wrap gap-8 mt-14 justify-center">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`px-6 py-4 cursor-pointer  border border-gray-200 shadow-xl rounded-2xl text-sm font-medium transition-all duration-200 ${
+                        className={`px-4 py-2 cursor-pointer  border border-gray-300 shadow-xl rounded-2xl text-sm font-medium transition-all duration-200 ${
                             activeTab === tab.id
                                 ? 'bg-[#ff911d] text-white shadow-xl border-none'
                                 : 'bg-[#fff5f0] text-gray-700  hover:text-gray-900'
