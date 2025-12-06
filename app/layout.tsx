@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import Navbar from "./components/Navbar/Navbar";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -43,6 +44,7 @@ export default function RootLayout({
         />
         <Navbar />
         {children}
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

@@ -10,9 +10,10 @@ const SMTP_PASSWORD = process.env.NEXT_PUBLIC_CHOOSE_PDF_SMTP_PASSWORD || "";
 interface SendEmailProps {
   toEmail: string;
   fileUrl: string;
+  onSuccess?: () => void;
 }
 
-const SendPdfEmail: React.FC<SendEmailProps> = ({ toEmail, fileUrl }) => {
+const SendPdfEmail: React.FC<SendEmailProps> = ({ toEmail, fileUrl, onSuccess }) => {
   const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
@@ -65,23 +66,35 @@ const SendPdfEmail: React.FC<SendEmailProps> = ({ toEmail, fileUrl }) => {
 
       const data = await response.json();
       if (!data.error) {
-        toast("Email sent successfully", {
+        toast.success("Email sent successfully", {
           description: "Your email has been delivered.",
+          duration: 5000,
+          position: "bottom-right",
           style: {
-            background: "#fef0e9",   // dark background
-            color: "#ff550d",           // white text
+            background: "#ff911d",   // dark background
+            color: "black",           // white text
             fontWeight: "bold",
-            fontSize: "16px",
+            fontSize: "14px",
             borderRadius: "8px",
             padding: "4px",
+            paddingLeft: "10px",
           },
-        }) 
+        });
+        if (onSuccess) {
+          onSuccess();
+        }
       } else {
-        alert("contact choosepdf support team");
+        toast.error("Failed to send email", {
+          description: "contact choosepdf support team",
+          duration: 3000,
+        });
       }
     } catch (err) {
       console.error(err);
-      alert("contact choosepdf support team");
+      toast.error("Failed to send email", {
+        description: "contact choosepdf support team",
+        duration: 3000,
+      });
     } finally {
       setLoading(false);
     }
@@ -91,7 +104,7 @@ const SendPdfEmail: React.FC<SendEmailProps> = ({ toEmail, fileUrl }) => {
     <Button
       onClick={handleSend}
       disabled={loading || !fileUrl || !toEmail}
-      className="bg-[#f16625] text-white"
+      className="bg-[#f16625] text-white cursor-pointer"
     >
       {loading ? "Sending..." : "Send Email"}
     </Button>
