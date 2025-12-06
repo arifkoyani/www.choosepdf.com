@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function PdfDeletePages() {
 	return (
-		<div className="mt-12">
+		<div className="mt-8">
 			<Link href="/pdf-delete-pages">
 				<button className="bg-white  h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
 					<CopyX className="w-8 h-16 text-[#ff911d] "  strokeWidth={1} />
