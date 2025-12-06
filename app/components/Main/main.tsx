@@ -45,7 +45,6 @@ import PdfToWebP from './cards/convert-from-pdf/pdf-to-webP/PdfToWebP'
 import PdfToXls from './cards/convert-from-pdf/pdf-to-xls/PdfToXls'
 import PdfToXlsx from './cards/convert-from-pdf/pdf-to-xlsx/PdfToXlsx'
 import PdfToXml from './cards/convert-from-pdf/pdf-to-xml/PdfToXml'
-import AiPdfHealthScore from './cards/ai/AiPdfHealthScore/AiPdfHealthScore'
 import ChatToPdf from './cards/ai/ChatToPdf/ChatToPdf'
 import PdfAiSummarizer from './cards/ai/PdfAiSummarizer/PdfAiSummarizer'
 import AIInvoiceParser from './cards/ai/AIInvoiceParser/AIInvoiceParser'
@@ -130,7 +129,6 @@ export default function Main() {
 		{ id: 'pdf-to-xlsx', component: <PdfToXlsx key="pdf-to-xlsx" />, category: 'convert-from' },
 		{ id: 'pdf-to-xml', component: <PdfToXml key="pdf-to-xml" />, category: 'convert-from' },
 		// AI
-		{ id: 'ai-pdf-health-score', component: <AiPdfHealthScore key="ai-pdf-health-score" />, category: 'all' },
 		{ id: 'chat-to-pdf', component: <ChatToPdf key="chat-to-pdf" />, category: 'all' },
 		{ id: 'pdf-ai-summarizer', component: <PdfAiSummarizer key="pdf-ai-summarizer" />, category: 'all' },
 		{ id: 'ai-invoice-parser', component: <AIInvoiceParser key="ai-invoice-parser" />, category: 'all' },
@@ -323,7 +321,7 @@ export default function Main() {
 		setSearchQuery(suggestion)
 		setShowSuggestions(false)
 		setSelectedSuggestionIndex(-1)
-		searchInputRef.current?.focus()
+		searchInputRef.current?.focus({ preventScroll: true })
 	}
 
 	// Handle keyboard navigation
@@ -389,18 +387,18 @@ export default function Main() {
 		setSelectedSuggestionIndex(-1)
 	}, [searchQuery, suggestions.length])
 
-	// Keep search input always focused
+	// Keep search input always focused (without scrolling)
 	useEffect(() => {
-		// Focus on mount
+		// Focus on mount without scrolling
 		if (searchInputRef.current) {
-			searchInputRef.current.focus()
+			searchInputRef.current.focus({ preventScroll: true })
 		}
 
-		// Keep focus when clicking outside
+		// Keep focus when clicking outside (without scrolling)
 		const handleBlur = () => {
 			setTimeout(() => {
 				if (searchInputRef.current) {
-					searchInputRef.current.focus()
+					searchInputRef.current.focus({ preventScroll: true })
 				}
 			}, 0)
 		}
