@@ -12,6 +12,8 @@ const Spinner: React.FC = () => {
       <span></span>
       <span></span>
       <span></span>
+      <span></span>
+      <span></span>
     </div>
   );
 };
