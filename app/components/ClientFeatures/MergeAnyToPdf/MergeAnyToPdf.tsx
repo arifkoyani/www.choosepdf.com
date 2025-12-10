@@ -1,18 +1,12 @@
 "use client";
-import React, { useState } from 'react';
-import { Progress } from '../../ui/progress';
+import { useState, useRef } from 'react';
 import { Button } from '../../ui/button';
 import { Card } from '../../ui/card';
-import { Copy, X, Download, FileText, File, Image, Archive } from 'lucide-react';
-import { FlipWords } from '../../ui/flip-words/flipWords';
+import { X, Download, FileText, File, Image, Archive, MoveUpRight, Merge, Loader2, MonitorUp } from 'lucide-react';
 import Spinner from '../../ui/loader/loader';
-import { Loader2 } from 'lucide-react';
-import SendPdfEmail from '../../Email/email';
-import { FileUpload } from '../../ui/file-upload/file-upload'; 
+import { toast } from 'sonner';
 
-const API_KEY = process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
-
-type AppState = 'select' | 'uploading' | 'merging' | 'processing' | 'ready';
+type AppState = 'select' | 'uploading' | 'merging' | 'ready';
 
 interface UploadedFile {
   id: string;
@@ -23,13 +17,12 @@ interface UploadedFile {
 }
 
 const MergeAnyToPdf = () => {
-  const words = ["Better", "Merged", "Perfect", "Combined"];
   const [state, setState] = useState<AppState>('select');
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [mergedFileUrl, setMergedFileUrl] = useState('');
   const [downloadingMerged, setDownloadingMerged] = useState(false);
   const [toEmail, setToEmail] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -41,7 +34,7 @@ const MergeAnyToPdf = () => {
 
   const getFileIcon = (fileName: string, fileType: string) => {
     const extension = fileName.toLowerCase().split('.').pop();
-    
+
     if (fileType.startsWith('image/') || ['jpg', 'jpeg', 'png'].includes(extension || '')) {
       return <Image className="w-5 h-5 text-blue-500" />;
     }
@@ -60,6 +53,8 @@ const MergeAnyToPdf = () => {
     return <File className="w-5 h-5 text-gray-500" />;
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const isValidFileType = (file: File): boolean => {
     const validTypes = [
       'application/pdf',
@@ -73,51 +68,48 @@ const MergeAnyToPdf = () => {
       'application/zip',
       'application/x-zip-compressed'
     ];
-    
-    const validExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png','zip'];
+
+    const validExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'zip'];
     const fileExtension = file.name.toLowerCase().split('.').pop();
-    
+
     return validTypes.includes(file.type) || validExtensions.includes(fileExtension || '');
   };
 
-  const handleFileUpload = (files: File[]) => {
-    files.forEach((file) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    for (const file of files) {
       if (isValidFileType(file)) {
-        uploadFile(file);
+        await uploadFile(file);
       } else {
         alert(`Please select a valid file (PDF, DOC, XLS, Images, or ZIP). Invalid file: ${file.name}`);
       }
-    });
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const uploadFile = async (file: File) => {
-    const fileId = Date.now().toString();
+    const fileId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
     setState('uploading');
-    setUploadProgress(0);
 
     try {
       const formData = new FormData();
       formData.append('file', file);
 
-      const uploadInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 95) {
-            clearInterval(uploadInterval);
-            return 95;
-          }
-          return prev + Math.random() * 30;
-        });
-      }, 150);
-
-      const response = await fetch(process.env.NEXT_PUBLIC_CHOOSE_PDF_API_UPLOAD_URL || "", {
+      const response = await fetch('/api/upload', {
         method: 'POST',
-        headers: { 'x-api-key': API_KEY },
         body: formData,
       });
 
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
       const data = await response.json();
-      clearInterval(uploadInterval);
-      setUploadProgress(100);
 
       if (data.error === false) {
         const newFile: UploadedFile = {
@@ -127,56 +119,58 @@ const MergeAnyToPdf = () => {
           size: formatFileSize(file.size),
           type: file.type
         };
-        
+
         setUploadedFiles(prev => [...prev, newFile]);
         setState('select');
-        setUploadProgress(0);
       } else {
         setState('select');
-        setUploadProgress(0);
         alert('contact choosepdf support team');
       }
     } catch (error) {
-      console.error('Upload error: contact choosepdf support team');
+      console.error('Upload error: contact choosepdf support team', error);
       setState('select');
-      setUploadProgress(0);
       alert('contact choosepdf support team');
     }
   };
 
   const removeFile = (fileId: string) => {
-    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
-    if (uploadedFiles.length === 1) {
-      setState('select');
-      setMergedFileUrl('');
-    }
+    setUploadedFiles(prev => {
+      const filtered = prev.filter(file => file.id !== fileId);
+      if (filtered.length === 0) {
+        setState('select');
+        setMergedFileUrl('');
+      }
+      return filtered;
+    });
   };
 
   const mergeDocuments = async () => {
-    if (uploadedFiles.length < 1) {
-      alert('Please upload at least 1 file to merge. contact choosepdf support team');
+    if (uploadedFiles.length < 2) {
+      alert('Please upload at least 2 files to merge. contact choosepdf support team');
       return;
     }
 
     setState('merging');
-    
+
     try {
       const urlsString = uploadedFiles.map(file => file.url).join(',');
-      
-      const response = await fetch(process.env.NEXT_PUBLIC_CHOOSE_PDF_API_MERGE_URL as string, {
+
+      const response = await fetch('/api/mergeanytopdf', {
         method: 'POST',
         headers: {
-          'x-api-key': API_KEY,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           url: urlsString,
-          async: false
         }),
       });
 
+      if (!response.ok) {
+        throw new Error('Merge failed');
+      }
+
       const data = await response.json();
-      
+
       if (data.error === false && data.url) {
         console.log('Merge completed successfully.');
         setMergedFileUrl(data.url);
@@ -195,10 +189,80 @@ const MergeAnyToPdf = () => {
 
   const resetConverter = () => {
     setState('select');
-    setUploadProgress(0);
     setUploadedFiles([]);
     setMergedFileUrl('');
     setToEmail('');
+  };
+
+  const handleSendEmail = async () => {
+    if (!toEmail || !mergedFileUrl) {
+      alert("Recipient email and file URL are required");
+      return;
+    }
+
+    setSendingEmail(true);
+
+    try {
+      const response = await fetch('/api/send-email', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          toEmail,
+          fileUrl: mergedFileUrl,
+        }),
+      });
+
+      // Check if response is OK
+      if (!response.ok) {
+        // Try to get error message from response
+        let errorMessage = 'Email send failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // If response is not JSON, use default message
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Check if response is JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error('Server returned non-JSON response');
+      }
+
+      const data = await response.json();
+      
+      // Check if email was sent successfully (route returns { error: false } on success)
+      if (!data.error) {
+        toast.success("Email sent successfully", {
+          description: "Your email has been delivered.",
+          duration: 5000,
+          position: "bottom-right"
+        });
+        setToEmail('');
+      } else {
+        // Show error message from route if available
+        const errorMessage = data.message || "contact choosepdf support team";
+        toast.error("Failed to send email", {
+          description: errorMessage,
+          duration: 3000,
+          position: "bottom-right"
+        });
+      }
+    } catch (err) {
+      console.error('Email send error:', err);
+      const errorMessage = err instanceof Error ? err.message : "contact choosepdf support team";
+      toast.error("Failed to send email", {
+        description: errorMessage,
+        duration: 3000,
+        position: "bottom-right"
+      });
+    } finally {
+      setSendingEmail(false);
+    }
   };
 
   const downloadMergedFile = async () => {
@@ -226,55 +290,58 @@ const MergeAnyToPdf = () => {
     <div className="min-h-[calc(100vh-65px)] bg-[#f4f4f5] flex flex-col items-center justify-start py-8">
 
       <div className='pb-8 flex flex-col justify-center items-center space-y-3'>
-        <div className="h-[5rem] flex justify-center items-center px-4">
-          <div className="flex flex-wrap justify-center items-center mx-auto text-gray-900 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold gap-3">
-            <span className="text-gray-800">Merge To</span>
-            <div className="min-w-[240px] sm:min-w-[180px] md:min-w-[220px] text-left h-[4rem] flex items-center">
-            <div className="w-[240px] sm:w-[150px] md:w-[180px] text-left">
-              <FlipWords words={words} />
-            </div>
-            </div>
-          </div>
-        </div>
-        <p className="text-gray-600 text-lg font-medium">Merge Various Document Types</p>
-        <p className="text-gray-700 text-sm mt-1 font-normal text-center max-w-2xl px-4">
-          Merge PDF from two or more PDF, DOC, XLS, images, even ZIP with documents and images into a new PDF.
-        </p>
+        <h1 className="text-gray-600 text-xl font-medium">Merge Various Document Types Into Single PDF</h1>
+
       </div>
 
-      <Card className="w-full max-w-6xl p-6 sm:p-8 shadow-none  border-none bg-[#f4f4f5]">
+      <Card className="w-full max-w-6xl p-6 sm:p-8 shadow-none  border-none bg-transparent">
         <div className="space-y-6">
-          
+
           {/* Upload Section */}
-          {(state === 'select' || uploadedFiles.length > 0) && !mergedFileUrl && state !== 'merging' && (
-            <div className="space-y-4">
-              <div className="w-full mx-auto min-h-96 border-2 border-dashed bg-[#f4f4f5] border-[#ff911d] rounded-xl shadow-md">
-                <FileUpload 
-                  onChange={handleFileUpload}
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.zip"
-                />
+          {(state === 'select' || uploadedFiles.length > 0) && !mergedFileUrl && state !== 'merging' && state !== 'uploading' && (
+            <div className="space-y-4 bg-transparent rounded-xl p-4 flex flex-col items-center justify-between">
+              <div className="w-full mx-auto min-h-16 bg-[#f4f4f5] rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
+                <div className="relative w-full">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.zip"
+                    onChange={handleFileChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    style={{ fontSize: 0 }}
+                    multiple
+                  />
+                  <div className="w-full min-h-16 flex justify-center items-center cursor-pointer bg-[#ff911d] border-2 border-solid border-[#ff911d] rounded-lg hover:border-[#ff911d] transition-colors">
+                    <MonitorUp className="w-6 h-6 text-[#f4f4f5]" />
+                  </div>
+                </div>
               </div>
-              
-              <p className="text-sm text-gray-600 text-center">
-                Supported: PDF, DOC, DOCX, XLS, XLSX, Images (JPG, PNG), ZIP
-              </p>
+             
+             {uploadedFiles.length === 0 && (
+               <span>
+                 <p className="text-sm text-gray-600 text-center">
+                   Merge PDF from two or more PDF, DOC, XLS, images, even ZIP with documents and images into a new PDF.
+                 </p>
+
+                 <p className="text-sm text-gray-600 text-center">
+                   Supported: PDF, DOC, DOCX, XLS, XLSX, Images (JPG, PNG), ZIP
+                 </p>
+               </span>
+             )} 
+          
             </div>
           )}
 
           {/* Upload Progress */}
           {state === 'uploading' && (
-            <div className="space-y-3 py-8">
-              <Progress value={uploadProgress} className="h-3" />
-              <p className="text-sm text-gray-700 font-medium text-center">
-                {Math.round(uploadProgress)}% uploaded
-              </p>
+            <div className="flex items-center justify-center py-8">
+              <Spinner />
             </div>
           )}
 
           {/* Uploaded Files Preview */}
           {uploadedFiles.length > 0 && !mergedFileUrl && state !== 'merging' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Uploaded Files ({uploadedFiles.length})</h3>
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {uploadedFiles.map((file, index) => (
                   <div key={file.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
@@ -289,18 +356,18 @@ const MergeAnyToPdf = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigator.clipboard.writeText(file.url)}
-                        title="Copy link"
-                        className="border-gray-300 hover:bg-gray-100"
+                        onClick={() => window.open(file.url, '_blank')}
+                        title="Open in new tab"
+                        className="border-gray-300 hover:bg-gray-100 cursor-pointer"
                       >
-                        <Copy className="w-4 h-4 text-gray-700" />
+                        <MoveUpRight className="w-4 h-4 text-gray-700" />
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => removeFile(file.id)}
                         title="Remove file"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                        className="text-red-600 cursor-pointer hover:text-red-700 hover:bg-red-50 border-red-200"
                       >
                         <X className="w-4 h-4" />
                       </Button>
@@ -308,15 +375,15 @@ const MergeAnyToPdf = () => {
                   </div>
                 ))}
               </div>
-              
+
               {/* Merge Button */}
-              {uploadedFiles.length >= 1 && (
+              {uploadedFiles.length >= 2 && (
                 <Button
                   onClick={mergeDocuments}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-6 h-auto rounded-xl shadow-lg hover:shadow-xl transition-all font-semibold"
+                  className="w-full bg-green-600 hover:bg-green-700 cursor-pointer text-white text-lg py-6 h-auto rounded-xl shadow-lg hover:shadow-xl transition-all font-semibold"
                 >
-                  <FileText className="w-5 h-5 mr-2" />
-                  Merge {uploadedFiles.length} Document{uploadedFiles.length > 1 ? 's' : ''} to PDF
+                  <Merge  className="w-5 h-5 mr-2" />
+                  Merge {uploadedFiles.length} Document{uploadedFiles.length > 1 ? 's' : ''} Now
                 </Button>
               )}
             </div>
@@ -337,9 +404,9 @@ const MergeAnyToPdf = () => {
           {state === 'ready' && mergedFileUrl && (
             <div className="space-y-5">
               <div className="p-5 bg-transparent border-2 border-transparent rounded-xl">
-                <p className="text-black  text-center">Successfully merged {uploadedFiles.length} document{uploadedFiles.length > 1 ? 's' : ''} into PDF!</p>
+                <p className="text-[#8f969c]  text-center">Successfully merged {uploadedFiles.length} document{uploadedFiles.length > 1 ? 's' : ''} into PDF!</p>
               </div>
-              
+
               <div className="flex items-center space-x-3">
                 <Button
                   onClick={downloadMergedFile}
@@ -353,7 +420,7 @@ const MergeAnyToPdf = () => {
                     </>
                   ) : (
                     <>
-                      <Download className="w-5 h-5 mr-2" />
+                      <Download className="w-5 h-4 mr-2" />
                       Download Merged PDF
                     </>
                   )}
@@ -362,17 +429,18 @@ const MergeAnyToPdf = () => {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => navigator.clipboard.writeText(mergedFileUrl)}
-                  title="Copy link"
-                  className="border-gray-300 hover:bg-gray-100 h-12 w-12"
+                  onClick={() => window.open(mergedFileUrl, '_blank')}
+                  title="Open in new tab"
+                  className="border-gray-300 hover:bg-gray-100 h-18 cursor-pointer w-12"
                 >
-                  <Copy className="w-5 h-5 text-gray-700" />
+                  <MoveUpRight className="w-5 h-5 text-gray-700" />
+             
                 </Button>
               </div>
 
               {/* Email Input and Send Button */}
               <div className="pt-2">
-                <h3 className="text-lg font-semibold mb-3 text-gray-900">Send PDF via Email</h3>
+                <h3 className="text-sm mb-3 text-gray-900">Share and Receive PDF via Email</h3>
                 <div className="flex gap-3 items-center">
                   <input
                     type="email"
@@ -381,11 +449,13 @@ const MergeAnyToPdf = () => {
                     onChange={(e) => setToEmail(e.target.value)}
                     className="border-1 border-gray-300 rounded-lg px-4 py-3 w-full focus:outline-none focus:border-[#ff911d] text-gray-900"
                   />
-                  <SendPdfEmail 
-                    toEmail={toEmail} 
-                    fileUrl={mergedFileUrl}
-                    onSuccess={() => setToEmail('')}
-                  />
+                  <Button
+                    onClick={handleSendEmail}
+                    disabled={sendingEmail || !mergedFileUrl || !toEmail}
+                    className="bg-[#f16625] text-white cursor-pointer"
+                  >
+                    {sendingEmail ? "Sending..." : "Send Email"}
+                  </Button>
                 </div>
               </div>
 

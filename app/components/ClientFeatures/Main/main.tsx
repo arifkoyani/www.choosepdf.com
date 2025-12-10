@@ -1,7 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { Search } from 'lucide-react'
-import BeamBorder from '../ui/BeamBorder'
 import MergeAnyToPdf from './cards/ModifyAPdf/merge-any-to-pdf/MergeAnyToPdf'
 import PdfDeletePages from './cards/ModifyAPdf/pdf-delete-pages/PdfDeletePages'
 import PdfsToPdf from './cards/ModifyAPdf/pdfs-to-pdf/PdfsToPdf'
@@ -60,6 +59,7 @@ import ExtractEmailAttachments from './cards/general/ExtractEmailAttachments/Ext
 import JpgToJson from './cards/general/JpgToJson/JpgToJson'
 import PngToJson from './cards/general/PngToJson/PngToJson'
 import XlsxToXml from './cards/general/ExcelToXml/XlsxToXml'
+import BeamBorder from '../../ui/BeamBorder'
 
 export default function Main() {
 	const [activeTab, setActiveTab] = useState('all')
@@ -502,7 +502,7 @@ export default function Main() {
            
            {/* Cards grid */}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-y-2 mt-14 mb-10 w-fit gap-x-14 px-10 md:px-10" >
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-y-2 mt-14 mb-10 w-fit gap-x-10 px-10 md:px-10" >
                 {sortedCards.map(card => card.component)}
             </div>
 		</div>

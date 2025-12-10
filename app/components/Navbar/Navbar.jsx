@@ -21,7 +21,7 @@ export default function Navbar() {
 	const navItems = useMemo(
 		() => [
 			{ label: "CHAT TO PDF", href: "/chat-to-pdf-using-ai" },
-			{ label: "MERGE PDF", href: "/merge-pdf" },
+			{ label: "MERGE PDF", href: "/merge-any-to-pdf" },
 			{ label: "AI INVOICE PARSER", href: "/ai-invoice-parser" },
 			// "Convert PDF" handled separately for dropdown
 			{ label: "PDF Lab", href: "/PDF Lab" },

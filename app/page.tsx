@@ -1,4 +1,4 @@
-import Main from "./components/Main/main";
+import Main from "./components/ClientFeatures/Main/main";
 
 export default function Home() {
   return (
