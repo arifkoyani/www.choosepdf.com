@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Card } from '../../../components/ui/card';
-import { Download, MoveUpRight, Loader2 } from 'lucide-react';
+import { Download, MoveUpRight, Loader2, ClipboardPaste, X } from 'lucide-react';
 import Spinner from '../../../components/ui/loader/loader';
 import { toast } from 'sonner';
 
@@ -158,6 +158,25 @@ const UrlToPdf = () => {
     }
   };
 
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setInputUrl(text);
+        if (errorMessage) {
+          setErrorMessage('');
+        }
+      }
+    } catch (err) {
+      console.error('Failed to paste from clipboard:', err);
+    }
+  };
+
+  const handleClear = () => {
+    setInputUrl('');
+    setErrorMessage('');
+  };
+
   return (
     <div className="min-h-[calc(100vh-65px)] bg-[#f4f4f5] flex flex-col items-center justify-start py-8">
 
@@ -165,27 +184,47 @@ const UrlToPdf = () => {
         <h1 className="text-gray-600 text-xl font-medium">Convert URL to High-Quality PDF</h1>
       </div>
 
-      <Card className="w-full max-w-6xl p-6 sm:p-8 shadow-none border-none bg-transparent">
-        <div className="space-y-6">
+      <Card className="w-full max-w-6xl p-6 sm:p-8 shadow-none border-none bg-transparent ">
+        <div className="space-y-6 bg-transparent">
 
           {/* URL Input Section */}
           {state === 'select' && (
-            <div className="space-y-4 bg-transparent rounded-xl p-4 flex flex-col items-center justify-between">
-              <div className="w-full mx-auto min-h-16 bg-[#f4f4f5] rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-                <div className="relative w-full p-4">
-                  <input
-                    type="text"
-                    placeholder="Paste file URL here"
-                    value={inputUrl}
-                    onChange={handleUrlChange}
-                    className={`w-full border-1 rounded-lg px-4 py-3 focus:outline-none text-gray-900 ${
-                      errorMessage 
-                        ? 'border-red-500 focus:border-red-500' 
-                        : 'border-gray-300 focus:border-[#ff911d]'
-                    }`}
-                  />
+            <div className="space-y-4 bg-transparent rounded-xl p-4  flex flex-col items-center justify-between">
+              <div className="w-full mx-auto min-h-16 bg-[#f4f4f5]  rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
+                <div className="relative w-full p-4 bg-transparent">
+                  <div className="relative flex items-center">
+                    <button
+                      type="button"
+                      onClick={handlePaste}
+                      className="absolute left-3 z-10 p-2 cursor-pointer text-gray-500 hover:text-gray-700 transition-colors"
+                      title="Paste from clipboard"
+                    >
+                      <ClipboardPaste className="w-5 h-5" />
+                    </button>
+                    <input
+                      type="text"
+                      placeholder="Paste file URL here"
+                      value={inputUrl}
+                      onChange={handleUrlChange}
+                      className={`w-full border-1 rounded-lg pl-12 pr-12 py-3 focus:outline-none text-gray-900 ${
+                        errorMessage 
+                          ? 'border-red-500 focus:border-red-500' 
+                          : 'border-gray-300 focus:border-[#ff911d]'
+                      }`}
+                    />
+                    {inputUrl && (
+                      <button
+                        type="button"
+                        onClick={handleClear}
+                        className="absolute right-3 z-10 cursor-pointer p-2 text-gray-500 hover:text-red-600 transition-colors"
+                        title="Clear input"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
                   {errorMessage && (
-                    <p className="text-sm text-red-500 mt-2 px-1">
+                    <p className="text-xs text-red-500 mt-2 px-1">
                       {errorMessage}
                     </p>
                   )}
@@ -194,12 +233,10 @@ const UrlToPdf = () => {
              
               {!inputUrl && !errorMessage && (
                 <span>
-                  <p className="text-sm text-gray-600 text-center">
-                    Convert any webpage or file URL to a high-quality PDF document.
+                  <p className="text-sm font-medium text-[#00ac47] text-center">
+                  Please enter a valid and publicly accessible URL.
                   </p>
-                  <p className="text-sm text-gray-600 text-center">
-                    Simply paste the URL and click convert.
-                  </p>
+          
                 </span>
               )}
 
@@ -218,9 +255,8 @@ const UrlToPdf = () => {
           {state === 'converting' && (
             <div className="flex flex-col items-center space-y-4 py-12">
               <Spinner />
-              <p className="text-gray-700 font-medium">Converting URL to PDF...</p>
               <p className="text-sm text-gray-600">
-                This may take a few moments...
+                This may take a few seconds
               </p>
             </div>
           )}
