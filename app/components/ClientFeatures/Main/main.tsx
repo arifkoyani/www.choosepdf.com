@@ -8,7 +8,7 @@ import RotatePagesUsingaI from './cards/ModifyAPdf/rotate-pages-using-aI/RotateP
 import RotateSelectedPages from './cards/ModifyAPdf/rotate-selected-pages/RotateSelectedPages'
 import ScanToPdf from './cards/ModifyAPdf/scan-to-pdf/ScanToPdf'
 import SplitPdf from './cards/ModifyAPdf/split-pdf/SplitPdf'
-import SplitPdfbyText from './cards/ModifyAPdf/split-pdf-by-text/SplitPdfbyText'
+import SplitPdfbyText from './cards/ModifyAPdf/split-pdf-by-search/SplitPdfbySearch'
 import CompressPdf from './cards/optimize-pdf/compress-pdf/CompressPdf'
 import NotSearchablePdf from './cards/optimize-pdf/not-searchable-pdf/NotSearchablePdf'
 import SearchablePdf from './cards/optimize-pdf/searchable-pdf/SearchablePdf'
