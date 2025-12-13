@@ -26,7 +26,7 @@ export default function ChatToPdfUsingAI() {
 	const messagesEndRef = useRef<HTMLDivElement>(null)
 	const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
-	const WEBHOOK_URL = 'https://automation.uconnect.work/webhook/9473e43d-9399-4511-96d3-39e52e926f32'
+	const WEBHOOK_URL = 'https://n8n.benai.agency/webhook/9473e43d-9399-4511-96d3-39e52e926f32'
 
 	// Generate unique user_id
 	const generateUserId = () => {
