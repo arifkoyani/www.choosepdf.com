@@ -26,6 +26,13 @@ interface SplitResult {
 
 const splitOptions = [
   {
+    id: "text-search",
+    label: "Text Search",
+    pattern: "search text here",
+    description: "Split by finding specific text in PDF",
+    example: "",
+  },
+  {
     id: "qr-code",
     label: "QR Code Split",
     pattern: "[[barcode:qrcode]]",
@@ -54,13 +61,6 @@ const splitOptions = [
     example: "[[barcode:qrcode,datamatrix]]",
   },
   {
-    id: "text-search",
-    label: "Text Search",
-    pattern: "search text here",
-    description: "Split by finding specific text in PDF",
-    example: "arifkoyani",
-  },
-  {
     id: "custom-barcode",
     label: "Custom Pattern",
     pattern: "[[barcode:code128]]",
@@ -74,12 +74,13 @@ const SplitPdfByText = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [splitResults, setSplitResults] = useState<SplitResult[]>([])
   const [downloading, setDownloading] = useState<{ [key: number]: boolean }>({})
-  const [selectedTab, setSelectedTab] = useState("qr-code")
-  const [searchString, setSearchString] = useState("[[barcode:qrcode]]")
+  const [selectedTab, setSelectedTab] = useState("text-search")
+  const [searchString, setSearchString] = useState("")
   const [toEmail, setToEmail] = useState("")
   const [sendingEmail, setSendingEmail] = useState(false)
   const [searchError, setSearchError] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes"
@@ -167,14 +168,21 @@ const SplitPdfByText = () => {
     if (selectedOption) {
       setSearchString(selectedOption.example)
     }
+    
+    // Focus input field when text-search tab is clicked
+    if (tabId === "text-search") {
+      setTimeout(() => {
+        searchInputRef.current?.focus()
+      }, 100)
+    }
   }
 
   const removeFile = () => {
     setUploadedFiles([])
     setState("select")
     setSplitResults([])
-    setSearchString("[[barcode:qrcode]]")
-    setSelectedTab("qr-code")
+    setSearchString("")
+    setSelectedTab("text-search")
     setToEmail("")
     setSearchError("")
   }
@@ -194,7 +202,7 @@ const SplitPdfByText = () => {
     setState("splitting")
 
     try {
-      const response = await fetch("/api/splitpdfbytext", {
+      const response = await fetch("/api/splitpdfbysearch", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -318,8 +326,8 @@ const SplitPdfByText = () => {
     setState("select")
     setUploadedFiles([])
     setSplitResults([])
-    setSearchString("[[barcode:qrcode]]")
-    setSelectedTab("qr-code")
+    setSearchString("")
+    setSelectedTab("text-search")
     setDownloading({})
     setToEmail("")
     setSearchError("")
@@ -454,6 +462,7 @@ const SplitPdfByText = () => {
                           <div className="space-y-2">
                             <label className="text-xs text-gray-500">Enter search pattern:</label>
                             <input
+                              ref={option.id === "text-search" ? searchInputRef : undefined}
                               type="text"
                               value={searchString}
                               onChange={(e) => {

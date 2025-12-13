@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
-const DELETE_PAGES_URL = process.env.CHOOSE_PDF_API_DELETE_PAGES_FROM_PDF_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_DELETE_PAGES_FROM_PDF_URL || "";
+const DELETE_PAGES_URL = process.env.CHOOSE_PDF_API_DELETE_PAGES_FROM_PDF_URL ||  process.env.NEXT_PUBLIC_CHOOSE_PDF_API_DELETE_PAGES_FROM_PDF_URL || "";
 
 export async function POST(request: NextRequest) {
   try {
