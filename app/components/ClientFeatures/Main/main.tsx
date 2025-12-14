@@ -21,8 +21,6 @@ import AddPdf from './cards/edit-pdf/PdfAdd/AddPdf'
 import CsvToPdf from './cards/convert-to-pdf/csv-to-pdf/CsvToPdf'
 import WordToPdf from './cards/convert-to-pdf/word-to-pdf/WordToPdf'
 import EmailToPdf from './cards/convert-to-pdf/email-to-pdf/EmailToPdf'
-import XlsxToPdf from './cards/convert-to-pdf/xlsx-to-pdf/XlsxToPdf'
-import XlsToPdf from './cards/convert-to-pdf/xls-to-pdf/XlsToPdf'
 import ExcelToText from './cards/general/ExcelToText/ExcelToText'
 import HtmlToPdf from './cards/convert-to-pdf/html-to-pdf/HtmlToPdf'
 import JpgToPdf from './cards/convert-to-pdf/jpg-to-pdf/JpgToPdf'
@@ -52,15 +50,15 @@ import CsvToJson from './cards/general/CsvToJson/CsvToJson'
 import ExcelToJson from './cards/general/ExcelToJson/ExcelToJson'
 import ExcelToCsv from './cards/general/ExcelToCsv/ExcelToCsv'
 import ExcelToHtml from './cards/general/ExcelToHtml/ExcelToHtml'
-import XlsToXml from './cards/general/ExcelToXml/XlsToXml'
+import ExcelToXml from './cards/general/ExcelToXml/ExcelToXml'
 import CsvToXml from './cards/general/ExcelToXml/CsvToXml'
 import ExtractAttachmentsFromPdf from './cards/general/ExtractAttachmentsFromPdf/ExtractAttachmentsFromPdf'
 import ExtractDataFromEmail from './cards/general/ExtractDataFromEmail/ExtractDataFromEmail'
 import ExtractEmailAttachments from './cards/general/ExtractEmailAttachments/ExtractEmailAttachments'
 import JpgToJson from './cards/general/JpgToJson/JpgToJson'
 import PngToJson from './cards/general/PngToJson/PngToJson'
-import XlsxToXml from './cards/general/ExcelToXml/XlsxToXml'
 import BeamBorder from '../../ui/BeamBorder'
+import ExcelToPdf from './cards/convert-to-pdf/excel-to-pdf/ExcelToPdf'
 
 export default function Main() {
 	const [activeTab, setActiveTab] = useState('all')
@@ -138,10 +136,8 @@ export default function Main() {
 		{ id: 'excel-to-json', component: <ExcelToJson key="excel-to-json" />, category: 'excel-conversion' },
 		{ id: 'excel-to-html', component: <ExcelToHtml key="excel-to-html" />, category: 'excel-conversion' },
 		{ id: 'excel-to-text', component: <ExcelToText key="excel-to-text" />, category: 'excel-conversion' },
-		{ id: 'xls-to-xml', component: <XlsToXml key="xls-to-xml" />, category: 'excel-conversion' },
-		{ id: 'xlsx-to-xml', component: <XlsxToXml key="xlsx-to-xml" />, category: 'excel-conversion' },
-		{ id: 'xls-to-pdf', component: <XlsToPdf key="xls-to-pdf" />, category: 'excel-conversion' },
-		{ id: 'xlsx-to-pdf', component: <XlsxToPdf key="xlsx-to-pdf" />, category: 'excel-conversion' },
+		{ id: 'excel-to-xml', component: <ExcelToXml key="excel-to-xml" />, category: 'excel-conversion' },
+		{ id: 'excel-to-pdf', component: <ExcelToPdf key="excel-to-pdf" />, category: 'excel-conversion' },
 		// General
 		{ id: 'csv-to-html', component: <CsvToHtml key="csv-to-html" />, category: 'all' },
 		{ id: 'csv-to-json', component: <CsvToJson key="csv-to-json" />, category: 'all' },
