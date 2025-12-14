@@ -23,7 +23,7 @@ import WordToPdf from './cards/convert-to-pdf/word-to-pdf/WordToPdf'
 import EmailToPdf from './cards/convert-to-pdf/email-to-pdf/EmailToPdf'
 import XlsxToPdf from './cards/convert-to-pdf/xlsx-to-pdf/XlsxToPdf'
 import XlsToPdf from './cards/convert-to-pdf/xls-to-pdf/XlsToPdf'
-import ExcelToText from './cards/general/excel-to-text/ExcelToText'
+import ExcelToText from './cards/general/ExcelToText/ExcelToText'
 import HtmlToPdf from './cards/convert-to-pdf/html-to-pdf/HtmlToPdf'
 import JpgToPdf from './cards/convert-to-pdf/jpg-to-pdf/JpgToPdf'
 import PngToPdf from './cards/convert-to-pdf/png-to-pdf/PngToPdf'
@@ -48,6 +48,7 @@ import ChatToPdf from './cards/ai/ChatToPdf/ChatToPdf'
 import PdfAiSummarizer from './cards/ai/PdfAiSummarizer/PdfAiSummarizer'
 import AIInvoiceParser from './cards/ai/AIInvoiceParser/AIInvoiceParser'
 import CsvToHtml from './cards/general/CsvToHtml/CsvToHtml'
+import CsvToJson from './cards/general/CsvToJson/CsvToJson'
 import ExcelToJson from './cards/general/ExcelToJson/ExcelToJson'
 import ExcelToCsv from './cards/general/ExcelToCsv/ExcelToCsv'
 import ExcelToHtml from './cards/general/ExcelToHtml/ExcelToHtml'
@@ -143,6 +144,7 @@ export default function Main() {
 		{ id: 'xlsx-to-pdf', component: <XlsxToPdf key="xlsx-to-pdf" />, category: 'excel-conversion' },
 		// General
 		{ id: 'csv-to-html', component: <CsvToHtml key="csv-to-html" />, category: 'all' },
+		{ id: 'csv-to-json', component: <CsvToJson key="csv-to-json" />, category: 'all' },
 		{ id: 'csv-to-xml', component: <CsvToXml key="csv-to-xml" />, category: 'all' },
 		{ id: 'extract-attachments-from-pdf', component: <ExtractAttachmentsFromPdf key="extract-attachments-from-pdf" />, category: 'all' },
 		{ id: 'extract-data-from-email', component: <ExtractDataFromEmail key="extract-data-from-email" />, category: 'all' },
