@@ -1,4 +1,4 @@
-import ExtractDataFromEmail from "../components/ClientFeatures/Main/cards/general/ExtractDataFromEmail/ExtractDataFromEmail";
+import ExtractDataFromEmail from "../components/ClientFeatures/ExtractDataFromEmail/ExtractDataFromEmail";
 
 export default function ExtractDataFromEmailPage() {
 	return (
