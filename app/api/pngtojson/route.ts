@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
-const EXTRACT_DATA_FROM_EMAIL_URL = process.env.CHOOSE_PDF_EXTRACT_DATA_FROM_EMAIL_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_EXTRACT_DATA_FROM_EMAIL_URL || "";
+const PNG_TO_JSON_URL = process.env.CHOOSE_PDF_PNG_TO_JSON_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_PNG_TO_JSON_URL || "";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { url, inline } = body;
+    const { url, name, async } = body;
 
     if (!url) {
       return NextResponse.json(
@@ -15,15 +15,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prepare payload for email data extraction API
+    // Prepare payload for PNG to JSON conversion API
     const payload = {
       url: url,
-      inline: inline !== undefined ? inline : true,
-      async: false,
+      name: name || "result.json",
+      async: async !== undefined ? async : false,
     };
 
-    // Call external email data extraction API
-    const response = await fetch(EXTRACT_DATA_FROM_EMAIL_URL, {
+    // Call external PNG to JSON conversion API
+    const response = await fetch(PNG_TO_JSON_URL, {
       method: 'POST',
       headers: {
         'x-api-key': API_KEY,
@@ -41,20 +41,20 @@ export async function POST(request: NextRequest) {
       } else {
         const text = await response.text();
         return NextResponse.json(
-          { error: true, message: text || 'Email data extraction failed' },
+          { error: true, message: text || 'PNG to JSON conversion failed' },
           { status: response.status }
         );
       }
     } catch (parseError) {
       return NextResponse.json(
-        { error: true, message: 'Failed to parse response from extraction service' },
+        { error: true, message: 'Failed to parse response from conversion service' },
         { status: 500 }
       );
     }
 
     // Handle error response
     if (!response.ok || data.error === true) {
-      const errorMessage = data?.message || data?.error || 'Email data extraction failed';
+      const errorMessage = data?.message || data?.error || 'PNG to JSON conversion failed';
       return NextResponse.json(
         { error: true, message: errorMessage },
         { status: response.ok ? 400 : response.status }
@@ -62,23 +62,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle success response
-    if (data.error === false && data.body) {
+    if (data.error === false && data.url) {
       return NextResponse.json({
         error: false,
-        body: data.body,
+        url: data.url,
+        name: data.name || name || "result.json",
         status: data.status || 200,
-        name: data.name || '',
         remainingCredits: data.remainingCredits || 0,
       });
     }
 
     // Fallback error case
     return NextResponse.json(
-      { error: true, message: data?.message || 'Email data extraction failed' },
+      { error: true, message: data?.message || 'PNG to JSON conversion failed' },
       { status: 400 }
     );
   } catch (error) {
-    console.error('Email data extraction error:', error);
+    console.error('PNG to JSON conversion error:', error);
     return NextResponse.json(
       { error: true, message: 'Internal server error' },
       { status: 500 }

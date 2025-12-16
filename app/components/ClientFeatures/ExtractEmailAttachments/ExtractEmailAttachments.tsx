@@ -430,13 +430,13 @@ const ExtractEmailAttachments = () => {
                           </div>
                           <div className="flex space-x-2 ml-3">
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="sm"
-                              onClick={() => handleCopy(attachment.url, `url-${index}`)}
-                              title="Copy URL"
+                              onClick={() => window.open(attachment.url, "_blank")}
+                              title="Open in new tab"
+                              className="border-gray-300 hover:bg-gray-100 cursor-pointer"
                             >
-                              <Copy className="w-4 h-4 text-gray-700" />
-                              {copiedField === `url-${index}` && <span className="ml-1 text-xs text-green-600">Copied!</span>}
+                              <MoveUpRight className="w-4 h-4 text-gray-700" />
                             </Button>
                             <Button
                               onClick={() => downloadAttachment(attachment)}
