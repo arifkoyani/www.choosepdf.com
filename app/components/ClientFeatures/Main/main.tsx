@@ -35,7 +35,7 @@ import PdfToJpg from './cards/convert-from-pdf/pdf-to-jpg/PdfToJpg'
 import PdfToJson from './cards/convert-from-pdf/pdf-to-json/PdfToJson'
 import PdfToJsonByaI from './cards/convert-from-pdf/pdf-to-json-by-aI/PdfToJsonByaI'
 import PdfToPng from './cards/convert-from-pdf/pdf-to-png/PdfToPng'
-import PdfToTextClassifier from './cards/convert-from-pdf/pdf-to-text-classifier/PdfToTextClassifier'
+import PdfToTextClassifier from './cards/convert-from-pdf/pdf-to-text/PdfToText'
 import PdfToTiff from './cards/convert-from-pdf/pdf-to-tiff/PdfToTiff'
 import PdfToTxt from './cards/convert-from-pdf/pdf-to-txt/PdfToTxt'
 import PdfToWebP from './cards/convert-from-pdf/pdf-to-webP/PdfToWebP'
@@ -120,7 +120,7 @@ export default function Main() {
 		{ id: 'pdf-to-json', component: <PdfToJson key="pdf-to-json" />, category: 'convert-from' },
 		{ id: 'pdf-to-json-by-ai', component: <PdfToJsonByaI key="pdf-to-json-by-ai" />, category: 'convert-from' },
 		{ id: 'pdf-to-png', component: <PdfToPng key="pdf-to-png" />, category: 'convert-from' },
-		{ id: 'pdf-to-text-classifier', component: <PdfToTextClassifier key="pdf-to-text-classifier" />, category: 'convert-from' },
+		{ id: 'pdf-to-text', component: <PdfToTextClassifier key="pdf-to-text" />, category: 'convert-from' },
 		{ id: 'pdf-to-tiff', component: <PdfToTiff key="pdf-to-tiff" />, category: 'convert-from' },
 		{ id: 'pdf-to-txt', component: <PdfToTxt key="pdf-to-txt" />, category: 'convert-from' },
 		{ id: 'pdf-to-webp', component: <PdfToWebP key="pdf-to-webp" />, category: 'convert-from' },
