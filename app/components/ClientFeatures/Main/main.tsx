@@ -39,8 +39,7 @@ import PdfToTextClassifier from './cards/convert-from-pdf/pdf-to-text/PdfToText'
 import PdfToTiff from './cards/convert-from-pdf/pdf-to-tiff/PdfToTiff'
 import PdfToTxt from './cards/convert-from-pdf/pdf-to-txt/PdfToTxt'
 import PdfToWebP from './cards/convert-from-pdf/pdf-to-webP/PdfToWebP'
-import PdfToXls from './cards/convert-from-pdf/pdf-to-xls/PdfToXls'
-import PdfToXlsx from './cards/convert-from-pdf/pdf-to-xlsx/PdfToXlsx'
+import PdfToXlsx from './cards/convert-from-pdf/pdf-to-Excel/PdfToExcel'
 import PdfToXml from './cards/convert-from-pdf/pdf-to-xml/PdfToXml'
 import ChatToPdf from './cards/ai/ChatToPdf/ChatToPdf'
 import PdfAiSummarizer from './cards/ai/PdfAiSummarizer/PdfAiSummarizer'
@@ -59,6 +58,7 @@ import JpgToJson from './cards/general/JpgToJson/JpgToJson'
 import PngToJson from './cards/general/PngToJson/PngToJson'
 import BeamBorder from '../../ui/BeamBorder'
 import ExcelToPdf from './cards/convert-to-pdf/excel-to-pdf/ExcelToPdf'
+import PdfToExcel from './cards/convert-from-pdf/pdf-to-Excel/PdfToExcel'
 
 export default function Main() {
 	const [activeTab, setActiveTab] = useState('all')
@@ -124,8 +124,7 @@ export default function Main() {
 		{ id: 'pdf-to-tiff', component: <PdfToTiff key="pdf-to-tiff" />, category: 'convert-from' },
 		{ id: 'pdf-to-txt', component: <PdfToTxt key="pdf-to-txt" />, category: 'convert-from' },
 		{ id: 'pdf-to-webp', component: <PdfToWebP key="pdf-to-webp" />, category: 'convert-from' },
-		{ id: 'pdf-to-xls', component: <PdfToXls key="pdf-to-xls" />, category: 'convert-from' },
-		{ id: 'pdf-to-xlsx', component: <PdfToXlsx key="pdf-to-xlsx" />, category: 'convert-from' },
+		{ id: 'pdf-to-excel', component: <PdfToExcel key="pdf-to-excel" />, category: 'convert-from' },
 		{ id: 'pdf-to-xml', component: <PdfToXml key="pdf-to-xml" />, category: 'convert-from' },
 		// AI
 		{ id: 'chat-to-pdf', component: <ChatToPdf key="chat-to-pdf" />, category: 'all' },

@@ -62,6 +62,9 @@ const MergeAnyToPdf = () => {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/rtf',
+      'text/rtf',
+      'text/plain',
       'image/jpeg',
       'image/jpg',
       'image/png',
@@ -69,7 +72,7 @@ const MergeAnyToPdf = () => {
       'application/x-zip-compressed'
     ];
 
-    const validExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'zip'];
+    const validExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'rtf', 'txt', 'jpg', 'jpeg', 'png', 'zip'];
     const fileExtension = file.name.toLowerCase().split('.').pop();
 
     return validTypes.includes(file.type) || validExtensions.includes(fileExtension || '');
@@ -82,7 +85,7 @@ const MergeAnyToPdf = () => {
       if (isValidFileType(file)) {
         await uploadFile(file);
       } else {
-        alert(`Please select a valid file (PDF, DOC, XLS, Images, or ZIP). Invalid file: ${file.name}`);
+        alert(`Please select a valid file (PDF, DOC, DOCX, XLS, XLSX, RTF, TXT, Images (JPG, PNG), or ZIP). Invalid file: ${file.name}`);
       }
     }
 
@@ -291,7 +294,9 @@ const MergeAnyToPdf = () => {
 
       <div className='pb-8 flex flex-col justify-center items-center space-y-3'>
         <h1 className="text-gray-600 text-xl font-medium">Merge Various Document Types Into Single PDF</h1>
-
+        <p className="text-sm text-gray-500 text-center max-w-2xl px-4">
+          This Feature also supports zip, doc, docx, xls, xlsx, rtf, txt, png, jpg files as source.
+        </p>
       </div>
 
       <Card className="w-full max-w-6xl p-6 sm:p-8 shadow-none  border-none bg-transparent">
@@ -305,7 +310,7 @@ const MergeAnyToPdf = () => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.zip"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.rtf,.txt,.jpg,.jpeg,.png,.zip"
                     onChange={handleFileChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     style={{ fontSize: 0 }}
@@ -318,14 +323,20 @@ const MergeAnyToPdf = () => {
               </div>
              
              {uploadedFiles.length === 0 && (
-               <span>
+               <span className="space-y-2">
                  <p className="text-sm text-gray-600 text-center">
                    Merge PDF from two or more PDF, DOC, XLS, images, even ZIP with documents and images into a new PDF.
                  </p>
 
                  <p className="text-sm text-gray-600 text-center">
-                   Supported: PDF, DOC, DOCX, XLS, XLSX, Images (JPG, PNG), ZIP
+                   Supported: PDF, DOC, DOCX, XLS, XLSX, RTF, TXT, Images (JPG, PNG), ZIP
                  </p>
+
+                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-md mt-3">
+                   <p className="text-xs text-amber-800 text-center">
+                     <strong>Note:</strong> We do not support images in the HEIC format (Apple's image format) or the WEBP format.
+                   </p>
+                 </div>
                </span>
              )} 
           
