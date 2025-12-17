@@ -22,7 +22,7 @@ interface ConvertResult {
   urls: string[];
 }
 
-const PdfToExcel = () => {
+const PdfToXlsx = () => {
   const [state, setState] = useState<AppState>("select");
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [convertResult, setConvertResult] = useState<ConvertResult | null>(null);
@@ -102,7 +102,7 @@ const PdfToExcel = () => {
     }
   };
 
-  const convertPdfToExcel = async () => {
+  const convertPdfToXlsx = async () => {
     if (!uploadedFile) {
       setErrorMessage("Please upload a PDF file first");
       return;
@@ -112,7 +112,7 @@ const PdfToExcel = () => {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/pdftoexcel", {
+      const response = await fetch("/api/pdftoxlsx", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -127,7 +127,7 @@ const PdfToExcel = () => {
       const data = await response.json();
 
       if (!response.ok || data.error === true) {
-        const errorMsg = data.message || "PDF to Excel conversion failed. Please try again.";
+        const errorMsg = data.message || "PDF to XLSX conversion failed. Please try again.";
         setErrorMessage(errorMsg);
         setState("ready-to-convert");
         return;
@@ -140,13 +140,13 @@ const PdfToExcel = () => {
         setErrorMessage("");
         setState("ready");
       } else {
-        const errorMsg = data.message || "PDF to Excel conversion failed. Please try again.";
+        const errorMsg = data.message || "PDF to XLSX conversion failed. Please try again.";
         setErrorMessage(errorMsg);
         setState("ready-to-convert");
       }
     } catch (error) {
       console.error("Conversion error:", error);
-      const errorMsg = error instanceof Error ? error.message : "PDF to Excel conversion failed. Please try again.";
+      const errorMsg = error instanceof Error ? error.message : "PDF to XLSX conversion failed. Please try again.";
       setErrorMessage(errorMsg);
       setState("ready-to-convert");
     }
@@ -228,9 +228,9 @@ const PdfToExcel = () => {
   return (
     <div className="min-h-[calc(100vh-65px)] bg-[#f4f4f5] flex flex-col items-center justify-start py-8">
       <div className="pb-8 flex flex-col justify-center items-center space-y-3">
-        <h1 className="text-gray-600 text-xl font-medium">Convert PDF to Excel</h1>
+        <h1 className="text-gray-600 text-xl font-medium">Convert PDF to XLSX</h1>
         <p className="text-sm text-gray-500 text-center max-w-2xl px-4">
-          Convert your PDF files to Excel format with structured data extraction.
+          Convert your PDF files to XLSX format with structured data extraction.
         </p>
       </div>
 
@@ -257,7 +257,7 @@ const PdfToExcel = () => {
 
               <span>
                 <p className="text-sm text-gray-600 text-center">
-                  Upload your PDF file to convert it to Excel format.
+                  Upload your PDF file to convert it to XLSX format.
                 </p>
                 <p className="text-sm text-gray-600 text-center">Supported: PDF</p>
               </span>
@@ -316,11 +316,11 @@ const PdfToExcel = () => {
 
               {/* Convert Button */}
               <Button
-                onClick={convertPdfToExcel}
+                onClick={convertPdfToXlsx}
                 className="w-full bg-[#ff911d] hover:bg-[#e67e0a] cursor-pointer text-white text-lg py-6 h-auto rounded-xl shadow-lg hover:shadow-xl transition-all font-semibold"
               >
                 <FileText className="w-5 h-5 mr-2" />
-                Convert PDF to Excel
+                Convert PDF to XLSX
               </Button>
             </div>
           )}
@@ -329,7 +329,7 @@ const PdfToExcel = () => {
           {state === "converting" && (
             <div className="flex flex-col items-center space-y-4 py-12">
               <Spinner />
-              <p className="text-gray-700 font-medium">Converting PDF to Excel...</p>
+              <p className="text-gray-700 font-medium">Converting PDF to XLSX...</p>
               <p className="text-sm text-gray-600">This may take a few moments...</p>
             </div>
           )}
@@ -339,13 +339,13 @@ const PdfToExcel = () => {
             <div className="space-y-5">
               <div className="p-5 bg-transparent border-2 border-transparent rounded-xl">
                 <p className="text-[#8f969c] text-center">
-                  Successfully converted PDF to Excel! {convertResult.urls.length} file(s) converted.
+                  Successfully converted PDF to XLSX! {convertResult.urls.length} file(s) converted.
                 </p>
               </div>
 
               {/* Converted Files */}
               <div className="bg-white p-6 rounded-lg shadow-md space-y-4">
-                <h2 className="text-xl font-semibold mb-4 text-gray-900">Converted Excel Files ({convertResult.urls.length})</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-900">Converted XLSX Files ({convertResult.urls.length})</h2>
                 
                 <div className="space-y-3">
                   {convertResult.urls.map((url, index) => (
@@ -353,7 +353,7 @@ const PdfToExcel = () => {
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
                         <FileText className="w-5 h-5 text-green-500" />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm text-gray-900">converted-file-{index + 1}.xls</p>
+                          <p className="font-medium text-sm text-gray-900">converted-file-{index + 1}.xlsx</p>
                           <p className="text-xs text-gray-600 break-all overflow-hidden line-clamp-2">
                             {url}
                           </p>
@@ -370,7 +370,7 @@ const PdfToExcel = () => {
                           <MoveUpRight className="w-4 h-4 text-gray-700" />
                         </Button>
                         <Button
-                          onClick={() => downloadFile(url, `converted-file-${index + 1}.xls`, index)}
+                          onClick={() => downloadFile(url, `converted-file-${index + 1}.xlsx`, index)}
                           disabled={downloading[index]}
                           className="bg-[#ff911d] hover:bg-[#e67e0a] text-white cursor-pointer"
                           size="sm"
@@ -389,7 +389,7 @@ const PdfToExcel = () => {
                 {/* Email Section */}
                 <div className="space-y-3 pt-4 border-t border-gray-200">
                   <label className="block text-sm font-medium text-gray-700">
-                    Share Excel file via email
+                    Share XLSX file via email
                   </label>
                   <div className="flex space-x-2">
                     <input
@@ -415,7 +415,7 @@ const PdfToExcel = () => {
               </div>
 
               <Button onClick={resetConverter} variant="outline" className="mt-2 w-full border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-6 cursor-pointer">
-                Convert Another PDF
+                Convert Another PDF to XLSX     
               </Button>
             </div>
           )}
@@ -425,4 +425,4 @@ const PdfToExcel = () => {
   );
 };
 
-export default PdfToExcel;
+export default PdfToXlsx;

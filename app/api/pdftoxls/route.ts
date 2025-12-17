@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
-const PDF_TO_EXCEL_URL = process.env.CHOOSE_PDF_PDF_TO_EXCEL_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_PDF_TO_EXCEL_URL || "https://api.pdf.co/v1/pdf/convert/to/xls";
+const PDF_TO_XLS_URL = process.env.CHOOSE_PDF_PDF_TO_XLS_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_PDF_TO_XLS_URL || "";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,14 +22,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!PDF_TO_EXCEL_URL) {
+    if (!PDF_TO_XLS_URL) {
       return NextResponse.json(
-        { error: true, message: 'PDF to Excel conversion service URL is not configured' },
+        { error: true, message: 'PDF to XLS conversion service URL is not configured' },
         { status: 500 }
       );
     }
 
-    // Prepare payload for PDF to Excel conversion API
+    // Prepare payload for PDF to XLS conversion API
     const payload = {
       url: url,
       pages: pages || "",
@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
       })
     };
 
-    // Call external PDF to Excel conversion API
-    const response = await fetch(PDF_TO_EXCEL_URL, {
+    // Call external PDF to XLS conversion API
+    const response = await fetch(PDF_TO_XLS_URL, {
       method: 'POST',
       headers: {
         'x-api-key': API_KEY,
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       } else {
         const text = await response.text();
         return NextResponse.json(
-          { error: true, message: text || 'PDF to Excel conversion failed' },
+          { error: true, message: text || 'PDF to XLS conversion failed' },
           { status: response.status }
         );
       }
@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
 
     // Handle error response
     if (!response.ok || data.error === true) {
-      const errorMessage = data?.message || data?.error || data?.body?.error || 'PDF to Excel conversion failed';
-      console.error('PDF to Excel API error:', {
+      const errorMessage = data?.message || data?.error || data?.body?.error || 'PDF to XLS conversion failed';
+      console.error('PDF to XLS API error:', {
         status: response.status,
         error: data?.error,
         message: data?.message,
@@ -108,11 +108,11 @@ export async function POST(request: NextRequest) {
 
     // Fallback error case
     return NextResponse.json(
-      { error: true, message: data?.message || 'PDF to Excel conversion failed' },
+      { error: true, message: data?.message || 'PDF to XLS conversion failed' },
       { status: 400 }
     );
   } catch (error) {
-    console.error('PDF to Excel conversion error:', error);
+    console.error('PDF to XLS conversion error:', error);
     return NextResponse.json(
       { error: true, message: 'Internal server error' },
       { status: 500 }
