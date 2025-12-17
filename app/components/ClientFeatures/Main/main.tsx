@@ -17,7 +17,6 @@ import RemovePasswordFromPdf from './cards/pdf-security/remove-password-from-pdf
 import SearchTextDelete from './cards/edit-pdf/search-text-&-delete/SearchText&Delete'
 import SearchTextAndReplace from './cards/edit-pdf/search-text-&-replace/SearchTextAndReplace'
 import SearchTextReplaceImage from './cards/edit-pdf/search-text-replace-Image/SearchTextReplaceImage'
-import AddPdf from './cards/edit-pdf/PdfAdd/AddPdf'
 import CsvToPdf from './cards/convert-to-pdf/csv-to-pdf/CsvToPdf'
 import WordToPdf from './cards/convert-to-pdf/word-to-pdf/WordToPdf'
 import EmailToPdf from './cards/convert-to-pdf/email-to-pdf/EmailToPdf'
@@ -41,7 +40,6 @@ import PdfToWebP from './cards/convert-from-pdf/pdf-to-webP/PdfToWebP'
 import PdfToXlsx from './cards/convert-from-pdf/pdf-to-Xlsx/pdf-to-Xlsx'
 import PdfToXml from './cards/convert-from-pdf/pdf-to-xml/PdfToXml'
 import ChatToPdf from './cards/ai/ChatToPdf/ChatToPdf'
-import PdfAiSummarizer from './cards/ai/PdfAiSummarizer/PdfAiSummarizer'
 import AIInvoiceParser from './cards/ai/AIInvoiceParser/AIInvoiceParser'
 import CsvToHtml from './cards/general/CsvToHtml/CsvToHtml'
 import CsvToJson from './cards/general/CsvToJson/CsvToJson'
@@ -57,8 +55,8 @@ import JpgToJson from './cards/general/JpgToJson/JpgToJson'
 import PngToJson from './cards/general/PngToJson/PngToJson'
 import BeamBorder from '../../ui/BeamBorder'
 import ExcelToPdf from './cards/convert-to-pdf/excel-to-pdf/ExcelToPdf'
-import PdfToExcel from './cards/convert-from-pdf/pdf-to-Xls/PdfToXls'
 import PdfToXls from './cards/convert-from-pdf/pdf-to-Xls/PdfToXls'
+import EditPdf from './cards/edit-pdf/EditPdf/EditPdf'
 
 export default function Main() {
 	const [activeTab, setActiveTab] = useState('all')
@@ -98,7 +96,7 @@ export default function Main() {
 		{ id: 'add-password-to-pdf', component: <AddPasswordToPdf key="add-password-to-pdf" />, category: 'security' },
 		{ id: 'remove-password-from-pdf', component: <RemovePasswordFromPdf key="remove-password-from-pdf" />, category: 'security' },
 		// Edit PDF
-		{ id: 'add-pdf', component: <AddPdf key="add-pdf" />, category: 'edit' },
+		{ id: 'add-pdf', component: <EditPdf key="add-pdf" />, category: 'edit' },
 		{ id: 'search-text-delete', component: <SearchTextDelete key="search-text-delete" />, category: 'edit' },
 		{ id: 'search-text-and-replace', component: <SearchTextAndReplace key="search-text-and-replace" />, category: 'edit' },
 		{ id: 'search-text-replace-image', component: <SearchTextReplaceImage key="search-text-replace-image" />, category: 'edit' },
@@ -128,7 +126,6 @@ export default function Main() {
 		{ id: 'pdf-to-xml', component: <PdfToXml key="pdf-to-xml" />, category: 'convert-from' },
 		// AI
 		{ id: 'chat-to-pdf', component: <ChatToPdf key="chat-to-pdf" />, category: 'all' },
-		{ id: 'pdf-ai-summarizer', component: <PdfAiSummarizer key="pdf-ai-summarizer" />, category: 'all' },
 		{ id: 'ai-invoice-parser', component: <AIInvoiceParser key="ai-invoice-parser" />, category: 'all' },
 		// Excel Conversion
 		{ id: 'excel-to-csv', component: <ExcelToCsv key="excel-to-csv" />, category: 'excel-conversion' },
