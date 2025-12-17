@@ -37,7 +37,6 @@ import PdfToJsonByaI from './cards/convert-from-pdf/pdf-to-json-by-aI/PdfToJsonB
 import PdfToPng from './cards/convert-from-pdf/pdf-to-png/PdfToPng'
 import PdfToTextClassifier from './cards/convert-from-pdf/pdf-to-text/PdfToText'
 import PdfToTiff from './cards/convert-from-pdf/pdf-to-tiff/PdfToTiff'
-import PdfToTxt from './cards/convert-from-pdf/pdf-to-txt/PdfToTxt'
 import PdfToWebP from './cards/convert-from-pdf/pdf-to-webP/PdfToWebP'
 import PdfToXlsx from './cards/convert-from-pdf/pdf-to-Xlsx/pdf-to-Xlsx'
 import PdfToXml from './cards/convert-from-pdf/pdf-to-xml/PdfToXml'
@@ -123,7 +122,6 @@ export default function Main() {
 		{ id: 'pdf-to-png', component: <PdfToPng key="pdf-to-png" />, category: 'convert-from' },
 		{ id: 'pdf-to-text', component: <PdfToTextClassifier key="pdf-to-text" />, category: 'convert-from' },
 		{ id: 'pdf-to-tiff', component: <PdfToTiff key="pdf-to-tiff" />, category: 'convert-from' },
-		{ id: 'pdf-to-txt', component: <PdfToTxt key="pdf-to-txt" />, category: 'convert-from' },
 		{ id: 'pdf-to-webp', component: <PdfToWebP key="pdf-to-webp" />, category: 'convert-from' },
 		{ id: 'pdf-to-xls', component: <PdfToXls key="pdf-to-xls" />, category: 'convert-from' },
 		{ id: 'pdf-to-xlsx', component: <PdfToXlsx key="pdf-to-xlsx" />, category: 'convert-from' },
