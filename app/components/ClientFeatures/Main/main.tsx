@@ -57,6 +57,7 @@ import BeamBorder from '../../ui/BeamBorder'
 import ExcelToPdf from './cards/convert-to-pdf/excel-to-pdf/ExcelToPdf'
 import PdfToXls from './cards/convert-from-pdf/pdf-to-Xls/PdfToXls'
 import EditPdf from './cards/edit-pdf/EditPdf/EditPdf'
+import FindTextInTableWithAI from './cards/ai/FindTextInTableWithAI/FindTextInTableWithAI'
 
 export default function Main() {
 	const [activeTab, setActiveTab] = useState('all')
@@ -127,6 +128,7 @@ export default function Main() {
 		// AI
 		{ id: 'chat-to-pdf', component: <ChatToPdf key="chat-to-pdf" />, category: 'all' },
 		{ id: 'ai-invoice-parser', component: <AIInvoiceParser key="ai-invoice-parser" />, category: 'all' },
+		{ id: 'find-text-in-table-with-ai', component: <FindTextInTableWithAI key="find-text-in-table-with-ai" />, category: 'all' },
 		// Excel Conversion
 		{ id: 'excel-to-csv', component: <ExcelToCsv key="excel-to-csv" />, category: 'excel-conversion' },
 		{ id: 'excel-to-json', component: <ExcelToJson key="excel-to-json" />, category: 'excel-conversion' },
