@@ -31,39 +31,39 @@ export default function Navbar() {
 
 	const convertToPdfItems = useMemo(
 		() => [
-			{ label: "EXCEL to PDF", href: "/convert/excel-to-pdf" },
-			{ label: "HTML to PDF", href: "/convert/html-to-pdf" },
-			{ label: "EMAIL to PDF", href: "/convert/email-to-pdf" },
-			{ label: "ZIP to PDF", href: "/convert/zip-to-pdf" },
-			{ label: "XLSX to PDF", href: "/convert/xlsx-to-pdf" },
-			{ label: "Word to PDF", href: "/convert/docx-to-pdf" },
-			{ label: "MERGE ANY to PDF", href: "/convert/merge-any-to-pdf" },
-			{ label: "PDFS to PDF", href: "/convert/pdfs-to-pdf" },
-			{ label: "CSV to PDF", href: "/convert/csv-to-pdf" },
-			{ label: "JPG to PDF", href: "/convert/jpg-to-pdf" },
-			{ label: "TIFF to PDF", href: "/convert/tiff-to-pdf" },
-			{ label: "PNG to PDF", href: "/convert/png-to-pdf" },
-			{ label: "TXT to PDF", href: "/convert/txt-to-pdf" },
-			{ label: "RTF to PDF", href: "/convert/rtf-to-pdf" },
-			{ label: "DOC to PDF", href: "/convert/doc-to-pdf" },
-			{ label: "URL to PDF", href: "/convert/url-to-pdf" },
+			{ label: "EXCEL to PDF", href: "/excel-to-pdf" },
+			{ label: "HTML to PDF", href: "/html-to-pdf" },
+			{ label: "EMAIL to PDF", href: "/email-to-pdf" },
+			{ label: "ZIP to PDF", href: "/zip-to-pdf" },
+			{ label: "XLSX to PDF", href: "/xlsx-to-pdf" },
+			{ label: "Word to PDF", href: "/docx-to-pdf" },
+			{ label: "MERGE ANY to PDF", href: "/merge-any-to-pdf" },
+			{ label: "PDFS to PDF", href: "/merge-pdfs" },
+			{ label: "CSV to PDF", href: "/csv-to-pdf" },
+			{ label: "JPG to PDF", href: "/jpg-to-pdf" },
+			{ label: "TIFF to PDF", href: "/tiff-to-pdf" },
+			{ label: "PNG to PDF", href: "/png-to-pdf" },
+			{ label: "TXT to PDF", href: "/txt-to-pdf" },
+			{ label: "RTF to PDF", href: "/rtf-to-pdf" },
+			{ label: "DOC to PDF", href: "/doc-to-pdf" },
+			{ label: "URL to PDF", href: "/url-to-pdf" },
 		],
 		[]
 	)
 
 	const convertFromPdfItems = useMemo(
 		() => [
-			{ label: "PDF to XML", href: "/convert/pdf-to-xml" },
-			{ label: "PDF to Text Classifier", href: "/convert/pdf-to-text-classifier" },
-			{ label: "PDF to JSON by AI", href: "/convert/pdf-to-json-ai" },
-			{ label: "PDF to JSON", href: "/convert/pdf-to-json" },
-			{ label: "PDF to HTML", href: "/convert/pdf-to-html" },
-			{ label: "PDF to PNG", href: "/convert/pdf-to-png" },
-			{ label: "PDF to TIFF", href: "/convert/pdf-to-tiff" },
-			{ label: "PDF to JPG", href: "/convert/pdf-to-jpg" },
-			{ label: "PDF to WebP", href: "/convert/pdf-to-webp" },
-			{ label: "PDF to XLSX", href: "/convert/pdf-to-xlsx" },
-			{ label: "PDF to XLS", href: "/convert/pdf-to-xls" },
+			{ label: "PDF to XML", href: "/pdf-to-xml" },
+			{ label: "PDF to Text Classifier", href: "/pdf-to-text-classifier" },
+			{ label: "PDF to JSON by AI", href: "/pdf-to-json-ai" },
+			{ label: "PDF to JSON", href: "/pdf-to-json" },
+			{ label: "PDF to HTML", href: "/pdf-to-html" },
+			{ label: "PDF to PNG", href: "/pdf-to-png" },
+			{ label: "PDF to TIFF", href: "/pdf-to-tiff" },
+			{ label: "PDF to JPG", href: "/pdf-to-jpg" },
+			{ label: "PDF to WebP", href: "/pdf-to-webp" },
+			{ label: "PDF to XLSX", href: "/pdf-to-xlsx" },
+			{ label: "PDF to XLS", href: "/pdf-to-xls" },
 		],
 		[]
 	)
@@ -72,8 +72,8 @@ export default function Navbar() {
 
 	const optimizePdfItems = useMemo(
 		() => [
-			{ label: "Searchable PDF", href: "/optimize/searchable-pdf" },
-			{ label: "Not Searchable PDF", href: "/optimize/not-searchable-pdf" },
+			{ label: "Searchable PDF", href: "/searchable-pdf" },
+			{ label: "Not Searchable PDF", href: "/make-pdf-unsearchable" },
 			{ label: "Compress PDF", href: "/compress-pdf" },
 		],
 		[]
@@ -82,31 +82,31 @@ export default function Navbar() {
 
 	const modifyPdfItems = useMemo(
 		() => [
-			{ label: "MERGE ANY to PDF", href: "/convert/merge-any-to-pdf" },
-			{ label: "Scan to PDF", href: "/organize/scan-to-pdf" },
-			{ label: "PDFS to PDF", href: "/convert/pdfs-to-pdf" },
-			{ label: "Split PDF", href: "/modify/split-pdf" },
-			{ label: "Split PDF by Text", href: "/modify/split-pdf-by-text" },
-			{ label: "Rotate Pages using AI", href: "/modify/rotate-pages-ai" },
-			{ label: "Rotate Selected Pages", href: "/modify/rotate-selected-pages" },
-			{ label: "PDF Delete Pages", href: "/modify/delete-pages" }
+			{ label: "MERGE ANY to PDF", href: "/merge-any-to-pdf" },
+			{ label: "Scan to PDF", href: "/scan-to-pdf" },
+			{ label: "PDFS to PDF", href: "/merge-pdfs" },
+			{ label: "Split PDF", href: "/split-pdf" },
+			{ label: "Split PDF by Text", href: "/split-pdf-by-text" },
+			{ label: "Rotate Pages using AI", href: "/rotate-pages-ai" },
+			{ label: "Rotate Selected Pages", href: "/rotate-selected-pages" },
+			{ label: "PDF Delete Pages", href: "/delete-pages" }
 		],
 		[]
 	)
 
 	const editPdfLabItems = useMemo(
 		() => [
-			{ label: "Search Text & Delete", href: "/edit/search-text-delete" },
-			{ label: "Search Text & Replace", href: "/edit/search-text-replace" },
-			{ label: "Search Text Replace Image", href: "/edit/search-text-replace-image" },
+			{ label: "Search Text & Delete", href: "/search-text-delete" },
+			{ label: "Search Text & Replace", href: "/search-text-replace" },
+			{ label: "Search Text Replace Image", href: "/search-text-replace-image" },
 		],
 		[]
 	)
 
 	const pdfSecurityLabItems = useMemo(
 		() => [
-			{ label: "Add Password to PDF", href: "/security/add-password" },
-			{ label: "Remove Password from PDF", href: "/security/remove-password" },
+			{ label: "Add Password to PDF", href: "/add-password" },
+			{ label: "Remove Password from PDF", href: "/remove-password" },
 		],
 		[]
 	)
@@ -175,7 +175,7 @@ export default function Navbar() {
 								<button
 									type="button"
 									className={`flex items-center  gap-1 text-sm md:text-base lg:text-lg font-medium cursor-pointer transition-colors ${
-										pathname?.startsWith("/convert") 
+										(convertToPdfItems.some(item => pathname === item.href) || convertFromPdfItems.some(item => pathname === item.href))
 											? "text-[#ff911d]" 
 											: isConvertOpen 
 											? "text-[#ff911d]" 
@@ -404,7 +404,7 @@ export default function Navbar() {
 								type="button"
 								onClick={() => setIsConvertOpen((v) => !v)}
 								className={`flex items-center gap-1 text-sm font-medium cursor-pointer transition-colors ${
-									pathname?.startsWith("/convert") 
+									(convertToPdfItems.some(item => pathname === item.href) || convertFromPdfItems.some(item => pathname === item.href))
 										? "text-[#ff911d]" 
 										: isConvertOpen 
 										? "text-[#ff911d]" 
@@ -548,8 +548,8 @@ export default function Navbar() {
 											<ul className="space-y-0">
 												{convertToPdfItems
 													.filter((item) => 
-														item.href !== "/convert/merge-any-to-pdf" && 
-														item.href !== "/convert/pdfs-to-pdf"
+														item.href !== "/merge-any-to-pdf" && 
+														item.href !== "/pdfs-to-pdf"
 													)
 													.map((item) => (
 														<li key={item.label}>
