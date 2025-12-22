@@ -53,17 +53,17 @@ export default function Navbar() {
 
 	const convertFromPdfItems = useMemo(
 		() => [
-			{ label: "PDF to XML", href: "/pdf-to-xml" },
-			{ label: "PDF to Text Classifier", href: "/pdf-to-text-classifier" },
-			{ label: "PDF to JSON by AI", href: "/pdf-to-json-ai" },
-			{ label: "PDF to JSON", href: "/pdf-to-json" },
 			{ label: "PDF to HTML", href: "/pdf-to-html" },
-			{ label: "PDF to PNG", href: "/pdf-to-png" },
-			{ label: "PDF to TIFF", href: "/pdf-to-tiff" },
 			{ label: "PDF to JPG", href: "/pdf-to-jpg" },
+			{ label: "PDF to JSON", href: "/pdf-to-json" },
+			{ label: "PDF to JSON by AI", href: "/pdf-to-json-by-ai" },
+			{ label: "PDF to PNG", href: "/pdf-to-png" },
+			{ label: "PDF to Text", href: "/pdf-to-text" },
+			{ label: "PDF to TIFF", href: "/pdf-to-tiff" },
 			{ label: "PDF to WebP", href: "/pdf-to-webp" },
-			{ label: "PDF to XLSX", href: "/pdf-to-xlsx" },
 			{ label: "PDF to XLS", href: "/pdf-to-xls" },
+			{ label: "PDF to XLSX", href: "/pdf-to-xlsx" },
+			{ label: "PDF to XML", href: "/pdf-to-xml" },
 		],
 		[]
 	)
@@ -197,9 +197,9 @@ export default function Navbar() {
 									}`}
 									role="menu"
 								>
-									<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+									<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 bg-white pl-10">
 										<section>
-											<h3 className="mb-1 text-xs font-semibold leading-tight cursor-pointer uppercase tracking-wider text-gray-500">
+											<h3 className="mb-2 text-xs font-semibold leading-tight text-left uppercase tracking-wider text-gray-500">
 												Convert to PDF
 											</h3>
 											<ul className="space-y-0">
@@ -207,7 +207,7 @@ export default function Navbar() {
 													<li key={item.label}>
 														<Link
 															href={item.href}
-															className="flex items-center text-sm font-medium justify-between rounded-md px-2 py-1 leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+															className="flex items-center text-sm font-medium justify-start rounded-md px-3 py-1 leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
 														>
 															{item.label}
 														</Link>
@@ -216,7 +216,7 @@ export default function Navbar() {
 											</ul>
 										</section>
 										<section>
-											<h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+											<h3 className="mb-2 text-xs font-semibold leading-tight text-left uppercase tracking-wider text-gray-500">
 												Convert from PDF
 											</h3>
 											<ul className="space-y-0">
@@ -224,7 +224,7 @@ export default function Navbar() {
 													<li key={item.label}>
 														<Link
 															href={item.href}
-															className="flex items-center justify-between rounded-md px-2 py-1  font-medium text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+															className="flex items-center justify-start rounded-md px-3 py-1 font-medium text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
 														>
 															{item.label}
 														</Link>
@@ -420,7 +420,7 @@ export default function Navbar() {
 								<div className="mt-2 w-[min(92vw,640px)] rounded-xl p-4 shadow-xl border border-gray-200 bg-white">
 									<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 										<section>
-											<h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+											<h3 className="mb-2 text-xs font-semibold text-left uppercase tracking-wider text-gray-500">
 												Convert to PDF
 											</h3>
 											<ul className="space-y-0">
@@ -428,7 +428,7 @@ export default function Navbar() {
 													<li key={item.label}>
 														<Link
 															href={item.href}
-															className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+															className="block text-left rounded-md px-3 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
 														>
 															{item.label}
 														</Link>
@@ -437,7 +437,7 @@ export default function Navbar() {
 											</ul>
 										</section>
 										<section>
-											<h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+											<h3 className="mb-2 text-xs font-semibold text-left uppercase tracking-wider text-gray-500">
 												Convert from PDF
 											</h3>
 											<ul className="space-y-0">
@@ -445,7 +445,7 @@ export default function Navbar() {
 													<li key={item.label}>
 														<Link
 															href={item.href}
-															className="block rounded-md px-2 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
+															className="block text-left rounded-md px-3 py-1 text-sm leading-tight cursor-pointer text-gray-700 hover:bg-[#fff5f0] hover:text-gray-900"
 														>
 															{item.label}
 														</Link>
