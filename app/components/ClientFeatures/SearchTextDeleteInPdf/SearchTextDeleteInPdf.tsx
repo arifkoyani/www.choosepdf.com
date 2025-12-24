@@ -30,6 +30,8 @@ const SearchTextDeleteInPdf = () => {
   const [downloading, setDownloading] = useState<{ [key: number]: boolean }>({});
   const [searchString, setSearchString] = useState("");
   const [caseSensitive, setCaseSensitive] = useState(false);
+  const [deleteAllOccurrences, setDeleteAllOccurrences] = useState(true);
+  const [replacementLimit, setReplacementLimit] = useState<number>(1);
   const [errorMessage, setErrorMessage] = useState("");
   const [toEmail, setToEmail] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -117,6 +119,11 @@ const SearchTextDeleteInPdf = () => {
       return;
     }
 
+    if (!deleteAllOccurrences && (replacementLimit < 1 || !Number.isInteger(replacementLimit))) {
+      setErrorMessage("Please enter a valid number (1 or greater) for replacement limit");
+      return;
+    }
+
     setErrorMessage("");
     setState("deleting");
 
@@ -131,13 +138,17 @@ const SearchTextDeleteInPdf = () => {
           searchString: searchString.trim(),
           caseSensitive: caseSensitive,
           name: `text-deleted-${uploadedFiles[0].name}`,
-          replacementLimit: 0, // delete all occurrences
+          replacementLimit: deleteAllOccurrences ? 0 : replacementLimit, // 0 means delete all, >0 means delete specific number
         }),
       });
 
+      if (!response.ok) {
+        throw new Error('Delete text failed');
+      }
+
       const data = await response.json();
 
-      if (!response.ok || data.error === true) {
+      if (data.error === true) {
         const errorMsg = data.message || "Delete text failed. Please try again.";
         setErrorMessage(errorMsg);
         setState("configuring");
@@ -145,10 +156,23 @@ const SearchTextDeleteInPdf = () => {
       }
 
       if (data.error === false && data.urls && data.urls.length > 0) {
-        const results = data.urls.map((url: string, index: number) => ({
-          url: url,
-          name: `text-deleted-${uploadedFiles[0].name || `document-${index + 1}.pdf`}`,
-        }));
+        // Get the original filename from uploaded file
+        const originalFileName = uploadedFiles[0]?.name || 'document.pdf';
+        // Ensure it has .pdf extension
+        const baseFileName = originalFileName.endsWith('.pdf') 
+          ? originalFileName.replace(/\.pdf$/i, '') 
+          : originalFileName;
+        
+        const results = data.urls.map((url: string, index: number) => {
+          const fileName = data.urls.length === 1 
+            ? `text-deleted-${baseFileName}.pdf`
+            : `text-deleted-${baseFileName}-${index + 1}.pdf`;
+          
+          return {
+            url: url,
+            name: fileName,
+          };
+        });
 
         setDeleteTextResults(results);
         setErrorMessage("");
@@ -172,6 +196,8 @@ const SearchTextDeleteInPdf = () => {
     setDeleteTextResults([]);
     setSearchString("");
     setCaseSensitive(false);
+    setDeleteAllOccurrences(true);
+    setReplacementLimit(1);
     setErrorMessage("");
     setToEmail("");
   };
@@ -182,6 +208,8 @@ const SearchTextDeleteInPdf = () => {
     setDeleteTextResults([]);
     setSearchString("");
     setCaseSensitive(false);
+    setDeleteAllOccurrences(true);
+    setReplacementLimit(1);
     setErrorMessage("");
     setDownloading({});
     setToEmail("");
@@ -356,7 +384,7 @@ const SearchTextDeleteInPdf = () => {
               {/* Search Text Input Fields */}
               <div className="bg-gray-50 p-4 rounded-lg text-left space-y-3">
                 <h4 className="font-medium text-sm text-gray-700">Enter Text to Delete</h4>
-                <p className="text-sm text-gray-600">Enter the text you want to remove from the PDF. All occurrences will be deleted.</p>
+                <p className="text-sm text-gray-600">Enter the text you want to remove from the PDF.</p>
                 <div className="space-y-3">
                   <input
                     type="text"
@@ -368,6 +396,8 @@ const SearchTextDeleteInPdf = () => {
                     }}
                     className="w-full px-3 py-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#ff911d] focus:border-transparent text-gray-900"
                   />
+                  
+                  {/* Case Sensitive Option */}
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -383,6 +413,74 @@ const SearchTextDeleteInPdf = () => {
                       Case sensitive
                     </label>
                   </div>
+
+                  {/* Replacement Limit Options */}
+                  <div className="space-y-2 pt-2 border-t border-gray-200">
+                    <p className="text-sm font-medium text-gray-700">Delete Options</p>
+                    
+                    {/* Delete All Occurrences */}
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="deleteAll"
+                        name="deleteOption"
+                        checked={deleteAllOccurrences}
+                        onChange={() => {
+                          setDeleteAllOccurrences(true);
+                          setErrorMessage("");
+                        }}
+                        className="w-4 h-4 text-[#ff911d] border-gray-300 focus:ring-[#ff911d]"
+                      />
+                      <label htmlFor="deleteAll" className="text-sm text-gray-700 cursor-pointer">
+                        Delete all occurrences
+                      </label>
+                    </div>
+
+                    {/* Delete Specific Number */}
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="deleteSpecific"
+                        name="deleteOption"
+                        checked={!deleteAllOccurrences}
+                        onChange={() => {
+                          setDeleteAllOccurrences(false);
+                          setErrorMessage("");
+                        }}
+                        className="w-4 h-4 text-[#ff911d] border-gray-300 focus:ring-[#ff911d]"
+                      />
+                      <label htmlFor="deleteSpecific" className="text-sm text-gray-700 cursor-pointer">
+                        Delete specific number of occurrences
+                      </label>
+                    </div>
+
+                    {/* Number Input (shown when deleteSpecific is selected) */}
+                    {!deleteAllOccurrences && (
+                      <div className="ml-6 mt-2">
+                        <input
+                          type="number"
+                          min="1"
+                          step="1"
+                          value={replacementLimit}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value, 10);
+                            if (!isNaN(value) && value > 0) {
+                              setReplacementLimit(value);
+                            } else if (e.target.value === "") {
+                              setReplacementLimit(1);
+                            }
+                            setErrorMessage("");
+                          }}
+                          placeholder="Enter number"
+                          className="w-32 px-3 py-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#ff911d] focus:border-transparent text-gray-900"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Delete the first {replacementLimit} occurrence{replacementLimit !== 1 ? 's' : ''} of the text
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
                   {errorMessage && (
                     <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
                       <p className="text-sm text-red-700">
@@ -405,7 +503,10 @@ const SearchTextDeleteInPdf = () => {
               {/* Note */}
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-left">
                 <p className="text-blue-700 text-sm">
-                  <strong>Note:</strong> All occurrences of the specified text will be removed from the PDF. Use case-sensitive option to match exact case.
+                  <strong>Note:</strong> {deleteAllOccurrences 
+                    ? "All occurrences of the specified text will be removed from the PDF. Use case-sensitive option to match exact case."
+                    : `The first ${replacementLimit} occurrence${replacementLimit !== 1 ? 's' : ''} of the specified text will be removed from the PDF. Use case-sensitive option to match exact case.`
+                  }
                 </p>
               </div>
             </div>

@@ -383,6 +383,91 @@ export default function Main() {
 		setSelectedSuggestionIndex(-1)
 	}, [searchQuery, suggestions.length])
 
+	// Auto-switch tab based on search results
+	useEffect(() => {
+		if (searchQuery.trim() === '') {
+			// If search is cleared, don't change tab
+			return
+		}
+
+		const query = searchQuery.toLowerCase().trim()
+
+		// Find all cards that match the search query (ignoring current tab filter)
+		const matchingCards = allCards.filter(card => {
+			const searchableText = card.id.replace(/-/g, ' ').toLowerCase()
+			
+			// Check if query matches
+			if (searchableText.includes(query)) {
+				return true
+			}
+			
+			// Split query into words for flexible matching
+			const queryWords = query.split(/\s+/).filter(word => word.length > 0)
+			const commonWords = ['to', 'from', 'and', 'or', 'the', 'a', 'an']
+			const meaningfulWords = queryWords.filter(word => !commonWords.includes(word))
+			const wordsToCheck = meaningfulWords.length > 0 ? meaningfulWords : queryWords
+			
+			// Check if all query words are present
+			const allWordsMatch = wordsToCheck.every(word => {
+				if (searchableText.includes(word)) {
+					return true
+				}
+				
+				const variations: { [key: string]: string[] } = {
+					'doc': ['docx'],
+					'xls': ['xlsx', 'excel'],
+					'xlsx': ['xls', 'excel'],
+					'excel': ['xls', 'xlsx'],
+					'pdf': ['pdfs']
+				}
+				
+				if (variations[word]) {
+					return variations[word].some(variation => searchableText.includes(variation))
+				}
+				
+				for (const [key, values] of Object.entries(variations)) {
+					if (values.includes(word) && searchableText.includes(key)) {
+						return true
+					}
+				}
+				
+				return false
+			})
+			
+			return allWordsMatch
+		})
+
+		// If we have matching cards, find the most common category
+		if (matchingCards.length > 0) {
+			// Count categories
+			const categoryCount: { [key: string]: number } = {}
+			matchingCards.forEach(card => {
+				categoryCount[card.category] = (categoryCount[card.category] || 0) + 1
+			})
+
+			// Find the category with the most matches
+			const mostCommonCategory = Object.entries(categoryCount).reduce((a, b) => 
+				b[1] > a[1] ? b : a
+			)[0]
+
+			// Only switch if we have a clear category match and it's different from current tab
+			// Also prioritize exact matches - if search exactly matches a card ID, use that card's category
+			const exactMatch = matchingCards.find(card => 
+				card.id.replace(/-/g, ' ').toLowerCase() === query
+			)
+
+			if (exactMatch) {
+				// If there's an exact match, use that card's category
+				if (activeTab !== exactMatch.category) {
+					setActiveTab(exactMatch.category)
+				}
+			} else if (mostCommonCategory && activeTab !== mostCommonCategory) {
+				// Otherwise use the most common category
+				setActiveTab(mostCommonCategory)
+			}
+		}
+	}, [searchQuery, allCards, activeTab])
+
 	// Keep search input always focused (without scrolling)
 	useEffect(() => {
 		// Focus on mount without scrolling
