@@ -25,6 +25,7 @@ export default function Navbar() {
 			{ label: "AI INVOICE PARSER", href: "/ai-invoice-parser" },
 			// "Convert PDF" handled separately for dropdown
 			{ label: "PDF Lab", href: "/PDF Lab" },
+			{ label: "Blog", href: "/blog" },
 		],
 		[]
 	)
@@ -376,6 +377,23 @@ export default function Navbar() {
 									</div>
 								</div>
 							</li>
+
+							{/* Blog */}
+							{navItems.slice(4, 5).map((item) => {
+								const isActive = pathname === item.href
+								return (
+									<li key={item.label}>
+										<Link
+											href={item.href}
+											className={`text-sm md:text-base lg:text-lg font-medium cursor-pointer leading-tight transition-colors ${
+												isActive ? "text-[#ff911d]" : "text-gray-700 hover:text-[#ff911d]"
+											}`}
+										>
+											{item.label}
+										</Link>
+									</li>
+								)
+							})}
 						</ul>
 					</div>
 				</div>
@@ -584,6 +602,20 @@ export default function Navbar() {
 								</div>
 							)}
 						</div>
+						{navItems.slice(4, 5).map((item) => {
+							const isActive = pathname === item.href
+							return (
+								<Link
+									key={item.label}
+									href={item.href}
+									className={`text-sm font-medium cursor-pointer transition-colors ${
+										isActive ? "text-[#ff911d]" : "text-gray-700 hover:text-[#ff911d]"
+									}`}
+								>
+									{item.label}
+								</Link>
+							)
+						})}
 					</div>
 				</div>
 			</div>

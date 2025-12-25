@@ -495,10 +495,10 @@ export default function Main() {
 
 	return (
 		<div className="flex flex-col items-center bg-[#f4f4f5] justify-start pt-20 px-2 min-h-screen text-center px-4">
-			<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+			<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 select-text">
 				Every tool you need to work with PDFs in one place
 			</h1>
-			<h2 className="text-lg md:text-xl mt-6 lg:mt-6 lg:text-2xl text-gray-600 max-w-3xl mb-8">
+			<h2 className="text-lg md:text-xl mt-6 lg:mt-6 lg:text-2xl text-gray-600 max-w-3xl mb-8 select-text">
 				Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
 			</h2>
             
@@ -507,10 +507,10 @@ export default function Main() {
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`px-4 py-2 cursor-pointer  border border-gray-300 shadow-xl rounded-2xl text-sm font-medium transition-all duration-200 ${
+                        className={`px-4 py-2 cursor-pointer border border-gray-300 shadow-xl rounded-2xl text-sm font-medium transition-all duration-200 select-text ${
                             activeTab === tab.id
                                 ? 'bg-[#ff911d] text-white shadow-xl border-none'
-                                : 'bg-[#fff5f0] text-gray-700  hover:text-gray-900'
+                                : 'bg-[#fff5f0] text-gray-700 hover:text-gray-900'
                         }`}
                     >
                         {tab.label}
@@ -566,7 +566,7 @@ export default function Main() {
                                 type="button"
                                 onClick={() => handleSuggestionClick(suggestion)}
                                 onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                                className={`w-full px-4 py-0 text-center text-sm cursor-pointer transition-colors duration-150 ${
+                                className={`w-full px-4 py-0 text-center text-sm cursor-pointer transition-colors duration-150 select-text ${
                                     index === selectedSuggestionIndex
                                         ? 'text-[#ff911d]'
                                         : 'text-gray-700 hover:text-gray-900'
