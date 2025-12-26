@@ -1,6 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
-import { Search } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import MergeAnyToPdf from './cards/ModifyAPdf/MergeAnyToPdf/MergeAnyToPdf'
 import PdfDeletePages from './cards/ModifyAPdf/pdf-delete-pages/PdfDeletePages'
 import PdfsToPdf from './cards/ModifyAPdf/MergePdfs/MergePdfs'
@@ -320,6 +320,15 @@ export default function Main() {
 		searchInputRef.current?.focus({ preventScroll: true })
 	}
 
+	// Handle clear search
+	const handleClearSearch = () => {
+		setSearchQuery('')
+		setActiveTab('all')
+		setShowSuggestions(false)
+		setSelectedSuggestionIndex(-1)
+		searchInputRef.current?.focus({ preventScroll: true })
+	}
+
 	// Handle keyboard navigation
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (!showSuggestions || suggestions.length === 0) {
@@ -386,7 +395,10 @@ export default function Main() {
 	// Auto-switch tab based on search results
 	useEffect(() => {
 		if (searchQuery.trim() === '') {
-			// If search is cleared, don't change tab
+			// If search is cleared, switch to "all" tab
+			if (activeTab !== 'all') {
+				setActiveTab('all')
+			}
 			return
 		}
 
@@ -547,10 +559,20 @@ export default function Main() {
                                 }
                             }}
                             className={`w-full py-4 rounded-2xl border-0 focus:outline-none focus:ring-0 text-gray-900 transition-all duration-300 ease-in-out bg-transparent caret-[#ff901d] ${
-                                searchQuery ? 'px-4 text-center' : 'px-12 text-center'
+                                searchQuery ? 'px-4 pr-12 text-center' : 'px-12 text-center'
                             }`}
                             autoFocus
                         />
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                onClick={handleClearSearch}
+                                className="absolute top-1/2 -translate-y-1/2 right-4 z-20 p-1.5 text-black/80 hover:text-white transition-colors duration-500 rounded-xl hover:bg-[#ff911d]/90 focus:outline-none focus:ring-2 focus:ring-[#ff911d] focus:ring-offset-2 bg-[#ff911d]/85 cursor-pointer"
+                                aria-label="Clear search"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        )}
                     </div>
                 </BeamBorder>
                 
