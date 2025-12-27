@@ -26,8 +26,6 @@ export default function ChatToPdfUsingAI() {
 	const messagesEndRef = useRef<HTMLDivElement>(null)
 	const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
-	const WEBHOOK_URL = 'https://n8n.benai.agency/webhook/9473e43d-9399-4511-96d3-39e52e926f32'
-
 	// Generate unique user_id
 	const generateUserId = () => {
 		// Generate 9 random digits
@@ -71,7 +69,7 @@ export default function ChatToPdfUsingAI() {
 		})
 	}
 
-	// Send PDF to webhook
+	// Send PDF to API route
 	const sendPdfToWebhook = async (file: File) => {
 		try {
 			setIsUploading(true)
@@ -92,8 +90,8 @@ export default function ChatToPdfUsingAI() {
 				},
 			}
 
-			// Send POST request to webhook
-			const response = await fetch(WEBHOOK_URL, {
+			// Send POST request to API route
+			const response = await fetch('/api/chattopdf', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -102,23 +100,39 @@ export default function ChatToPdfUsingAI() {
 			})
 
 			if (!response.ok) {
-				const errorText = await response.text()
-				throw new Error(`Webhook request failed: ${response.status} ${response.statusText}. ${errorText}`)
+				let errorData;
+				try {
+					const contentType = response.headers.get('content-type');
+					if (contentType && contentType.includes('application/json')) {
+						errorData = await response.json();
+					} else {
+						const errorText = await response.text();
+						errorData = { message: errorText || 'Request failed' };
+					}
+				} catch (parseError) {
+					errorData = { message: `Request failed: ${response.status} ${response.statusText}` };
+				}
+				throw new Error(errorData.message || errorData.error || `Request failed: ${response.status} ${response.statusText}`)
 			}
 
-			// Get response text first to check if it's valid JSON
-			const responseText = await response.text()
-			let responseData
-			
+			let responseData;
 			try {
-				responseData = JSON.parse(responseText)
+				const contentType = response.headers.get('content-type');
+				if (contentType && contentType.includes('application/json')) {
+					responseData = await response.json();
+				} else {
+					const responseText = await response.text();
+					throw new Error(`Invalid response format: ${responseText.substring(0, 100)}`);
+				}
 			} catch (parseError) {
-				console.error('Invalid JSON response:', responseText)
-				throw new Error('Invalid JSON response from server')
+				if (parseError instanceof Error) {
+					throw parseError;
+				}
+				throw new Error('Failed to parse response from server');
 			}
 			
 			// Check if response is successful and upload is true
-			if (responseData.success && responseData.upload === true) {
+			if (!responseData.error && responseData.success && responseData.upload === true) {
 				setWebhookResponse(responseData)
 				
 				// Add the upload response message to chat
@@ -136,11 +150,11 @@ export default function ChatToPdfUsingAI() {
 				setIsPdfReady(true)
 				setIsUploading(false)
 			} else {
-				throw new Error('PDF upload was not successful')
+				throw new Error(responseData.message || 'PDF upload was not successful')
 			}
 		} catch (error) {
-			console.error('Error sending PDF to webhook:', error)
-			alert('Failed to upload PDF. Please try again.')
+			console.error('Error sending PDF to API:', error)
+			alert(error instanceof Error ? error.message : 'Failed to upload PDF. Please try again.')
 			setIsUploading(false)
 			setIsPdfReady(false)
 			setUploadedPdf(null)
@@ -203,7 +217,7 @@ export default function ChatToPdfUsingAI() {
 		}
 	}
 
-	// Send message to webhook
+	// Send message to API route
 	const sendMessageToWebhook = async (message: string) => {
 		try {
 			setIsSendingMessage(true)
@@ -216,8 +230,8 @@ export default function ChatToPdfUsingAI() {
 				},
 			}
 
-			// Send POST request to webhook
-			const response = await fetch(WEBHOOK_URL, {
+			// Send POST request to API route
+			const response = await fetch('/api/chattopdf', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -226,21 +240,40 @@ export default function ChatToPdfUsingAI() {
 			})
 
 			if (!response.ok) {
-				const errorText = await response.text()
-				throw new Error(`Webhook request failed: ${response.status} ${response.statusText}. ${errorText}`)
+				let errorData;
+				try {
+					const contentType = response.headers.get('content-type');
+					if (contentType && contentType.includes('application/json')) {
+						errorData = await response.json();
+					} else {
+						const errorText = await response.text();
+						errorData = { message: errorText || 'Request failed' };
+					}
+				} catch (parseError) {
+					errorData = { message: `Request failed: ${response.status} ${response.statusText}` };
+				}
+				throw new Error(errorData.message || errorData.error || `Request failed: ${response.status} ${response.statusText}`)
 			}
 
-			// Get response text first to check if it's valid JSON
-			const responseText = await response.text()
-			let responseData
-			
+			let responseData;
 			try {
-				// Trim whitespace and parse JSON
-				const trimmedText = responseText.trim()
-				responseData = JSON.parse(trimmedText)
+				const contentType = response.headers.get('content-type');
+				if (contentType && contentType.includes('application/json')) {
+					responseData = await response.json();
+				} else {
+					const responseText = await response.text();
+					throw new Error(`Invalid response format: ${responseText.substring(0, 100)}`);
+				}
 			} catch (parseError) {
-				console.error('Invalid JSON response:', responseText)
-				throw new Error('Invalid JSON response from server')
+				if (parseError instanceof Error) {
+					throw parseError;
+				}
+				throw new Error('Failed to parse response from server');
+			}
+
+			// Check for error in response
+			if (responseData.error) {
+				throw new Error(responseData.message || 'Invalid response from server')
 			}
 
 			// Handle array format: [{ "output": { "answer": "...", "suggested_question": "..." } }]
@@ -262,9 +295,9 @@ export default function ChatToPdfUsingAI() {
 				}
 			}
 			
-			throw new Error('Invalid response from webhook')
+			throw new Error('Invalid response from server')
 		} catch (error) {
-			console.error('Error sending message to webhook:', error)
+			console.error('Error sending message to API:', error)
 			throw error
 		} finally {
 			setIsSendingMessage(false)
