@@ -1,4 +1,4 @@
-import PdfToPng from "../components/ClientFeatures/Main/cards/convert-from-pdf/pdf-to-png/PdfToPng";
+import PdfToPng from "../components/ClientFeatures/PdfToPng/PdfToPng";
 
 export default function PdfToPngPage() {
 	return (

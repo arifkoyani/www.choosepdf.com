@@ -66,6 +66,7 @@ export default function Main() {
 	const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1)
 	const searchInputRef = useRef<HTMLInputElement>(null)
 	const suggestionsRef = useRef<HTMLDivElement>(null)
+	const isManualTabSelection = useRef(false)
 
 	const tabs = [
 		{ id: 'all', label: 'All' },
@@ -323,9 +324,13 @@ export default function Main() {
 	// Handle clear search
 	const handleClearSearch = () => {
 		setSearchQuery('')
-		setActiveTab('all')
+		// Only switch to 'all' if tab wasn't manually selected
+		if (!isManualTabSelection.current) {
+			setActiveTab('all')
+		}
 		setShowSuggestions(false)
 		setSelectedSuggestionIndex(-1)
+		isManualTabSelection.current = false
 		searchInputRef.current?.focus({ preventScroll: true })
 	}
 
@@ -394,6 +399,11 @@ export default function Main() {
 
 	// Auto-switch tab based on search results
 	useEffect(() => {
+		// Don't auto-switch if tab was manually selected
+		if (isManualTabSelection.current) {
+			return
+		}
+
 		if (searchQuery.trim() === '') {
 			// If search is cleared, switch to "all" tab
 			if (activeTab !== 'all') {
@@ -518,7 +528,10 @@ export default function Main() {
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => {
+                            isManualTabSelection.current = true
+                            setActiveTab(tab.id)
+                        }}
                         className={`px-4 py-2 cursor-pointer border border-gray-300 shadow-xl rounded-2xl text-sm font-medium transition-all duration-200 select-text ${
                             activeTab === tab.id
                                 ? 'bg-[#ff911d] text-white shadow-xl border-none'
@@ -551,7 +564,11 @@ export default function Main() {
                             type="text"
                             placeholder=""
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => {
+                                // Reset manual selection flag when user types, allowing auto-switching
+                                isManualTabSelection.current = false
+                                setSearchQuery(e.target.value)
+                            }}
                             onKeyDown={handleKeyDown}
                             onFocus={() => {
                                 if (searchQuery.trim() !== '' && suggestions.length > 0) {
