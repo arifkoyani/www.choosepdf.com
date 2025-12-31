@@ -584,7 +584,7 @@ export default function Main() {
                             <button
                                 type="button"
                                 onClick={handleClearSearch}
-                                className="absolute top-1/2 -translate-y-1/2 right-4 z-20 p-1.5 text-black/80 hover:text-white transition-colors duration-500 rounded-xl hover:bg-[#ff911d]/90 focus:outline-none focus:ring-2 focus:ring-[#ff911d] focus:ring-offset-2 bg-[#ff911d]/85 cursor-pointer"
+                                className="absolute top-1/2 shadow-xl  -translate-y-1/2 right-4 z-20 p-1.5 text-white hover:text-white/80 transition-colors duration-200 rounded-xl hover:bg-[#ff911d]/90 focus:outline-none focus:ring-2 focus:ring-[#ff911d] focus:ring-offset-2 bg-[#ff911d]/85 cursor-pointer"
                                 aria-label="Clear search"
                             >
                                 <X className="w-5 h-5" />
