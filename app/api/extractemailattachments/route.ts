@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabaseClient';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
 const EXTRACT_EMAIL_ATTACHMENTS_URL = process.env.CHOOSE_PDF_Extract_Email_Attachments || process.env.NEXT_PUBLIC_CHOOSE_PDF_Extract_Email_Attachments || "https://api.pdf.co/v1/email/extract-attachments";
@@ -63,6 +64,22 @@ export async function POST(request: NextRequest) {
 
     // Handle success response
     if (data.error === false && data.body) {
+      // Delete the original file from Supabase storage after successful extraction
+      try {
+        // Extract file path from Supabase URL
+        // URL format: https://[project].supabase.co/storage/v1/object/public/server/uploads/file.eml
+        const urlObj = new URL(url);
+        const pathParts = urlObj.pathname.split('/');
+        const serverIndex = pathParts.indexOf('server');
+        if (serverIndex !== -1 && serverIndex < pathParts.length - 1) {
+          const filePath = pathParts.slice(serverIndex + 1).join('/');
+          await supabase.storage.from('server').remove([filePath]);
+        }
+      } catch (deleteError) {
+        // Log error but don't fail the request if deletion fails
+        console.error('Error deleting original file from Supabase:', deleteError);
+      }
+
       // Check if there are no attachments
       const hasAttachments = data.body.attachments && Array.isArray(data.body.attachments) && data.body.attachments.length > 0;
       

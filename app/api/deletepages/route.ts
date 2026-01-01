@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabaseClient';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
 const DELETE_PAGES_URL = process.env.CHOOSE_PDF_API_DELETE_PAGES_FROM_PDF_URL ||  process.env.NEXT_PUBLIC_CHOOSE_PDF_API_DELETE_PAGES_FROM_PDF_URL || "";
@@ -61,6 +62,22 @@ export async function POST(request: NextRequest) {
 
     // Handle success response format - can return url or urls array
     if (data.error === false) {
+      // Delete the original file from Supabase storage after successful deletion
+      try {
+        // Extract file path from Supabase URL
+        // URL format: https://[project].supabase.co/storage/v1/object/public/server/uploads/file.pdf
+        const urlObj = new URL(url);
+        const pathParts = urlObj.pathname.split('/');
+        const serverIndex = pathParts.indexOf('server');
+        if (serverIndex !== -1 && serverIndex < pathParts.length - 1) {
+          const filePath = pathParts.slice(serverIndex + 1).join('/');
+          await supabase.storage.from('server').remove([filePath]);
+        }
+      } catch (deleteError) {
+        // Log error but don't fail the request if deletion fails
+        console.error('Error deleting original file from Supabase:', deleteError);
+      }
+
       const urls = Array.isArray(data.urls)
         ? data.urls
         : (typeof data.url === 'string' && data.url.length > 0)

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabaseClient';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
 const PDFS_TO_PDF_URL = process.env.CHOOSE_PDF_PDFS_TO_PDF_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_PDFS_TO_PDF_URL || "https://api.pdf.co/v1/pdf/merge";
@@ -79,6 +80,45 @@ export async function POST(request: NextRequest) {
 
     // Handle success response
     if (data.error === false && data.url) {
+      // Delete the original file(s) from Supabase storage after successful merge
+      try {
+        // Handle array, comma-separated string, or single URL cases
+        let urlsToDelete: string[] = [];
+        if (Array.isArray(url)) {
+          urlsToDelete = url;
+        } else if (typeof url === 'string' && url.includes(',')) {
+          // Handle comma-separated string from client
+          urlsToDelete = url.split(',').map(u => u.trim()).filter(u => u.length > 0);
+        } else if (typeof url === 'string') {
+          urlsToDelete = [url];
+        }
+        
+        for (const fileUrl of urlsToDelete) {
+          try {
+            // Extract file path from Supabase URL
+            // URL format: https://[project].supabase.co/storage/v1/object/public/server/uploads/file.pdf
+            const urlObj = new URL(fileUrl);
+            const pathParts = urlObj.pathname.split('/');
+            const serverIndex = pathParts.indexOf('server');
+            if (serverIndex !== -1 && serverIndex < pathParts.length - 1) {
+              const filePath = pathParts.slice(serverIndex + 1).join('/');
+              const { error: deleteError } = await supabase.storage.from('server').remove([filePath]);
+              if (deleteError) {
+                console.error('Error deleting file from Supabase:', fileUrl, deleteError);
+              } else {
+                console.log('Successfully deleted file from Supabase:', filePath);
+              }
+            }
+          } catch (deleteError) {
+            // Log error but continue with other files
+            console.error('Error deleting file from Supabase:', fileUrl, deleteError);
+          }
+        }
+      } catch (deleteError) {
+        // Log error but don't fail the request if deletion fails
+        console.error('Error deleting original files from Supabase:', deleteError);
+      }
+
       return NextResponse.json({
         error: false,
         url: data.url,

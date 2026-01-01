@@ -107,7 +107,7 @@ const MakePdfUnSearchable = () => {
     setState("processing");
 
     try {
-      const response = await fetch("/api/makepdfunSearchable", {
+      const response = await fetch("/api/makepdfunsearchable", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

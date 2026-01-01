@@ -427,7 +427,7 @@ const RotatePdfSelectedPages = () => {
                             className="w-full px-3 py-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#ff911d] focus:border-transparent text-gray-900"
                             placeholder="Enter page number"
                           />
-                          <p className="text-xs text-blue-600 font-medium">The page number is 1-based, meaning the first page is 0 and not 1.</p>
+                          <p className="text-xs text-blue-600 font-medium">The page number is 0-based, meaning the first page is 0 and not 1.</p>
                           {errorMessage && selectedTab === "single" && (
                             <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
                               <p className="text-sm text-red-700">

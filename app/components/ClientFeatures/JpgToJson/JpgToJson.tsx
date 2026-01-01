@@ -113,7 +113,7 @@ const JpgToJson = () => {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/jpgToJson", {
+      const response = await fetch("/api/jpgtoJson", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
