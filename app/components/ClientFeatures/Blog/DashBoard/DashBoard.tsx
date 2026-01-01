@@ -13,11 +13,18 @@ export default function DashBoard() {
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
+      // Clear Supabase session
       await supabase.auth.signOut();
-      // Session will be cleared automatically via onAuthStateChange
+      
+      // Clear the auth cookie
+      await fetch('/api/auth/clear-cookie', {
+        method: 'POST',
+      });
+      
+      // Redirect to login page
+      window.location.href = '/blog/login';
     } catch (error) {
       console.error("Error signing out:", error);
-    } finally {
       setLoggingOut(false);
     }
   };

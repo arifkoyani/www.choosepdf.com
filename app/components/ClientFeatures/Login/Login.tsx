@@ -18,6 +18,7 @@ export default function Login() {
         setLoading(true);
 
         try {
+            // Step 1: Authenticate with Supabase
             const { data, error: authError } = await supabase.auth.signInWithPassword({
                 email,
                 password,
@@ -29,9 +30,32 @@ export default function Login() {
                 return;
             }
 
-            if (data?.session) {
+            // Step 2: If authentication successful, set the auth cookie via API
+            if (data?.session?.access_token) {
+                const cookieResponse = await fetch('/api/auth/set-cookie', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        accessToken: data.session.access_token,
+                    }),
+                });
+
+                const cookieData = await cookieResponse.json();
+
+                if (!cookieResponse.ok || !cookieData.success) {
+                    setError('Failed to set authentication cookie. Please try again.');
+                    setLoading(false);
+                    return;
+                }
+
+                // Step 3: Cookie is set, now navigate to dashboard
                 router.push("/blog/dashboard");
                 router.refresh();
+            } else {
+                setError('Authentication failed. Please try again.');
+                setLoading(false);
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unexpected error occurred");
