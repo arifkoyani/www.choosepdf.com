@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
-const UPLOAD_URL = process.env.CHOOSE_PDF_API_UPLOAD_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_UPLOAD_URL || "";
+import { supabase } from '@/lib/supabaseClient';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,26 +13,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create FormData for external API
-    const externalFormData = new FormData();
-    externalFormData.append('file', file);
+    // Convert File to ArrayBuffer for Supabase
+    const arrayBuffer = await file.arrayBuffer();
+    const fileBuffer = Buffer.from(arrayBuffer);
 
-    // Call external API
-    const response = await fetch(UPLOAD_URL, {
-      method: 'POST',
-      headers: { 'x-api-key': API_KEY },
-      body: externalFormData,
-    });
+    // Generate unique filename to avoid conflicts
+    const timestamp = Date.now();
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const filePath = `uploads/${timestamp}-${sanitizedName}`;
 
-    if (!response.ok) {
+    // Upload to Supabase storage
+    const { data, error } = await supabase
+      .storage
+      .from('server')
+      .upload(filePath, fileBuffer, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (error) {
+      console.error('Supabase upload error:', error);
       return NextResponse.json(
-        { error: true, message: 'Upload failed' },
-        { status: response.status }
+        { error: true, message: error.message },
+        { status: 500 }
       );
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    // Get public URL
+    const { data: publicUrlData } = supabase
+      .storage
+      .from('server')
+      .getPublicUrl(data.path);
+    const publicUrl = publicUrlData.publicUrl;
+
+    return NextResponse.json({ 
+      error: false,
+      url: publicUrl,
+      path: data.path 
+    });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
