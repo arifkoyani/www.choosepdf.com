@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabaseClient';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
 const COMPRESS_PDF_URL = process.env.CHOOSE_PDF_API_COMPRESS_PDF_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_COMPRESS_PDF_URL || "https://api.pdf.co/v2/pdf/compress";
@@ -41,6 +42,7 @@ export async function POST(request: NextRequest) {
             downsample: {
               skip: false,
               downsample_ppi: 150,
+              
               threshold_ppi: 225
             },
             compression: {
@@ -112,6 +114,22 @@ export async function POST(request: NextRequest) {
 
     // Handle success response
     if (data.error === false && data.url) {
+      // Delete the original file from Supabase storage after successful compression
+      try {
+        // Extract file path from Supabase URL
+        // URL format: https://[project].supabase.co/storage/v1/object/public/server/uploads/file.pdf
+        const urlObj = new URL(url);
+        const pathParts = urlObj.pathname.split('/');
+        const serverIndex = pathParts.indexOf('server');
+        if (serverIndex !== -1 && serverIndex < pathParts.length - 1) {
+          const filePath = pathParts.slice(serverIndex + 1).join('/');
+          await supabase.storage.from('server').remove([filePath]);
+        }
+      } catch (deleteError) {
+        // Log error but don't fail the request if deletion fails
+        console.error('Error deleting original file from Supabase:', deleteError);
+      }
+
       return NextResponse.json({
         error: false,
         url: data.url
