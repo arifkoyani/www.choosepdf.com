@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabaseClient';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
 const AI_INVOICE_PARSER_URL = process.env.CHOOSE_PDF_API_AI_INVOICE_PARSER_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_AI_INVOICE_PARSER_URL || "https://api.pdf.co/v1/ai-invoice-parser";
@@ -63,7 +64,8 @@ export async function POST(request: NextRequest) {
     if (data.error === false && data.jobId) {
       return NextResponse.json({
         error: false,
-        jobId: data.jobId
+        jobId: data.jobId,
+        originalUrl: url
       });
     }
 
@@ -86,6 +88,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const jobId = searchParams.get('jobId');
+    const originalUrl = searchParams.get('originalUrl');
 
     if (!jobId) {
       return NextResponse.json(
@@ -129,6 +132,29 @@ export async function GET(request: NextRequest) {
         { error: true, message: errorMessage },
         { status: response.status }
       );
+    }
+
+    // Delete the original file from Supabase storage after successful job completion
+    if (data.status === "success" && originalUrl) {
+      try {
+        // Extract file path from Supabase URL
+        // URL format: https://[project].supabase.co/storage/v1/object/public/server/uploads/file.pdf
+        const urlObj = new URL(originalUrl);
+        const pathParts = urlObj.pathname.split('/');
+        const serverIndex = pathParts.indexOf('server');
+        if (serverIndex !== -1 && serverIndex < pathParts.length - 1) {
+          const filePath = pathParts.slice(serverIndex + 1).join('/');
+          const { error: deleteError } = await supabase.storage.from('server').remove([filePath]);
+          if (deleteError) {
+            console.error('Error deleting original file from Supabase:', deleteError);
+          } else {
+            console.log('Successfully deleted original file from Supabase:', filePath);
+          }
+        }
+      } catch (deleteError) {
+        // Log error but don't fail the request if deletion fails
+        console.error('Error deleting original file from Supabase:', deleteError);
+      }
     }
 
     // Return job status and data

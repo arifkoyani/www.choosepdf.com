@@ -64,6 +64,7 @@ const AiInvoiceParser = () => {
   const [state, setState] = useState<AppState>("select");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [jobId, setJobId] = useState("");
+  const [originalFileUrl, setOriginalFileUrl] = useState("");
   const [resultUrl, setResultUrl] = useState("");
   const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
   const [downloading, setDownloading] = useState(false);
@@ -177,7 +178,8 @@ const AiInvoiceParser = () => {
 
       if (data.error === false && data.jobId) {
         setJobId(data.jobId);
-        await checkJobStatus(data.jobId);
+        setOriginalFileUrl(data.originalUrl || fileUrl);
+        await checkJobStatus(data.jobId, data.originalUrl || fileUrl);
       } else {
         alert("Processing failed. Please try again.");
         setState("select");
@@ -189,12 +191,12 @@ const AiInvoiceParser = () => {
     }
   };
 
-  const checkJobStatus = async (currentJobId: string) => {
+  const checkJobStatus = async (currentJobId: string, originalUrl: string) => {
     setState("checking");
 
     try {
       const checkStatus = async (): Promise<void> => {
-        const response = await fetch(`/api/aiinvoiceparser?jobId=${currentJobId}`, {
+        const response = await fetch(`/api/aiinvoiceparser?jobId=${currentJobId}&originalUrl=${encodeURIComponent(originalUrl)}`, {
           method: "GET",
         });
 
