@@ -197,8 +197,7 @@ const PdfToWebp = () => {
     setSendingEmail(true);
 
     try {
-      // Send email with the first converted file URL (or all URLs in the message)
-      const fileUrls = convertResult.urls.join(", ");
+      // Send email with all converted file URLs
       const response = await fetch("/api/send-email", {
         method: "POST",
         headers: {
@@ -206,7 +205,7 @@ const PdfToWebp = () => {
         },
         body: JSON.stringify({
           toEmail: toEmail.trim(),
-          fileUrl: convertResult.urls[0], // Send first URL, or modify API to accept multiple
+          fileUrls: convertResult.urls, // Send all URLs
         }),
       });
 
