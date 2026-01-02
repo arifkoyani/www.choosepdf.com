@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       url: fileUrl,
       from: `CHOOSEPDF <${SMTP_USERNAME}>`,
       to: toEmail,
-      subject: "Download Your Converted File from ChoosePDF",
+      subject: "Download Your File from ChoosePDF",
       bodytext: `Hello,
     
     Your PDF has been securely protected with a password using ChoosePDF.com.
