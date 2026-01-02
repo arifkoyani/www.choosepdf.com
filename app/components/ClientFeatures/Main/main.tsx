@@ -17,7 +17,6 @@ import RemovePasswordFromPdf from './cards/pdf-security/remove-password-from-pdf
 import SearchTextDelete from './cards/edit-pdf/search-text-&-delete/SearchText&Delete'
 import SearchTextAndReplace from './cards/edit-pdf/search-text-&-replace/SearchTextAndReplace'
 import SearchTextReplaceImage from './cards/edit-pdf/search-text-replace-Image/SearchTextReplaceImage'
-import CsvToPdf from './cards/convert-to-pdf/csv-to-pdf/CsvToPdf'
 import WordToPdf from './cards/convert-to-pdf/word-to-pdf/WordToPdf'
 import EmailToPdf from './cards/convert-to-pdf/email-to-pdf/EmailToPdf'
 import ExcelToText from './cards/general/ExcelToText/ExcelToText'
@@ -103,7 +102,6 @@ export default function Main() {
 		{ id: 'search-text-and-replace', component: <SearchTextAndReplace key="search-text-and-replace" />, category: 'edit' },
 		{ id: 'search-text-replace-image', component: <SearchTextReplaceImage key="search-text-replace-image" />, category: 'edit' },
 		// Convert to PDF
-		{ id: 'csv-to-pdf', component: <CsvToPdf key="csv-to-pdf" />, category: 'convert-to' },
 		{ id: 'word-to-pdf', component: <WordToPdf key="word-to-pdf" />, category: 'convert-to' },
 		{ id: 'email-to-pdf', component: <EmailToPdf key="email-to-pdf" />, category: 'convert-to' },
 		{ id: 'html-to-pdf', component: <HtmlToPdf key="html-to-pdf" />, category: 'convert-to' },
