@@ -175,7 +175,7 @@ const SearchTextReplaceInPdf = () => {
     setState("replacing");
 
     try {
-      const response = await fetch("/api/SearchTextReplaceInPdf", {
+      const response = await fetch("/api/searchtextreplaceinpdf", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

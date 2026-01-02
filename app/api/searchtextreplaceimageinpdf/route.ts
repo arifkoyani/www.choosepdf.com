@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabaseClient';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
 const SEARCH_TEXT_REPLACE_IMAGE_URL = process.env.CHOOSE_PDF_SEARCH_TEXT_REPLACE_IMAGE_IN_PDF_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_SEARCH_TEXT_REPLACE_IMAGE_IN_PDF_URL || "";
@@ -81,6 +82,46 @@ export async function POST(request: NextRequest) {
 
     // Handle success response - check for various URL formats
     if (data.error === false) {
+      // Delete the original files from Supabase storage after successful conversion
+      // Delete both PDF and image files
+      const filesToDelete: string[] = [];
+      
+      // Extract PDF file path
+      try {
+        const pdfUrlObj = new URL(url);
+        const pdfPathParts = pdfUrlObj.pathname.split('/');
+        const pdfServerIndex = pdfPathParts.indexOf('server');
+        if (pdfServerIndex !== -1 && pdfServerIndex < pdfPathParts.length - 1) {
+          const pdfFilePath = pdfPathParts.slice(pdfServerIndex + 1).join('/');
+          filesToDelete.push(pdfFilePath);
+        }
+      } catch (pdfError) {
+        console.error('Error extracting PDF file path:', pdfError);
+      }
+
+      // Extract image file path
+      try {
+        const imageUrlObj = new URL(replaceImage);
+        const imagePathParts = imageUrlObj.pathname.split('/');
+        const imageServerIndex = imagePathParts.indexOf('server');
+        if (imageServerIndex !== -1 && imageServerIndex < imagePathParts.length - 1) {
+          const imageFilePath = imagePathParts.slice(imageServerIndex + 1).join('/');
+          filesToDelete.push(imageFilePath);
+        }
+      } catch (imageError) {
+        console.error('Error extracting image file path:', imageError);
+      }
+
+      // Delete all files from Supabase
+      if (filesToDelete.length > 0) {
+        try {
+          await supabase.storage.from('server').remove(filesToDelete);
+        } catch (deleteError) {
+          // Log error but don't fail the request if deletion fails
+          console.error('Error deleting files from Supabase:', deleteError);
+        }
+      }
+
       let urls: string[] = [];
 
       if (Array.isArray(data.urls)) {
