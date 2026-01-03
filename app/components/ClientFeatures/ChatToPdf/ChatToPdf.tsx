@@ -7,7 +7,6 @@ interface Message {
 	id: string
 	role: 'user' | 'assistant'
 	content: string
-	suggested_question?: string
 	timestamp: Date
 }
 
@@ -131,26 +130,29 @@ export default function ChatToPdfUsingAI() {
 				throw new Error('Failed to parse response from server');
 			}
 			
-			// Check if response is successful and upload is true
-			if (!responseData.error && responseData.success && responseData.upload === true) {
+			// Check for error in response
+			if (responseData.error) {
+				throw new Error(responseData.message || 'PDF upload failed')
+			}
+			
+			// Check if response is successful (webhook format: { "answer": "string" })
+			if (responseData.answer) {
 				setWebhookResponse(responseData)
 				
 				// Add the upload response message to chat
-				if (responseData.answer) {
-					const uploadMessage: Message = {
-						id: Date.now().toString(),
-						role: 'assistant',
-						content: responseData.answer,
-						suggested_question: responseData.suggested_question || undefined,
-						timestamp: new Date(),
-					}
-					setMessages([uploadMessage])
+				const uploadMessage: Message = {
+					id: Date.now().toString(),
+					role: 'assistant',
+					content: responseData.answer,
+					timestamp: new Date(),
 				}
+				setMessages([uploadMessage])
 				
 				setIsPdfReady(true)
 				setIsUploading(false)
 			} else {
-				throw new Error(responseData.message || 'PDF upload was not successful')
+				console.error('Response missing answer field:', responseData);
+				throw new Error('Invalid response format: missing "answer" field')
 			}
 		} catch (error) {
 			console.error('Error sending PDF to API:', error)
@@ -276,22 +278,10 @@ export default function ChatToPdfUsingAI() {
 				throw new Error(responseData.message || 'Invalid response from server')
 			}
 
-			// Handle array format: [{ "output": { "answer": "...", "suggested_question": "..." } }]
-			if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].output) {
-				const output = responseData[0].output
-				if (output.answer) {
-					return {
-						answer: output.answer,
-						suggested_question: output.suggested_question || undefined,
-					}
-				}
-			}
-			
-			// Handle direct format: { "success": true, "answer": "...", "suggested_question": "..." }
-			if (responseData.success && responseData.answer) {
+			// Handle webhook response format: { "answer": "string" }
+			if (responseData.answer) {
 				return {
 					answer: responseData.answer,
-					suggested_question: responseData.suggested_question || undefined,
 				}
 			}
 			
@@ -333,7 +323,6 @@ export default function ChatToPdfUsingAI() {
 				id: (Date.now() + 1).toString(),
 				role: 'assistant',
 				content: response.answer,
-				suggested_question: response.suggested_question,
 				timestamp: new Date(),
 			}
 			setMessages((prev) => [...prev, aiMessage])
@@ -372,12 +361,6 @@ export default function ChatToPdfUsingAI() {
 		} catch (error) {
 			console.error('Failed to copy text:', error)
 		}
-	}
-
-	// Handle suggested question click
-	const handleSuggestedQuestionClick = (question: string) => {
-		// Send the suggested question directly
-		handleSendMessage(question)
 	}
 
 	// Handle Enter key (with Shift for new line)
@@ -446,7 +429,7 @@ export default function ChatToPdfUsingAI() {
 								<div className="p-2 bg-[#fff5f0] rounded-lg flex-shrink-0">
 									{isUploading ? (
 										<Loader2 className="w-6 h-6 text-[#ff911d] animate-spin" />
-									) : isPdfReady && webhookResponse?.upload === true ? (
+									) : isPdfReady && webhookResponse?.answer ? (
 										<CheckCircle2 className="w-6 h-6 text-blue-500" />
 									) : (
 										<FileText className="w-6 h-6 text-[#ff911d]" />
@@ -459,7 +442,7 @@ export default function ChatToPdfUsingAI() {
 									<p className="text-sm text-gray-500">
 										{isUploading
 											? 'Uploading and processing PDF...'
-											: isPdfReady && webhookResponse?.upload === true
+											: isPdfReady && webhookResponse?.answer
 											? 'PDF is parsed successfully'
 											: isPdfReady
 											? 'Ready for chat'
@@ -578,16 +561,6 @@ export default function ChatToPdfUsingAI() {
 													</div>
 												)}
 
-												{message.role === 'assistant' && message.suggested_question && (
-													<div className="mt-3 pt-3 border-t border-gray-200">
-														<button
-															onClick={() => handleSuggestedQuestionClick(message.suggested_question!)}
-															className="text-sm text-black font-semibold hover:text-gray-700 transition-colors duration-200 cursor-pointer hover:underline"
-														>
-															{message.suggested_question}
-														</button>
-													</div>
-												)}
 											</div>
 										</div>
 									))}

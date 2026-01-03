@@ -71,34 +71,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Handle array format: [{ "output": { "answer": "...", "suggested_question": "..." } }]
-    if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].output) {
-      const output = responseData[0].output;
-      if (output.answer) {
-        return NextResponse.json({
-          error: false,
-          answer: output.answer,
-          suggested_question: output.suggested_question || undefined,
-        });
-      }
-    }
-    
-    // Handle direct format: { "success": true, "answer": "...", "suggested_question": "...", "upload": true }
-    if (responseData.success) {
+    // Handle webhook response format: { "answer": "string" }
+    if (responseData.answer) {
       return NextResponse.json({
         error: false,
-        success: responseData.success,
         answer: responseData.answer,
-        suggested_question: responseData.suggested_question || undefined,
-        upload: responseData.upload || false,
       });
     }
 
-    // If response doesn't match expected format, return as is
+    // If response doesn't match expected format, return error
     return NextResponse.json({
-      error: false,
-      ...responseData,
-    });
+      error: true,
+      message: 'Invalid response format from webhook: missing "answer" field',
+    }, { status: 500 });
   } catch (error) {
     console.error('Chat to PDF API error:', error);
     return NextResponse.json(
