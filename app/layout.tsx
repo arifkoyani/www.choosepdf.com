@@ -38,7 +38,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased`}
       >
-        {/* Set initial theme before hydration to avoid flash and ensure dark mode works */}
+       
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');var isDark=t? t==='dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;var e=document.documentElement;if(isDark){e.classList.add('dark')}else{e.classList.remove('dark')}}catch(e){}})();`,
