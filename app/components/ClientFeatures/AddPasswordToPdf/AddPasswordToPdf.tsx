@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "../../ui/button";
 import { Card } from "../../ui/card";
 import { X, Download, FileText, MoveUpRight, Loader2, MonitorUp } from "lucide-react";
@@ -34,6 +34,8 @@ const AddPasswordToPdf = () => {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";

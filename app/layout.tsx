@@ -1,7 +1,9 @@
+import { OnlineStatusProvider } from "../context/OnlineStatusContext";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import Navbar from "./components/Navbar/Navbar";
 import { Toaster } from "sonner";
+import OfflineWatcher from "./components/OfflineWatcher";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -43,7 +45,10 @@ export default function RootLayout({
           }}
         />
         <Navbar />
-        {children}
+        <OnlineStatusProvider>
+          <OfflineWatcher />
+          {children}
+        </OnlineStatusProvider>
         <Toaster position="bottom-right" richColors />
       </body>
     </html>

@@ -97,7 +97,7 @@ export default function Navbar() {
 
 	const editPdfLabItems = useMemo(
 		() => [
-			{ label: "Search Text & Delete", href: "/search-text-delete" },
+			{ label: "Search Text & Delete", href: "/search-text-delete-in-pdf" },
 			{ label: "Search Text & Replace", href: "/search-text-replace" },
 			{ label: "Search Text Replace Image", href: "/search-text-replace-image" },
 		],
