@@ -73,6 +73,10 @@ export default async function ArticlePage({ params }: Props) {
       )}
       <div className="prose prose-lg dark:prose-invert whitespace-pre-wrap">
         {article.content}
+
+        {article.graphic && (
+        <img src={article.graphic} alt={article.title} className="rounded-lg mb-8" />
+      )}
       </div>
     </article>
   );

@@ -19,7 +19,6 @@ import SearchTextAndReplace from './cards/edit-pdf/search-text-&-replace/SearchT
 import SearchTextReplaceImage from './cards/edit-pdf/search-text-replace-Image/SearchTextReplaceImage'
 import WordToPdf from './cards/convert-to-pdf/word-to-pdf/WordToPdf'
 import EmailToPdf from './cards/convert-to-pdf/email-to-pdf/EmailToPdf'
-import ExcelToText from './cards/general/ExcelToText/ExcelToText'
 import HtmlToPdf from './cards/convert-to-pdf/html-to-pdf/HtmlToPdf'
 import JpgToPdf from './cards/convert-to-pdf/jpg-to-pdf/JpgToPdf'
 import PngToPdf from './cards/convert-to-pdf/png-to-pdf/PngToPdf'
@@ -56,7 +55,6 @@ import BeamBorder from '../../ui/BeamBorder'
 import ExcelToPdf from './cards/convert-to-pdf/excel-to-pdf/ExcelToPdf'
 import PdfToXls from './cards/convert-from-pdf/pdf-to-Xls/PdfToXls'
 import EditPdf from './cards/edit-pdf/EditPdf/EditPdf'
-import FindTextInTableWithAI from './cards/ai/FindTextInTableWithAI/FindTextInTableWithAI'
 
 export default function Main() {
 	const [activeTab, setActiveTab] = useState('all')
@@ -127,12 +125,10 @@ export default function Main() {
 		// AI
 		{ id: 'chat-to-pdf', component: <ChatToPdf key="chat-to-pdf" />, category: 'all' },
 		{ id: 'ai-invoice-parser', component: <AIInvoiceParser key="ai-invoice-parser" />, category: 'all' },
-		{ id: 'find-text-in-table-with-ai', component: <FindTextInTableWithAI key="find-text-in-table-with-ai" />, category: 'all' },
 		// Excel Conversion
 		{ id: 'excel-to-csv', component: <ExcelToCsv key="excel-to-csv" />, category: 'excel-conversion' },
 		{ id: 'excel-to-json', component: <ExcelToJson key="excel-to-json" />, category: 'excel-conversion' },
 		{ id: 'excel-to-html', component: <ExcelToHtml key="excel-to-html" />, category: 'excel-conversion' },
-		{ id: 'excel-to-text', component: <ExcelToText key="excel-to-text" />, category: 'excel-conversion' },
 		{ id: 'excel-to-xml', component: <ExcelToXml key="excel-to-xml" />, category: 'excel-conversion' },
 		{ id: 'excel-to-pdf', component: <ExcelToPdf key="excel-to-pdf" />, category: 'excel-conversion' },
 		// General
