@@ -114,10 +114,12 @@ export default function ChatToPdfUsingAI() {
 				throw new Error(errorData.message || errorData.error || `Request failed: ${response.status} ${response.statusText}`)
 			}
 
+			// Get complete response (non-streaming) - wait for full JSON response
 			let responseData;
 			try {
 				const contentType = response.headers.get('content-type');
 				if (contentType && contentType.includes('application/json')) {
+					// Parse complete JSON response (not streaming)
 					responseData = await response.json();
 				} else {
 					const responseText = await response.text();
@@ -135,15 +137,27 @@ export default function ChatToPdfUsingAI() {
 				throw new Error(responseData.message || 'PDF upload failed')
 			}
 			
-			// Check if response is successful (webhook format: { "answer": "string" })
-			if (responseData.answer) {
-				setWebhookResponse(responseData)
+			// Handle webhook response format: [{ "answer": "string" }] or { "answer": "string" }
+			// Note: This is a complete non-streaming response
+			let answer: string | undefined;
+
+			// Check if response is an array
+			if (Array.isArray(responseData) && responseData.length > 0) {
+				// Extract answer from first element of array
+				answer = responseData[0]?.answer;
+			} else if (responseData && typeof responseData === 'object' && responseData.answer) {
+				// Handle single object format
+				answer = responseData.answer;
+			}
+
+			if (answer) {
+				setWebhookResponse({ answer })
 				
 				// Add the upload response message to chat
 				const uploadMessage: Message = {
 					id: Date.now().toString(),
 					role: 'assistant',
-					content: responseData.answer,
+					content: answer,
 					timestamp: new Date(),
 				}
 				setMessages([uploadMessage])
@@ -257,10 +271,12 @@ export default function ChatToPdfUsingAI() {
 				throw new Error(errorData.message || errorData.error || `Request failed: ${response.status} ${response.statusText}`)
 			}
 
+			// Get complete response (non-streaming) - wait for full JSON response
 			let responseData;
 			try {
 				const contentType = response.headers.get('content-type');
 				if (contentType && contentType.includes('application/json')) {
+					// Parse complete JSON response (not streaming)
 					responseData = await response.json();
 				} else {
 					const responseText = await response.text();
@@ -278,14 +294,27 @@ export default function ChatToPdfUsingAI() {
 				throw new Error(responseData.message || 'Invalid response from server')
 			}
 
-			// Handle webhook response format: { "answer": "string" }
-			if (responseData.answer) {
+			// Handle webhook response format: [{ "answer": "string" }] or { "answer": "string" }
+			// Note: This is a complete non-streaming response
+			let answer: string | undefined;
+
+			// Check if response is an array
+			if (Array.isArray(responseData) && responseData.length > 0) {
+				// Extract answer from first element of array
+				answer = responseData[0]?.answer;
+			} else if (responseData && typeof responseData === 'object' && responseData.answer) {
+				// Handle single object format
+				answer = responseData.answer;
+			}
+
+			if (answer) {
 				return {
-					answer: responseData.answer,
+					answer: answer,
 				}
 			}
 			
-			throw new Error('Invalid response from server')
+			console.error('Response missing answer field:', responseData);
+			throw new Error('Invalid response from server: missing "answer" field')
 		} catch (error) {
 			console.error('Error sending message to API:', error)
 			throw error

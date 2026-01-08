@@ -53,12 +53,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get response text first to check if it's valid JSON
+    // Get complete response (non-streaming) - wait for full response before parsing
     const responseText = await response.text();
     let responseData;
     
     try {
-      // Trim whitespace and parse JSON
+      // Parse complete JSON response (not streaming)
       const trimmedText = responseText.trim();
       responseData = JSON.parse(trimmedText);
     } catch (parseError) {
@@ -71,15 +71,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Handle webhook response format: { "answer": "string" }
-    if (responseData.answer) {
+    // Handle webhook response format: [{ "answer": "string" }] or { "answer": "string" }
+    let answer: string | undefined;
+
+    // Check if response is an array
+    if (Array.isArray(responseData) && responseData.length > 0) {
+      // Extract answer from first element of array
+      answer = responseData[0]?.answer;
+    } else if (responseData && typeof responseData === 'object' && responseData.answer) {
+      // Handle single object format
+      answer = responseData.answer;
+    }
+
+    if (answer) {
       return NextResponse.json({
         error: false,
-        answer: responseData.answer,
+        answer: answer,
       });
     }
 
     // If response doesn't match expected format, return error
+    console.error('Invalid response format from webhook:', responseData);
     return NextResponse.json({
       error: true,
       message: 'Invalid response format from webhook: missing "answer" field',
