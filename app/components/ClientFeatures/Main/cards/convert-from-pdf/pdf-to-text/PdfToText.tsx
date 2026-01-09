@@ -5,9 +5,9 @@ export default function PdfToText() {
 	return (
 		<div className="mt-8">
 			<Link href="/pdf-to-text">
-				<button className="bg-green-400 h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
+				<button className="bg-white h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
 					<Slash   className="w-8 h-12 text-[#ff911d] "  strokeWidth={1} />
-					<h1 className="text-2xl font-bold text-gray-900 ">PDF Text</h1>
+					<h1 className="text-2xl font-bold text-gray-900 ">PDF To Text</h1>
 					<p className="text-gray-600 text-base text-justify">
 						Convert PDF to Text  with the easiest PDF PDF to Text Classifier service.
 					</p>

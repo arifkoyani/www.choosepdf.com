@@ -5,7 +5,7 @@ export default function MergeAnyToPdf() {
 	return (
 		<div className="mt-8">
 			<Link href="/merge-any-to-pdf">
-				<button className="bg-green-400 h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 px-10 md:px-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
+				<button className="bg-white h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 px-10 md:px-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
 					<Image 
 						src="/icons/merge.svg" // your SVG file in public folder
 						alt="Merge Icon"
