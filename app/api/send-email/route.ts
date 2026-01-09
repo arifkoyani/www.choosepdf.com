@@ -7,6 +7,15 @@ const EMAIL_SEND_URL = process.env.CHOOSE_PDF_API_EMAIL_SEND_URL || process.env.
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate required environment variables
+    if (!EMAIL_SEND_URL) {
+      console.error('EMAIL_SEND_URL is not configured');
+      return NextResponse.json(
+        { error: true, message: 'Email service is not configured. Please contact support.' },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const { toEmail, fileUrl, fileUrls } = body;
 
@@ -81,17 +90,36 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(payload),
     });
 
-    // Check if response is OK
+    // Check content type before parsing
+    const contentType = response.headers.get("content-type");
+    const isJson = contentType && contentType.includes("application/json");
+
+    // Try to extract error message from response
+    let errorMessage = 'Email send failed';
     if (!response.ok) {
+      try {
+        if (isJson) {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } else {
+          const text = await response.text();
+          errorMessage = text || errorMessage;
+          console.error("Non-JSON error response:", text.substring(0, 200));
+        }
+      } catch (parseError) {
+        // If we can't parse the error, use status text
+        errorMessage = response.statusText || errorMessage;
+        console.error("Failed to parse error response:", parseError);
+      }
+      
       return NextResponse.json(
-        { error: true, message: 'Email send failed' },
+        { error: true, message: errorMessage },
         { status: response.status }
       );
     }
 
-    // Check if response is JSON
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
+    // Check if response is JSON for success case
+    if (!isJson) {
       const text = await response.text();
       console.error("Non-JSON response received:", text.substring(0, 200));
       return NextResponse.json(
@@ -104,8 +132,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Email send error:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Internal server error';
+    if (error instanceof Error) {
+      if (error.message.includes('fetch')) {
+        errorMessage = 'Failed to connect to email service. Please try again later.';
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    
     return NextResponse.json(
-      { error: true, message: 'Internal server error' },
+      { error: true, message: errorMessage },
       { status: 500 }
     );
   }
