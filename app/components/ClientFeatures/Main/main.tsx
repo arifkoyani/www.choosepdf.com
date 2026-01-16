@@ -45,6 +45,7 @@ import ExcelToPdf from './cards/convert-to-pdf/excel-to-pdf/ExcelToPdf'
 import PdfToXls from './cards/convert-from-pdf/pdf-to-Xls/PdfToXls'
 import EditPdf from './cards/edit-pdf/EditPdf/EditPdf'
 import RecentPostsCard from '../Blog/AllBlogs/RecentPostsCard/RecentPostsCard'
+import PdfToQrcode from './cards/general/PdfToQrcode/PdfToQrcode'
 
 export default function Main() {
 	const [activeTab, setActiveTab] = useState('all')
@@ -119,6 +120,8 @@ export default function Main() {
 		{ id: 'excel-to-pdf', component: <ExcelToPdf key="excel-to-pdf" />, category: 'excel-conversion' },
 		// General
 		{ id: 'extract-attachments-from-pdf', component: <ExtractAttachmentsFromPdf key="extract-attachments-from-pdf" />, category: 'all' },
+		{ id: 'pdf-to-qrcode', component: <PdfToQrcode key="pdf-to-qrcode" />, category: 'all' },
+
 	]
 
 	// Generate search suggestions from card IDs
