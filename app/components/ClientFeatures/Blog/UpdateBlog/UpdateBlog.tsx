@@ -122,6 +122,19 @@ export default function UpdateBlog() {
       
       if (res.ok) {
         setMessage("Article updated successfully!");
+        
+        // Revalidate the cache to regenerate static pages
+        try {
+          await fetch("/api/revalidate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slug: form.slug }),
+          });
+        } catch (revalidateError) {
+          console.error("Revalidation error:", revalidateError);
+          // Don't show error to user, article was still updated successfully
+        }
+        
         setEditingId(null);
         setForm({});
         // Refresh articles list

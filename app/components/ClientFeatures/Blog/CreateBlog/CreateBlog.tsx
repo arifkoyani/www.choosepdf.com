@@ -81,6 +81,19 @@ export default function CreateArticle() {
       
       if (res.ok) {
         setMessage("Article added successfully!");
+        
+        // Revalidate the cache to regenerate static pages
+        try {
+          await fetch("/api/revalidate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slug }),
+          });
+        } catch (revalidateError) {
+          console.error("Revalidation error:", revalidateError);
+          // Don't show error to user, blog was still created successfully
+        }
+        
         // Reset form
         setTitle("");
         setSlug("");

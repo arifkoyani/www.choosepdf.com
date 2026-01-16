@@ -17,7 +17,6 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-// 1. SEO: Generate dynamic titles and descriptions for Google
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = await getArticle(slug);
@@ -35,7 +34,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// 2. Performance/Crawlability: Pre-render all blog paths at build time
 export async function generateStaticParams() {
   const { data: articles } = await supabase.from("articles").select("slug");
 
