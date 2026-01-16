@@ -39,18 +39,7 @@ import PdfToXlsx from './cards/convert-from-pdf/pdf-to-Xlsx/pdf-to-Xlsx'
 import PdfToXml from './cards/convert-from-pdf/pdf-to-xml/PdfToXml'
 import ChatToPdf from './cards/ai/ChatToPdf/ChatToPdf'
 import AIInvoiceParser from './cards/ai/AIInvoiceParser/AIInvoiceParser'
-import CsvToHtml from './cards/general/CsvToHtml/CsvToHtml'
-import CsvToJson from './cards/general/CsvToJson/CsvToJson'
-import ExcelToJson from './cards/general/ExcelToJson/ExcelToJson'
-import ExcelToCsv from './cards/general/ExcelToCsv/ExcelToCsv'
-import ExcelToHtml from './cards/general/ExcelToHtml/ExcelToHtml'
-import ExcelToXml from './cards/general/ExcelToXml/ExcelToXml'
-import CsvToXml from './cards/general/ExcelToXml/CsvToXml'
 import ExtractAttachmentsFromPdf from './cards/general/ExtractAttachmentsFromPdf/ExtractAttachmentsFromPdf'
-import ExtractDataFromEmail from './cards/general/ExtractDataFromEmail/ExtractDataFromEmail'
-import ExtractEmailAttachments from './cards/general/ExtractEmailAttachments/ExtractEmailAttachments'
-import JpgToJson from './cards/general/JpgToJson/JpgToJson'
-import PngToJson from './cards/general/PngToJson/PngToJson'
 import BeamBorder from '../../ui/BeamBorder'
 import ExcelToPdf from './cards/convert-to-pdf/excel-to-pdf/ExcelToPdf'
 import PdfToXls from './cards/convert-from-pdf/pdf-to-Xls/PdfToXls'
@@ -127,20 +116,9 @@ export default function Main() {
 		{ id: 'chat-to-pdf', component: <ChatToPdf key="chat-to-pdf" />, category: 'all' },
 		{ id: 'ai-invoice-parser', component: <AIInvoiceParser key="ai-invoice-parser" />, category: 'all' },
 		// Excel Conversion
-		{ id: 'excel-to-csv', component: <ExcelToCsv key="excel-to-csv" />, category: 'excel-conversion' },
-		{ id: 'excel-to-json', component: <ExcelToJson key="excel-to-json" />, category: 'excel-conversion' },
-		{ id: 'excel-to-html', component: <ExcelToHtml key="excel-to-html" />, category: 'excel-conversion' },
-		{ id: 'excel-to-xml', component: <ExcelToXml key="excel-to-xml" />, category: 'excel-conversion' },
 		{ id: 'excel-to-pdf', component: <ExcelToPdf key="excel-to-pdf" />, category: 'excel-conversion' },
 		// General
-		{ id: 'csv-to-html', component: <CsvToHtml key="csv-to-html" />, category: 'all' },
-		{ id: 'csv-to-json', component: <CsvToJson key="csv-to-json" />, category: 'all' },
-		{ id: 'csv-to-xml', component: <CsvToXml key="csv-to-xml" />, category: 'all' },
 		{ id: 'extract-attachments-from-pdf', component: <ExtractAttachmentsFromPdf key="extract-attachments-from-pdf" />, category: 'all' },
-		{ id: 'extract-data-from-email', component: <ExtractDataFromEmail key="extract-data-from-email" />, category: 'all' },
-		{ id: 'extract-email-attachments', component: <ExtractEmailAttachments key="extract-email-attachments" />, category: 'all' },
-		{ id: 'jpg-to-json', component: <JpgToJson key="jpg-to-json" />, category: 'all' },
-		{ id: 'png-to-json', component: <PngToJson key="png-to-json" />, category: 'all' },
 	]
 
 	// Generate search suggestions from card IDs
