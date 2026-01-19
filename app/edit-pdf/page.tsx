@@ -1,6 +1,6 @@
-import EditPdf from "../components/ClientFeatures/EditPdf/EditPdf";
+	import { EditPdf } from "../components/ClientFeatures/EditPdf/PDFEditor";
 
-export default function ModifyPdfPage() {
+export default function EditPdfPage() {
 	return (
 		<div>
 			<EditPdf />
