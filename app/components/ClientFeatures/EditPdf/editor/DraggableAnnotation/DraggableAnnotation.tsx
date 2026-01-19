@@ -189,7 +189,7 @@ export function DraggableAnnotation({
         isSelected && 'ring-2 ring-[#ff911d] ring-offset-1 z-10'
       )}
       style={{
-        background: annotation.type === 'TextField' ? 'rgba(255, 145, 29, 0.1)' : 'transparent',
+        background: 'transparent',
         border: annotation.type === 'TextField' ? '1px dashed #ff911d' : 'none',
       }}
       enableResizing={isSelected && !isEditing}

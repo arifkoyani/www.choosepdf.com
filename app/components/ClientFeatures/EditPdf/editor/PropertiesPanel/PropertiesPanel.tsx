@@ -146,13 +146,13 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete }: Prop
 
           <div className="space-y-3">
             <Label className="text-xs font-medium text-gray-700">Style</Label>
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               <Toggle
                 pressed={textField.fontWeight === 'bold'}
                 onPressedChange={(pressed) => onUpdate({ fontWeight: pressed ? 'bold' : 'normal' })}
                 size="sm"
                 aria-label="Bold"
-                className="data-[state=on]:bg-[#ff911d] data-[state=on]:text-white border-gray-300"
+                className="h-9 w-9 bg-white cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
               >
                 <Bold className="h-4 w-4" />
               </Toggle>
@@ -161,7 +161,7 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete }: Prop
                 onPressedChange={(pressed) => onUpdate({ fontStyle: pressed ? 'italic' : 'normal' })}
                 size="sm"
                 aria-label="Italic"
-                className="data-[state=on]:bg-[#ff911d] data-[state=on]:text-white border-gray-300"
+                className="h-9 w-9 cursor-pointer bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
               >
                 <Italic className="h-4 w-4" />
               </Toggle>
@@ -170,7 +170,7 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete }: Prop
                 onPressedChange={(pressed) => onUpdate({ textDecoration: pressed ? 'underline' : 'none' })}
                 size="sm"
                 aria-label="Underline"
-                className="data-[state=on]:bg-[#ff911d] data-[state=on]:text-white border-gray-300"
+                className="h-9 w-9 bg-white cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
               >
                 <Underline className="h-4 w-4" />
               </Toggle>
