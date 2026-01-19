@@ -86,7 +86,7 @@ export default function Main() {
 		{ id: 'add-password-to-pdf', component: <AddPasswordToPdf key="add-password-to-pdf" />, category: 'security' },
 		{ id: 'remove-password-from-pdf', component: <RemovePasswordFromPdf key="remove-password-from-pdf" />, category: 'security' },
 		// Edit PDF
-		{ id: 'add-pdf', component: <EditPdf key="add-pdf" />, category: 'edit' },
+		{ id: 'edit-pdf', component: <EditPdf key="add-pdf" />, category: 'edit' },
 		{ id: 'search-text-delete', component: <SearchTextDelete key="search-text-delete" />, category: 'edit' },
 		{ id: 'search-text-and-replace', component: <SearchTextAndReplace key="search-text-and-replace" />, category: 'edit' },
 		{ id: 'search-text-replace-image', component: <SearchTextReplaceImage key="search-text-replace-image" />, category: 'edit' },
