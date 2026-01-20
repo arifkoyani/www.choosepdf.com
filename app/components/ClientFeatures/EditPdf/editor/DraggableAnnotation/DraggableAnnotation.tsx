@@ -98,10 +98,11 @@ export function DraggableAnnotation({
               style={{
                 fontSize: `${tf.fontSize * scale}px`,
                 fontFamily: tf.fontFamily,
-                fontWeight: tf.fontWeight,
-                fontStyle: tf.fontStyle,
-                textDecoration: tf.textDecoration,
-                color: '#000000',
+                fontWeight: tf.fontBold ? 'bold' : 'normal',
+                fontStyle: tf.fontItalic ? 'italic' : 'normal',
+                textDecoration: tf.fontUnderline ? 'underline' : (tf.fontStrikeout ? 'line-through' : 'none'),
+                color: tf.color,
+                textAlign: tf.alignment,
                 cursor: 'text',
               }}
             />
@@ -113,10 +114,12 @@ export function DraggableAnnotation({
             style={{
               fontSize: `${tf.fontSize * scale}px`,
               fontFamily: tf.fontFamily,
-              fontWeight: tf.fontWeight,
-              fontStyle: tf.fontStyle,
-              textDecoration: tf.textDecoration,
-              color: '#000000',
+              fontWeight: tf.fontBold ? 'bold' : 'normal',
+              fontStyle: tf.fontItalic ? 'italic' : 'normal',
+              textDecoration: tf.fontUnderline ? 'underline' : (tf.fontStrikeout ? 'line-through' : 'none'),
+              color: tf.color,
+              textAlign: tf.alignment,
+              justifyContent: tf.alignment === 'left' ? 'flex-start' : tf.alignment === 'center' ? 'center' : 'flex-end',
             }}
             onClick={handleTextFieldClick}
           >

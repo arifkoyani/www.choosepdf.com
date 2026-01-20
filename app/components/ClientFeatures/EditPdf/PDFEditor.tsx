@@ -346,12 +346,19 @@ export function EditPdf() {
         if (a.type === 'TextField') {
           const tf = a as TextFieldAnnotation;
           return {
-            ...baseAnnotation,
-            fontSize: tf.fontSize,
-            font: tf.fontFamily,
-            fontWeight: tf.fontWeight,
-            fontStyle: tf.fontStyle,
-            textDecoration: tf.textDecoration,
+            text: tf.text,
+            x: tf.x,
+            y: tf.y,
+            size: tf.fontSize,
+            pages: `${tf.page}-`,
+            fontName: tf.fontFamily,
+            fontBold: tf.fontBold,
+            fontItalic: tf.fontItalic,
+            fontStrikeout: tf.fontStrikeout,
+            fontUnderline: tf.fontUnderline,
+            color: tf.color,
+            alignment: tf.alignment,
+            transparent: tf.transparent,
           };
         }
 

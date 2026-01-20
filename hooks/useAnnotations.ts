@@ -50,10 +50,14 @@ export function useAnnotations() {
       page,
       text: 'Text here',
       fontSize: 14,
-      fontFamily: 'Helvetica',
-      fontWeight: 'normal',
-      fontStyle: 'normal',
-      textDecoration: 'none',
+      fontFamily: 'Arial',
+      fontBold: false,
+      fontItalic: false,
+      fontStrikeout: false,
+      fontUnderline: false,
+      color: '#000000',
+      alignment: 'left',
+      transparent: true,
     };
   }, []);
 

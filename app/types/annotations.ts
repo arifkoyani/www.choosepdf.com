@@ -15,9 +15,13 @@ export interface TextFieldAnnotation extends BaseAnnotation {
   text: string;
   fontSize: number;
   fontFamily: string;
-  fontWeight: 'normal' | 'bold';
-  fontStyle: 'normal' | 'italic';
-  textDecoration: 'none' | 'underline';
+  fontBold: boolean;
+  fontItalic: boolean;
+  fontStrikeout: boolean;
+  fontUnderline: boolean;
+  color: string;
+  alignment: 'left' | 'center' | 'right';
+  transparent: boolean;
 }
 
 export interface CheckboxAnnotation extends BaseAnnotation {
@@ -34,16 +38,26 @@ export type Annotation = TextFieldAnnotation | CheckboxAnnotation | ImageAnnotat
 export interface PDFPayload {
   url: string;
   inline: boolean;
-  annotations: {
+  annotations: Array<{
     text?: string;
     x: number;
     y: number;
     width?: number;
     height?: number;
     pages: string;
-    type: string;
-    id: string;
-  }[];
+    type?: string;
+    id?: string;
+    // Text field specific properties
+    size?: number;
+    fontName?: string;
+    fontBold?: boolean;
+    fontItalic?: boolean;
+    fontStrikeout?: boolean;
+    fontUnderline?: boolean;
+    color?: string;
+    alignment?: 'left' | 'center' | 'right';
+    transparent?: boolean;
+  }>;
   images: {
     url: string;
     x: number;

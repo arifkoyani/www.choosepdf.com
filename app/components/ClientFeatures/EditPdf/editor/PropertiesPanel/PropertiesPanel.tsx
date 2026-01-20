@@ -4,6 +4,7 @@ import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Separator } from '@/app/components/ui/separator';
+import { Toggle } from '@/app/components/ui/toggle';
 import type { Annotation, TextFieldAnnotation, ImageAnnotation } from '@/app/types/annotations';
 
 interface PropertiesPanelProps {
@@ -141,6 +142,97 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete }: Prop
               max={72}
               className="h-8 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]"
             />
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-xs font-medium text-gray-700">Text Style</Label>
+            <div className="flex gap-2 flex-wrap">
+              <Toggle
+                pressed={textField.fontBold}
+                onPressedChange={(pressed) => onUpdate({ fontBold: pressed })}
+                size="sm"
+                aria-label="Bold"
+                className="h-9 w-9 bg-white cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
+              >
+                <span className="text-xs font-bold">B</span>
+              </Toggle>
+              <Toggle
+                pressed={textField.fontItalic}
+                onPressedChange={(pressed) => onUpdate({ fontItalic: pressed })}
+                size="sm"
+                aria-label="Italic"
+                className="h-9 w-9 cursor-pointer bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
+              >
+                <span className="text-xs italic">I</span>
+              </Toggle>
+              <Toggle
+                pressed={textField.fontUnderline}
+                onPressedChange={(pressed) => onUpdate({ fontUnderline: pressed })}
+                size="sm"
+                aria-label="Underline"
+                className="h-9 w-9 bg-white cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
+              >
+                <span className="text-xs underline">U</span>
+              </Toggle>
+              <Toggle
+                pressed={textField.fontStrikeout}
+                onPressedChange={(pressed) => onUpdate({ fontStrikeout: pressed })}
+                size="sm"
+                aria-label="Strikeout"
+                className="h-9 w-9 bg-white cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
+              >
+                <span className="text-xs line-through">S</span>
+              </Toggle>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-xs font-medium text-gray-700">Text Color</Label>
+            <div className="flex gap-2">
+              <Input
+                type="color"
+                value={textField.color}
+                onChange={(e) => onUpdate({ color: e.target.value })}
+                className="h-8 w-16 border-gray-300 cursor-pointer"
+              />
+              <Input
+                type="text"
+                value={textField.color}
+                onChange={(e) => onUpdate({ color: e.target.value })}
+                placeholder="#000000"
+                className="h-8 flex-1 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-xs font-medium text-gray-700">Alignment</Label>
+            <Select
+              value={textField.alignment}
+              onValueChange={(value: 'left' | 'center' | 'right') => onUpdate({ alignment: value })}
+            >
+              <SelectTrigger className="h-8 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-gray-200">
+                <SelectItem value="left" className="text-gray-900">Left</SelectItem>
+                <SelectItem value="center" className="text-gray-900">Center</SelectItem>
+                <SelectItem value="right" className="text-gray-900">Right</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-xs font-medium text-gray-700">Transparent</Label>
+            <Toggle
+              pressed={textField.transparent}
+              onPressedChange={(pressed) => onUpdate({ transparent: pressed })}
+              size="sm"
+              aria-label="Transparent"
+              className="h-9 px-4 bg-white cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
+            >
+              <span className="text-xs">{textField.transparent ? 'Yes' : 'No'}</span>
+            </Toggle>
           </div>
         </>
       )}
