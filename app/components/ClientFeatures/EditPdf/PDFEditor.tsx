@@ -9,7 +9,7 @@ import { PropertiesPanel } from './editor/PropertiesPanel/PropertiesPanel';
 import { Button } from '@/app/components/ui/button';
 import Spinner from '../../ui/loader/loader';
 import { toast } from 'sonner';
-import type { PDFPayload, Annotation } from '@/app/types/annotations';
+import type { PDFPayload, Annotation, TextFieldAnnotation } from '@/app/types/annotations';
 
 // Dynamically import PDFViewer with SSR disabled to prevent DOMMatrix error
 const PDFViewer = dynamic(() => import('./editor/PDFViewer/PDFViewer').then(mod => ({ default: mod.PDFViewer })), {
@@ -32,6 +32,7 @@ export function EditPdf() {
   const [currentPage, setCurrentPage] = useState(0);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [modifiedPdfUrl, setModifiedPdfUrl] = useState<string | null>(null);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,6 +42,7 @@ export function EditPdf() {
     addAnnotation,
     updateAnnotation,
     deleteAnnotation,
+    clearAllAnnotations,
     selectAnnotation,
     getSelectedAnnotation,
     createTextField,
@@ -262,6 +264,7 @@ export function EditPdf() {
 
   const handleDownloadPdf = async () => {
     if (modifiedPdfUrl) {
+      setDownloadingPdf(true);
       try {
         // Fetch the PDF file
         const response = await fetch(modifiedPdfUrl);
@@ -278,10 +281,20 @@ export function EditPdf() {
         // Cleanup
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
+        
+        // Wait a bit to ensure download starts
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Clear all annotations and reset states
+        clearAllAnnotations();
+        setModifiedPdfUrl(null);
+        
         toast.success('PDF downloaded successfully!');
       } catch (error) {
         console.error('Download error:', error);
         toast.error('Failed to download PDF');
+      } finally {
+        setDownloadingPdf(false);
       }
     }
   };
@@ -317,16 +330,33 @@ export function EditPdf() {
     return {
       url: pdfUrl,
       inline: false,
-      annotations: textAnnotations.map(a => ({
-        text: a.type === 'TextField' ? (a as any).text : (a.type === 'CheckedCheckbox' ? '✓' : ''),
-        x: a.x,
-        y: a.y,
-        width: a.width,
-        height: a.height,
-        pages: String(a.page),
-        type: a.type === 'TextField' ? 'text' : (a.type === 'CheckedCheckbox' ? 'CheckboxChecked' : a.type),
-        id: a.id,
-      })),
+      annotations: textAnnotations.map(a => {
+        const baseAnnotation = {
+          text: a.type === 'TextField' ? (a as any).text : (a.type === 'CheckedCheckbox' ? '✓' : ''),
+          x: a.x,
+          y: a.y,
+          width: a.width,
+          height: a.height,
+          pages: String(a.page),
+          type: a.type === 'TextField' ? 'text' : (a.type === 'CheckedCheckbox' ? 'CheckboxChecked' : a.type),
+          id: a.id,
+        };
+
+        // Add font properties for TextField annotations
+        if (a.type === 'TextField') {
+          const tf = a as TextFieldAnnotation;
+          return {
+            ...baseAnnotation,
+            fontSize: tf.fontSize,
+            font: tf.fontFamily,
+            fontWeight: tf.fontWeight,
+            fontStyle: tf.fontStyle,
+            textDecoration: tf.textDecoration,
+          };
+        }
+
+        return baseAnnotation;
+      }),
       images: imageAnnotations.map(a => ({
         url: (a as any).url,
         x: a.x,
@@ -477,10 +507,20 @@ export function EditPdf() {
               <div className="flex flex-col gap-3 w-full">
                 <Button
                   onClick={handleDownloadPdf}
-                  className="gap-2 bg-[#ff911d] cursor-pointer hover:bg-[#ff7a00] text-white font-medium shadow-lg px-6 py-3 w-full"
+                  disabled={downloadingPdf}
+                  className="gap-2 bg-[#ff911d] cursor-pointer hover:bg-[#ff7a00] text-white font-medium shadow-lg px-6 py-3 w-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Download className="h-5 w-5 " />
-                  Download PDF
+                  {downloadingPdf ? (
+                    <>
+                      <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-5 w-5" />
+                      Download PDF
+                    </>
+                  )}
                 </Button>
                 <Button
                   onClick={handleModifyAnotherPdf}

@@ -26,6 +26,11 @@ export function useAnnotations() {
     }
   }, [selectedId]);
 
+  const clearAllAnnotations = useCallback(() => {
+    setAnnotations([]);
+    setSelectedId(null);
+  }, []);
+
   const selectAnnotation = useCallback((id: string | null) => {
     setSelectedId(id);
   }, []);
@@ -83,6 +88,7 @@ export function useAnnotations() {
     addAnnotation,
     updateAnnotation,
     deleteAnnotation,
+    clearAllAnnotations,
     selectAnnotation,
     getSelectedAnnotation,
     createTextField,
