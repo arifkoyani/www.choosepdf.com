@@ -1,5 +1,5 @@
 'use client';
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Upload, FileText, X, Loader2, Download } from 'lucide-react';
 import { useAnnotations } from '@/hooks/useAnnotations';
@@ -175,6 +175,28 @@ export function EditPdf() {
       toast.success('Annotation deleted');
     }
   }, [selectedId, deleteAnnotation]);
+
+  // Handle keyboard delete key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if Delete or Backspace key is pressed
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+        // Don't delete if user is typing in an input field
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+          return;
+        }
+        
+        e.preventDefault();
+        handleDeleteSelected();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedId, handleDeleteSelected]);
 
   const isValidPdfFile = (file: File): boolean => {
     const validTypes = ['application/pdf'];

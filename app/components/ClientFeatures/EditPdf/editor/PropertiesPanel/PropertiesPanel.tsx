@@ -1,10 +1,9 @@
-import { Bold, Italic, Underline, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';  
 import { Label } from '@/app/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Separator } from '@/app/components/ui/separator';
-import { Toggle } from '@/app/components/ui/toggle';
 import type { Annotation, TextFieldAnnotation, ImageAnnotation } from '@/app/types/annotations';
 
 interface PropertiesPanelProps {
@@ -142,39 +141,6 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete }: Prop
               max={72}
               className="h-8 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]"
             />
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-xs font-medium text-gray-700">Style</Label>
-            <div className="flex gap-2">
-              <Toggle
-                pressed={textField.fontWeight === 'bold'}
-                onPressedChange={(pressed) => onUpdate({ fontWeight: pressed ? 'bold' : 'normal' })}
-                size="sm"
-                aria-label="Bold"
-                className="h-9 w-9 bg-white cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
-              >
-                <Bold className="h-4 w-4" />
-              </Toggle>
-              <Toggle
-                pressed={textField.fontStyle === 'italic'}
-                onPressedChange={(pressed) => onUpdate({ fontStyle: pressed ? 'italic' : 'normal' })}
-                size="sm"
-                aria-label="Italic"
-                className="h-9 w-9 cursor-pointer bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
-              >
-                <Italic className="h-4 w-4" />
-              </Toggle>
-              <Toggle
-                pressed={textField.textDecoration === 'underline'}
-                onPressedChange={(pressed) => onUpdate({ textDecoration: pressed ? 'underline' : 'none' })}
-                size="sm"
-                aria-label="Underline"
-                className="h-9 w-9 bg-white cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 data-[state=on]:bg-[#ff911d] data-[state=on]:text-white data-[state=on]:border-[#ff911d] data-[state=on]:shadow-md transition-all"
-              >
-                <Underline className="h-4 w-4" />
-              </Toggle>
-            </div>
           </div>
         </>
       )}

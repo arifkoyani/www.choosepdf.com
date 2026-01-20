@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Rnd } from 'react-rnd';
 import { Check, Square } from 'lucide-react';
 import type { Annotation, TextFieldAnnotation, ImageAnnotation } from '@/app/types/annotations';
-import { cn } from '@/app/components/lib/utils';
+import { cn } from '../../../../lib/utils';
 
 interface DraggableAnnotationProps {
   annotation: Annotation;
@@ -21,7 +21,15 @@ export function DraggableAnnotation({
 }: DraggableAnnotationProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
   const handleDragStop = (_e: unknown, d: { x: number; y: number }) => {
     onUpdate({ x: d.x / scale, y: d.y / scale });
   };
@@ -41,18 +49,24 @@ export function DraggableAnnotation({
     });
   };
 
-  const handleDoubleClick = () => {
-    if (annotation.type === 'TextField') {
+  const handleTextFieldClick = (e: React.MouseEvent) => {
+    if (annotation.type === 'TextField' && !isEditing) {
+      e.stopPropagation();
       const tf = annotation as TextFieldAnnotation;
       setIsEditing(true);
       setEditText(tf.text || '');
+      onSelect();
     }
   };
 
   const handleTextBlur = () => {
-    if (annotation.type === 'TextField') {
+    if (annotation.type === 'TextField' && isEditing) {
       onUpdate({ text: editText });
       setIsEditing(false);
+      // Keep the annotation selected after editing
+      if (!isSelected) {
+        onSelect();
+      }
     }
   };
 
@@ -74,12 +88,12 @@ export function DraggableAnnotation({
         if (isEditing) {
           return (
             <input
+              ref={inputRef}
               type="text"
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
               onBlur={handleTextBlur}
               onKeyDown={handleTextKeyDown}
-              autoFocus
               className="w-full h-full px-1 outline-none border-none bg-transparent"
               style={{
                 fontSize: `${tf.fontSize * scale}px`,
@@ -88,13 +102,14 @@ export function DraggableAnnotation({
                 fontStyle: tf.fontStyle,
                 textDecoration: tf.textDecoration,
                 color: '#000000',
+                cursor: 'text',
               }}
             />
           );
         }
         return (
           <div
-            className="w-full h-full flex items-center px-1 overflow-hidden"
+            className="w-full h-full flex items-center px-1 overflow-hidden select-none cursor-text"
             style={{
               fontSize: `${tf.fontSize * scale}px`,
               fontFamily: tf.fontFamily,
@@ -102,39 +117,22 @@ export function DraggableAnnotation({
               fontStyle: tf.fontStyle,
               textDecoration: tf.textDecoration,
               color: '#000000',
-              pointerEvents: 'auto',
-              userSelect: 'none',
-              WebkitUserSelect: 'none',
             }}
-            onDoubleClick={handleDoubleClick}
+            onClick={handleTextFieldClick}
           >
-            {tf.text || 'Double-click to edit'}
+            {tf.text || 'Click to edit'}
           </div>
         );
       }
       case 'Checkbox':
         return (
-          <div 
-            className="w-full h-full flex items-center justify-center border-2 border-foreground/60 rounded-sm bg-white"
-            style={{ 
-              userSelect: 'none', 
-              WebkitUserSelect: 'none',
-              pointerEvents: 'auto' 
-            }}
-          >
+          <div className="w-full h-full flex items-center justify-center border-2 border-foreground/60 rounded-sm bg-white pointer-events-none">
             <Square className="w-3/4 h-3/4 text-transparent" />
           </div>
         );
       case 'CheckedCheckbox':
         return (
-          <div 
-            className="w-full h-full flex items-center justify-center border-2 border-foreground/60 rounded-sm bg-white"
-            style={{ 
-              userSelect: 'none', 
-              WebkitUserSelect: 'none',
-              pointerEvents: 'auto' 
-            }}
-          >
+          <div className="w-full h-full flex items-center justify-center border-2 border-foreground/60 rounded-sm bg-white pointer-events-none">
             <Check className="w-3/4 h-3/4 text-foreground" strokeWidth={3} />
           </div>
         );
@@ -144,12 +142,7 @@ export function DraggableAnnotation({
           <img
             src={img.url}
             alt="Annotation"
-            className="w-full h-full object-contain"
-            style={{ 
-              userSelect: 'none', 
-              WebkitUserSelect: 'none',
-              pointerEvents: 'auto' 
-            }}
+            className="w-full h-full object-contain pointer-events-none select-none"
             draggable={false}
             onError={(e) => {
               (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23f0f0f0" width="100" height="100"/><text x="50" y="50" text-anchor="middle" dy=".3em" fill="%23999" font-size="12">Image</text></svg>';
@@ -174,61 +167,66 @@ export function DraggableAnnotation({
       onDragStop={handleDragStop}
       onResizeStop={handleResizeStop}
       onMouseDown={(e) => {
+        if (annotation.type === 'TextField' && !isEditing) {
+          // Allow click to edit
+          return;
+        }
         if (!isEditing) {
           e.stopPropagation();
           onSelect();
         }
       }}
-      onDoubleClick={handleDoubleClick}
       bounds="parent"
-      disableDragging={isEditing}
-      cancel=".no-drag"
+      default={{
+        x: annotation.x * scale,
+        y: annotation.y * scale,
+        width: annotation.width * scale,
+        height: annotation.height * scale,
+      }}
       className={cn(
-        'transition-shadow',
+        'transition-shadow !touch-none',
         !isEditing && 'cursor-move',
-        isSelected && 'ring-2 ring-[#ff911d] ring-offset-1 z-10'
+        isSelected && 'ring-2 ring-primary ring-offset-1 z-10'
       )}
       style={{
         background: 'transparent',
-        border: annotation.type === 'TextField' ? '1px dashed #ff911d' : 'none',
+        border: annotation.type === 'TextField' && isSelected ? '1px dashed hsl(var(--primary))' : 'none',
+        cursor: isEditing ? 'text' : 'move',
       }}
-      enableResizing={isSelected && !isEditing}
+      enableResizing={isSelected}
+      disableDragging={isEditing}
       resizeHandleStyles={{
         bottomRight: { 
           width: 10, 
           height: 10, 
-          background: '#ff911d', 
+          background: 'hsl(var(--primary))', 
           borderRadius: 2,
           right: -5,
           bottom: -5,
-          border: '1px solid white',
         },
         bottomLeft: { 
           width: 10, 
           height: 10, 
-          background: '#ff911d', 
+          background: 'hsl(var(--primary))', 
           borderRadius: 2,
           left: -5,
           bottom: -5,
-          border: '1px solid white',
         },
         topRight: { 
           width: 10, 
           height: 10, 
-          background: '#ff911d', 
+          background: 'hsl(var(--primary))', 
           borderRadius: 2,
           right: -5,
           top: -5,
-          border: '1px solid white',
         },
         topLeft: { 
           width: 10, 
           height: 10, 
-          background: '#ff911d', 
+          background: 'hsl(var(--primary))', 
           borderRadius: 2,
           left: -5,
           top: -5,
-          border: '1px solid white',
         },
       }}
     >
