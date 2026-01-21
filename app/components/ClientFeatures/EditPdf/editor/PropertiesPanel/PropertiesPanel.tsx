@@ -11,9 +11,10 @@ interface PropertiesPanelProps {
   selectedAnnotation: Annotation | null;
   onUpdate: (updates: Partial<Annotation>) => void;
   onDelete: () => void;
+  onCropImage: () => void;
 }
 
-export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete }: PropertiesPanelProps) {
+export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete, onCropImage }: PropertiesPanelProps) {
   if (!selectedAnnotation) {
     return (
       <div className="w-72 bg-white border-l border-gray-200 p-4 flex flex-col shadow-sm">
@@ -240,6 +241,18 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete }: Prop
       {/* Image-specific properties */}
       {isImage && (
         <div className="space-y-3">
+          <Label className="text-xs font-medium text-gray-700">Image</Label>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCropImage}
+              className="h-9 w-full cursor-pointer border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              Crop Image
+            </Button>
+          </div>
+
           <Label className="text-xs font-medium text-gray-700">Image URL</Label>
           <Input
             value={imageAnnotation.url}

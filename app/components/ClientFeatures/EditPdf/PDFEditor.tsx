@@ -2,6 +2,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Upload, FileText, X, Loader2, Download } from 'lucide-react';
+import Cropper from 'react-easy-crop';
 import { useAnnotations } from '@/hooks/useAnnotations';
 import { Toolbar } from './editor/Toolbar/Toolbar';
 import { ElementsSidebar } from './editor/ElementsSidebar/ElementsSidebar';
@@ -33,6 +34,14 @@ export function EditPdf() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [modifiedPdfUrl, setModifiedPdfUrl] = useState<string | null>(null);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [isCropOpen, setIsCropOpen] = useState(false);
+  const [crop, setCrop] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const [croppingObjectUrl, setCroppingObjectUrl] = useState<string | null>(null);
+  const [croppingMime, setCroppingMime] = useState<string>('image/png');
+  const [croppingNaturalSize, setCroppingNaturalSize] = useState<{ width: number; height: number } | null>(null);
+  const [savingCrop, setSavingCrop] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +58,86 @@ export function EditPdf() {
     createCheckbox,
     createImageAnnotation,
   } = useAnnotations();
+
+  const selectedAnnotation = getSelectedAnnotation();
+
+  const closeCropModal = useCallback(() => {
+    setIsCropOpen(false);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+    setCroppingNaturalSize(null);
+    if (croppingObjectUrl) {
+      URL.revokeObjectURL(croppingObjectUrl);
+    }
+    setCroppingObjectUrl(null);
+  }, [croppingObjectUrl]);
+
+  const createCroppedBlob = useCallback(async (imageUrl: string, area: { x: number; y: number; width: number; height: number }) => {
+    const image = new Image();
+    image.src = imageUrl;
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error('Failed to load image for cropping'));
+    });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(area.width));
+    canvas.height = Math.max(1, Math.round(area.height));
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas is not supported');
+
+    ctx.drawImage(
+      image,
+      area.x,
+      area.y,
+      area.width,
+      area.height,
+      0,
+      0,
+      area.width,
+      area.height
+    );
+
+    const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, croppingMime || 'image/png', 0.92));
+    if (!blob) throw new Error('Failed to create cropped image');
+    return blob;
+  }, [croppingMime]);
+
+  const handleOpenCropForSelectedImage = useCallback(async () => {
+    if (!selectedAnnotation || selectedAnnotation.type !== 'Image') {
+      toast.error('Select an image to crop');
+      return;
+    }
+
+    try {
+      setSavingCrop(true);
+      // Fetch as blob so canvas draw isn't tainted and so we can keep it local for Cropper.
+      const res = await fetch((selectedAnnotation as any).url);
+      if (!res.ok) throw new Error('Failed to load image');
+      const blob = await res.blob();
+      setCroppingMime(blob.type || 'image/png');
+
+      const objUrl = URL.createObjectURL(blob);
+      // Preload to get natural size for width/height scaling updates
+      const img = new Image();
+      img.src = objUrl;
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Failed to read image'));
+      });
+      setCroppingNaturalSize({ width: img.naturalWidth, height: img.naturalHeight });
+
+      // Clean up previous object URL if any
+      if (croppingObjectUrl) URL.revokeObjectURL(croppingObjectUrl);
+      setCroppingObjectUrl(objUrl);
+      setIsCropOpen(true);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Failed to open cropper');
+    } finally {
+      setSavingCrop(false);
+    }
+  }, [selectedAnnotation, croppingObjectUrl]);
 
   const handleAddTextField = useCallback(() => {
     const annotation = createTextField(100, 100, currentPage);
@@ -415,7 +504,50 @@ export function EditPdf() {
     }
   }, [annotations, buildPayload, pdfUrl]);
 
-  const selectedAnnotation = getSelectedAnnotation();
+  const handleSaveCrop = useCallback(async () => {
+    if (!selectedId || !selectedAnnotation || selectedAnnotation.type !== 'Image') return;
+    if (!croppingObjectUrl || !croppedAreaPixels) {
+      toast.error('Please select a crop area');
+      return;
+    }
+
+    try {
+      setSavingCrop(true);
+      const blob = await createCroppedBlob(croppingObjectUrl, croppedAreaPixels);
+      const ext = croppingMime === 'image/jpeg' ? 'jpg' : croppingMime === 'image/webp' ? 'webp' : 'png';
+      const file = new File([blob], `cropped-${Date.now()}.${ext}`, { type: croppingMime || 'image/png' });
+
+      const newUrl = await uploadImageFile(file);
+      if (!newUrl) return;
+
+      // Update width/height based on crop ratio vs original natural size.
+      let nextWidth = selectedAnnotation.width;
+      let nextHeight = selectedAnnotation.height;
+      if (croppingNaturalSize?.width && croppingNaturalSize?.height) {
+        nextWidth = Math.max(5, Math.round((selectedAnnotation.width * croppedAreaPixels.width) / croppingNaturalSize.width));
+        nextHeight = Math.max(5, Math.round((selectedAnnotation.height * croppedAreaPixels.height) / croppingNaturalSize.height));
+      }
+
+      updateAnnotation(selectedId, { url: newUrl, width: nextWidth, height: nextHeight } as Partial<Annotation>);
+      toast.success('Image cropped');
+      closeCropModal();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Failed to crop image');
+    } finally {
+      setSavingCrop(false);
+    }
+  }, [
+    selectedId,
+    selectedAnnotation,
+    croppingObjectUrl,
+    croppedAreaPixels,
+    croppingMime,
+    croppingNaturalSize,
+    createCroppedBlob,
+    uploadImageFile,
+    updateAnnotation,
+    closeCropModal,
+  ]);
 
   // Show upload UI if no PDF is uploaded
   if (!pdfUrl) {
@@ -475,6 +607,83 @@ export function EditPdf() {
           <div className="flex flex-col items-center gap-4">
             <Spinner />
             <p className="text-lg font-medium text-white">Uploading image...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Crop Image Modal */}
+      {isCropOpen && croppingObjectUrl && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-6 relative w-full max-w-2xl mx-4">
+            <button
+              onClick={closeCropModal}
+              className="absolute top-3 right-3 p-2 hover:bg-gray-100 rounded-full transition-colors"
+              aria-label="Close crop"
+              disabled={savingCrop}
+            >
+              <X className="h-5 w-5 text-gray-600" />
+            </button>
+
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Crop Image</h3>
+              <p className="text-sm text-gray-600">Crop the image, then we’ll upload the cropped version and use it on the PDF.</p>
+            </div>
+
+            <div className="relative w-full h-[420px] bg-black rounded-lg overflow-hidden">
+              <Cropper
+                image={croppingObjectUrl}
+                crop={crop}
+                zoom={zoom}
+                aspect={undefined}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={(_, areaPixels) => setCroppedAreaPixels(areaPixels)}
+              />
+            </div>
+
+            <div className="mt-4 flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700 w-12">Zoom</label>
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.01}
+                value={zoom}
+                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                className="flex-1"
+                disabled={savingCrop}
+              />
+              <div className="w-14 text-right text-sm text-gray-600">{zoom.toFixed(2)}x</div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeCropModal}
+                className="cursor-pointer border-gray-300 text-gray-700 hover:bg-gray-50"
+                disabled={savingCrop}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSaveCrop}
+                className="cursor-pointer bg-[#ff911d] hover:bg-[#ff7a00] text-white"
+                disabled={savingCrop}
+              >
+                {savingCrop ? 'Saving…' : 'Crop & Use Image'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {savingCrop && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60]">
+          <div className="flex flex-col items-center gap-4">
+            <Spinner />
+            <p className="text-lg font-medium text-white">Saving cropped image...</p>
           </div>
         </div>
       )}
@@ -563,6 +772,7 @@ export function EditPdf() {
           selectedAnnotation={selectedAnnotation}
           onUpdate={(updates) => selectedId && updateAnnotation(selectedId, updates)}
           onDelete={handleDeleteSelected}
+          onCropImage={handleOpenCropForSelectedImage}
         />
       </div>
     </div>
