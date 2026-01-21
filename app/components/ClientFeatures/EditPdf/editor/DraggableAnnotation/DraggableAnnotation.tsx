@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Rnd } from 'react-rnd';
 import { Check, Square } from 'lucide-react';
-import type { Annotation, TextFieldAnnotation, ImageAnnotation } from '@/app/types/annotations';
+import type { Annotation, TextFieldAnnotation, FormTextFieldAnnotation, ImageAnnotation } from '@/app/types/annotations';
 import { cn } from '../../../../lib/utils';
 
 interface DraggableAnnotationProps {
@@ -50,17 +50,23 @@ export function DraggableAnnotation({
   };
 
   const handleTextFieldClick = (e: React.MouseEvent) => {
-    if (annotation.type === 'TextField' && !isEditing) {
+    if ((annotation.type === 'TextField' || annotation.type === 'FormTextField') && !isEditing) {
       e.stopPropagation();
-      const tf = annotation as TextFieldAnnotation;
-      setIsEditing(true);
-      setEditText(tf.text || '');
+      if (annotation.type === 'TextField') {
+        const tf = annotation as TextFieldAnnotation;
+        setIsEditing(true);
+        setEditText(tf.text || '');
+      } else if (annotation.type === 'FormTextField') {
+        const ftf = annotation as FormTextFieldAnnotation;
+        setIsEditing(true);
+        setEditText(ftf.text || '');
+      }
       onSelect();
     }
   };
 
   const handleTextBlur = () => {
-    if (annotation.type === 'TextField' && isEditing) {
+    if ((annotation.type === 'TextField' || annotation.type === 'FormTextField') && isEditing) {
       onUpdate({ text: editText });
       setIsEditing(false);
       // Keep the annotation selected after editing
@@ -76,8 +82,13 @@ export function DraggableAnnotation({
       handleTextBlur();
     } else if (e.key === 'Escape') {
       setIsEditing(false);
-      const tf = annotation as TextFieldAnnotation;
-      setEditText(tf.text || '');
+      if (annotation.type === 'TextField') {
+        const tf = annotation as TextFieldAnnotation;
+        setEditText(tf.text || '');
+      } else if (annotation.type === 'FormTextField') {
+        const ftf = annotation as FormTextFieldAnnotation;
+        setEditText(ftf.text || '');
+      }
     }
   };
 
@@ -127,6 +138,38 @@ export function DraggableAnnotation({
           </div>
         );
       }
+      case 'FormTextField': {
+        const ftf = annotation as FormTextFieldAnnotation;
+        if (isEditing) {
+          return (
+            <input
+              ref={inputRef}
+              type="text"
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onBlur={handleTextBlur}
+              onKeyDown={handleTextKeyDown}
+              className="w-full h-full px-1 outline-none border border-gray-300 bg-transparent rounded cursor-text text-black"
+              style={{
+                fontSize: `${ftf.size * scale}px`,
+                color: '#000000',
+              }}
+            />
+          );
+        }
+        return (
+          <div
+            className="w-full h-full flex items-center px-1 overflow-hidden select-none border border-gray-300 bg-white rounded cursor-text text-black"
+            style={{
+              fontSize: `${ftf.size * scale}px`,
+              color: '#000000',
+            }}
+            onClick={handleTextFieldClick}
+          >
+            {ftf.text || 'Click to edit'}
+          </div>
+        );
+      }
       case 'Checkbox':
         return (
           <div className="w-full h-full flex items-center justify-center border-2 border-foreground/60 rounded-sm bg-white pointer-events-none">
@@ -170,7 +213,7 @@ export function DraggableAnnotation({
       onDragStop={handleDragStop}
       onResizeStop={handleResizeStop}
       onMouseDown={(e) => {
-        if (annotation.type === 'TextField' && !isEditing) {
+        if ((annotation.type === 'TextField' || annotation.type === 'FormTextField') && !isEditing) {
           // Allow click to edit
           return;
         }

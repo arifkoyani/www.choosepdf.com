@@ -1,4 +1,4 @@
-export type AnnotationType = 'TextField' | 'Checkbox' | 'CheckedCheckbox' | 'Image';
+export type AnnotationType = 'TextField' | 'FormTextField' | 'Checkbox' | 'CheckedCheckbox' | 'Image';
 
 export interface BaseAnnotation {
   id: string;
@@ -29,12 +29,18 @@ export interface CheckboxAnnotation extends BaseAnnotation {
   type: 'Checkbox' | 'CheckedCheckbox';
 }
 
+export interface FormTextFieldAnnotation extends BaseAnnotation {
+  type: 'FormTextField';
+  text: string;
+  size: number;
+}
+
 export interface ImageAnnotation extends BaseAnnotation {
   type: 'Image';
   url: string;
 }
 
-export type Annotation = TextFieldAnnotation | CheckboxAnnotation | ImageAnnotation;
+export type Annotation = TextFieldAnnotation | FormTextFieldAnnotation | CheckboxAnnotation | ImageAnnotation;
 
 export interface PDFPayload {
   url: string;

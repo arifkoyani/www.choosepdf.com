@@ -6,7 +6,7 @@ import { Label } from '@/app/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Separator } from '@/app/components/ui/separator';
 import { Toggle } from '@/app/components/ui/toggle';
-import type { Annotation, TextFieldAnnotation, ImageAnnotation } from '@/app/types/annotations';
+import type { Annotation, TextFieldAnnotation, FormTextFieldAnnotation, ImageAnnotation } from '@/app/types/annotations';
 
 interface PropertiesPanelProps {
   selectedAnnotation: Annotation | null;
@@ -16,6 +16,17 @@ interface PropertiesPanelProps {
 }
 
 export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete, onCropImage }: PropertiesPanelProps) {
+  const [showLinkInput, setShowLinkInput] = useState(false);
+
+  useEffect(() => {
+    if (selectedAnnotation?.type === 'TextField') {
+      const tf = selectedAnnotation as TextFieldAnnotation;
+      setShowLinkInput(Boolean((tf.link || '').trim()));
+    } else {
+      setShowLinkInput(false);
+    }
+  }, [selectedAnnotation?.id, selectedAnnotation?.type]);
+
   if (!selectedAnnotation) {
     return (
       <div className="w-72 bg-white border-l border-gray-200 p-4 flex flex-col shadow-sm">
@@ -30,20 +41,11 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete, onCrop
   }
 
   const isTextField = selectedAnnotation.type === 'TextField';
+  const isFormTextField = selectedAnnotation.type === 'FormTextField';
   const isImage = selectedAnnotation.type === 'Image';
   const textField = selectedAnnotation as TextFieldAnnotation;
+  const formTextField = selectedAnnotation as FormTextFieldAnnotation;
   const imageAnnotation = selectedAnnotation as ImageAnnotation;
-  const [showLinkInput, setShowLinkInput] = useState(false);
-
-  useEffect(() => {
-    // Reset per selection; keep open if link already exists.
-    if (isTextField) {
-      setShowLinkInput(Boolean((textField.link || '').trim()));
-    } else {
-      setShowLinkInput(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAnnotation?.id]);
 
   return (
     <div className="w-72 bg-white border-l border-gray-200 p-4 flex flex-col gap-4 overflow-y-auto shadow-sm">
@@ -276,6 +278,33 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete, onCrop
             >
               <span className="text-xs">{textField.transparent ? 'Yes' : 'No'}</span>
             </Toggle>
+          </div>
+        </>
+      )}
+
+      {/* FormTextField-specific properties */}
+      {isFormTextField && (
+        <>
+          <div className="space-y-3">
+            <Label className="text-xs font-medium text-gray-700">Text</Label>
+            <Input
+              value={formTextField.text}
+              onChange={(e) => onUpdate({ text: e.target.value })}
+              placeholder="Enter text..."
+              className="h-8 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-xs font-medium text-gray-700">Size</Label>
+            <Input
+              type="number"
+              value={formTextField.size}
+              onChange={(e) => onUpdate({ size: parseInt(e.target.value) || 24 })}
+              min={1}
+              max={100}
+              className="h-8 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]"
+            />
           </div>
         </>
       )}

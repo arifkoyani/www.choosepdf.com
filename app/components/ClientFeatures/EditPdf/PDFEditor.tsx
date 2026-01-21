@@ -10,7 +10,7 @@ import { PropertiesPanel } from './editor/PropertiesPanel/PropertiesPanel';
 import { Button } from '@/app/components/ui/button';
 import Spinner from '../../ui/loader/loader';
 import { toast } from 'sonner';
-import type { PDFPayload, Annotation, TextFieldAnnotation } from '@/app/types/annotations';
+import type { PDFPayload, Annotation, TextFieldAnnotation, FormTextFieldAnnotation } from '@/app/types/annotations';
 
 // Dynamically import PDFViewer with SSR disabled to prevent DOMMatrix error
 const PDFViewer = dynamic(() => import('./editor/PDFViewer/PDFViewer').then(mod => ({ default: mod.PDFViewer })), {
@@ -55,6 +55,7 @@ export function EditPdf() {
     selectAnnotation,
     getSelectedAnnotation,
     createTextField,
+    createFormTextField,
     createCheckbox,
     createImageAnnotation,
   } = useAnnotations();
@@ -145,6 +146,12 @@ export function EditPdf() {
     toast.success('Text field added');
   }, [createTextField, currentPage, addAnnotation]);
 
+  const handleAddFormTextField = useCallback(() => {
+    const annotation = createFormTextField(100, 100, currentPage);
+    addAnnotation(annotation);
+    toast.success('Form text field added');
+  }, [createFormTextField, currentPage, addAnnotation]);
+
   const handleAddCheckbox = useCallback(() => {
     const annotation = createCheckbox(100, 100, currentPage, false);
     addAnnotation(annotation);
@@ -227,7 +234,7 @@ export function EditPdf() {
   }, []);
 
   const handleDropAnnotation = useCallback((
-    type: 'text' | 'checkbox' | 'checkedCheckbox' | 'image',
+    type: 'text' | 'formTextField' | 'checkbox' | 'checkedCheckbox' | 'image',
     x: number,
     y: number
   ) => {
@@ -248,6 +255,9 @@ export function EditPdf() {
       case 'text':
         annotation = createTextField(x, y, currentPage);
         break;
+      case 'formTextField':
+        annotation = createFormTextField(x, y, currentPage);
+        break;
       case 'checkbox':
         annotation = createCheckbox(x, y, currentPage, false);
         break;
@@ -258,7 +268,7 @@ export function EditPdf() {
         return;
     }
     addAnnotation(annotation);
-  }, [createTextField, createCheckbox, createImageAnnotation, currentPage, addAnnotation]);
+  }, [createTextField, createFormTextField, createCheckbox, createImageAnnotation, currentPage, addAnnotation]);
 
   const handleDeleteSelected = useCallback(() => {
     if (selectedId) {
@@ -413,7 +423,7 @@ export function EditPdf() {
 
   const buildPayload = useCallback((): PDFPayload => {
     if (!pdfUrl) throw new Error('No PDF URL');
-    const textAnnotations = annotations.filter(a => a.type === 'TextField' || a.type === 'Checkbox' || a.type === 'CheckedCheckbox');
+    const textAnnotations = annotations.filter(a => a.type === 'TextField' || a.type === 'FormTextField' || a.type === 'Checkbox' || a.type === 'CheckedCheckbox');
     const imageAnnotations = annotations.filter(a => a.type === 'Image');
 
     return {
@@ -449,6 +459,22 @@ export function EditPdf() {
             ...(tf.link && tf.link.trim().length > 0 ? { link: tf.link.trim() } : {}),
             alignment: tf.alignment,
             transparent: tf.transparent,
+          };
+        }
+
+        // FormTextField annotations - send as type: "TextField"
+        if (a.type === 'FormTextField') {
+          const ftf = a as FormTextFieldAnnotation;
+          return {
+            text: ftf.text,
+            x: ftf.x,
+            y: ftf.y,
+            size: ftf.size,
+            pages: String(ftf.page),
+            type: 'TextField',
+            id: ftf.id,
+            width: ftf.width,
+            height: ftf.height,
           };
         }
 
@@ -691,6 +717,7 @@ export function EditPdf() {
 
       <Toolbar
         onAddTextField={handleAddTextField}
+        onAddFormTextField={handleAddFormTextField}
         onAddCheckbox={handleAddCheckbox}
         onAddCheckedCheckbox={handleAddCheckedCheckbox}
         onAddImage={handleAddImage}

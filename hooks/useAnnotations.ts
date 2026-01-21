@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { Annotation, TextFieldAnnotation, CheckboxAnnotation, ImageAnnotation } from '@/app/types/annotations';
+import type { Annotation, TextFieldAnnotation, FormTextFieldAnnotation, CheckboxAnnotation, ImageAnnotation } from '@/app/types/annotations';
 
 export function useAnnotations() {
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
@@ -45,8 +45,8 @@ export function useAnnotations() {
       type: 'TextField',
       x,
       y,
-      width: 150,
-      height: 30,
+      width:136,
+      height: 26,
       page,
       text: 'Text here',
       fontSize: 14,
@@ -74,6 +74,20 @@ export function useAnnotations() {
     };
   }, []);
 
+  const createFormTextField = useCallback((x: number, y: number, page: number): FormTextFieldAnnotation => {
+    return {
+      id: `formtextfield-${Date.now()}`,
+      type: 'FormTextField',
+      x,
+      y,
+      width: 136,
+      height: 26,
+      page,
+      text: 'Text here',
+      size: 14,
+    };
+  }, []);
+
   const createImageAnnotation = useCallback((x: number, y: number, page: number, url: string): ImageAnnotation => {
     return {
       id: `image-${Date.now()}`,
@@ -97,6 +111,7 @@ export function useAnnotations() {
     selectAnnotation,
     getSelectedAnnotation,
     createTextField,
+    createFormTextField,
     createCheckbox,
     createImageAnnotation,
   };

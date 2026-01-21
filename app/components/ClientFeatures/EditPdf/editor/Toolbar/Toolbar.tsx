@@ -1,10 +1,11 @@
-import { Type, Square, CheckSquare, Image, Download, Upload, Trash2 } from 'lucide-react';
+import { Type, Square, CheckSquare, Image, Download, Upload, Trash2, FileText } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Separator } from '@/app/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/app/components/ui/tooltip';
 
 interface ToolbarProps {
   onAddTextField: () => void;
+  onAddFormTextField: () => void;
   onAddCheckbox: () => void;
   onAddCheckedCheckbox: () => void;
   onAddImage: () => void;
@@ -17,6 +18,7 @@ interface ToolbarProps {
 
 export function Toolbar({
   onAddTextField,
+  onAddFormTextField,
   onAddCheckbox,
   onAddCheckedCheckbox,
   onAddImage,
@@ -43,6 +45,22 @@ export function Toolbar({
             </TooltipTrigger>
             <TooltipContent className="bg-gray-900 text-white border-gray-700">
               Add Text Field
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onAddFormTextField} 
+                className="h-9 w-9 text-gray-700 hover:bg-[#fff5f0] hover:text-[#ff911d]"
+              >
+                <FileText className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="bg-gray-900 text-white border-gray-700">
+              Add Form Text Field
             </TooltipContent>
           </Tooltip>
 
@@ -123,7 +141,7 @@ export function Toolbar({
         <Button 
           onClick={onApplyToPdf} 
           disabled={isApplying || isApplyDisabled} 
-          className="gap-2 bg-[#ff911d] hover:bg-[#ff7a00] text-white font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          className="gap-2 bg-[#ff911d] cursor-pointer hover:bg-[#ff7a00] text-white font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isApplying ? (
             <>
@@ -132,7 +150,7 @@ export function Toolbar({
             </>
           ) : (
             <>
-              <Download className="h-4 w-4" />
+              <Download className="h-4 w-4 " />
               Apply to PDF
             </>
           )}

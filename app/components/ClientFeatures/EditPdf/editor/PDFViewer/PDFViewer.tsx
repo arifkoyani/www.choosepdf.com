@@ -17,7 +17,7 @@ interface PDFViewerProps {
   selectedId: string | null;
   onSelectAnnotation: (id: string | null) => void;
   onUpdateAnnotation: (id: string, updates: Partial<Annotation>) => void;
-  onDropAnnotation: (type: 'text' | 'checkbox' | 'checkedCheckbox' | 'image', x: number, y: number) => void;
+  onDropAnnotation: (type: 'text' | 'formTextField' | 'checkbox' | 'checkedCheckbox' | 'image', x: number, y: number) => void;
 }
 
 export function PDFViewer({
@@ -55,7 +55,7 @@ export function PDFViewer({
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / scale;
     const y = (e.clientY - rect.top) / scale;
-    const type = e.dataTransfer.getData('annotation-type') as 'text' | 'checkbox' | 'checkedCheckbox' | 'image';
+    const type = e.dataTransfer.getData('annotation-type') as 'text' | 'formTextField' | 'checkbox' | 'checkedCheckbox' | 'image';
     if (type) {
       onDropAnnotation(type, x, y);
     }

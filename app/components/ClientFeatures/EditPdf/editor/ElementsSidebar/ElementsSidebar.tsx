@@ -1,4 +1,4 @@
-import { Type, Square, CheckSquare, Image, FileJson } from 'lucide-react';
+import { Type, Square, CheckSquare, Image, FileJson, FileText } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Separator } from '@/app/components/ui/separator';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
@@ -26,6 +26,8 @@ export function ElementsSidebar({
     switch (type) {
       case 'TextField':
         return <Type className="h-4 w-4" />;
+      case 'FormTextField':
+        return <FileText className="h-4 w-4" />;
       case 'Checkbox':
         return <Square className="h-4 w-4" />;
       case 'CheckedCheckbox':
@@ -49,6 +51,14 @@ export function ElementsSidebar({
           >
             <Type className="h-5 w-5 text-gray-700 group-hover:text-white transition-colors" />
             <span className="text-xs text-gray-700 group-hover:text-white transition-colors">Text</span>
+          </div>
+          <div
+            draggable
+            onDragStart={(e) => handleDragStart(e, 'formTextField')}
+            className="group flex flex-col items-center gap-1.5 p-3 rounded-lg bg-[#fff5f0] hover:bg-[#ff911d] cursor-grab transition-colors border border-gray-200"
+          >
+            <FileText className="h-5 w-5 text-gray-700 group-hover:text-white transition-colors" />
+            <span className="text-xs text-gray-700 group-hover:text-white transition-colors">Text field</span>
           </div>
           <div
             draggable
@@ -102,7 +112,7 @@ export function ElementsSidebar({
                 >
                   {getIcon(ann.type)}
                   <span className="truncate">
-                    {ann.type === 'TextField' ? (ann as any).text || 'Text' : ann.type}
+                    {ann.type === 'TextField' ? (ann as any).text || 'Text' : ann.type === 'FormTextField' ? (ann as any).text || 'TextField' : ann.type}
                   </span>
                 </button>
               ))}
