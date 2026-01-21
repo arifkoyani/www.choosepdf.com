@@ -22,6 +22,7 @@ export interface TextFieldAnnotation extends BaseAnnotation {
   color: string;
   alignment: 'left' | 'center' | 'right';
   transparent: boolean;
+  link?: string;
 }
 
 export interface CheckboxAnnotation extends BaseAnnotation {

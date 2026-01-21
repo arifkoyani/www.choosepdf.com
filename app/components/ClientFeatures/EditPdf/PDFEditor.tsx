@@ -445,7 +445,8 @@ export function EditPdf() {
             fontItalic: tf.fontItalic,
             fontStrikeout: tf.fontStrikeout,
             fontUnderline: tf.fontUnderline,
-            color: tf.color,
+            color: tf.color?.startsWith('#') ? tf.color.slice(1) : tf.color,
+            ...(tf.link && tf.link.trim().length > 0 ? { link: tf.link.trim() } : {}),
             alignment: tf.alignment,
             transparent: tf.transparent,
           };

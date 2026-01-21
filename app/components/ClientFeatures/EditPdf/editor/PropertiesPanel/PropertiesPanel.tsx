@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';  
@@ -32,6 +33,17 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete, onCrop
   const isImage = selectedAnnotation.type === 'Image';
   const textField = selectedAnnotation as TextFieldAnnotation;
   const imageAnnotation = selectedAnnotation as ImageAnnotation;
+  const [showLinkInput, setShowLinkInput] = useState(false);
+
+  useEffect(() => {
+    // Reset per selection; keep open if link already exists.
+    if (isTextField) {
+      setShowLinkInput(Boolean((textField.link || '').trim()));
+    } else {
+      setShowLinkInput(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAnnotation?.id]);
 
   return (
     <div className="w-72 bg-white border-l border-gray-200 p-4 flex flex-col gap-4 overflow-y-auto shadow-sm">
@@ -112,6 +124,36 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete, onCrop
               placeholder="Enter text..."
               className="h-8 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]"
             />
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-xs font-medium text-gray-700">Hyperlink</Label>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                const hasLink = Boolean((textField.link || '').trim());
+                if (hasLink) {
+                  onUpdate({ link: '' });
+                  setShowLinkInput(false);
+                } else {
+                  setShowLinkInput(true);
+                }
+              }}
+              className="h-9 w-full cursor-pointer border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              {Boolean((textField.link || '').trim()) ? 'Remove Hyperlink' : 'Add Hyperlink to text'}
+            </Button>
+            <p className="text-xs text-[#ff911d] -mt-1">URL hyperlink must be public accessible</p>
+
+            {showLinkInput && (
+              <Input
+                value={textField.link || ''}
+                onChange={(e) => onUpdate({ link: e.target.value })}
+                placeholder="https://example.com"
+                className="h-8 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]"
+              />
+            )}
           </div>
 
           <div className="space-y-3">

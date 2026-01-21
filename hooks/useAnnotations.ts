@@ -58,6 +58,7 @@ export function useAnnotations() {
       color: '#000000',
       alignment: 'left',
       transparent: true,
+      link: '',
     };
   }, []);
 
