@@ -252,14 +252,6 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete, onCrop
               Crop Image
             </Button>
           </div>
-
-          <Label className="text-xs font-medium text-gray-700">Image URL</Label>
-          <Input
-            value={imageAnnotation.url}
-            onChange={(e) => onUpdate({ url: e.target.value })}
-            placeholder="https://example.com/image.png"
-            className="h-8 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]"
-          />
         </div>
       )}
 
