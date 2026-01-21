@@ -214,7 +214,8 @@ export function DraggableAnnotation({
       onResizeStop={handleResizeStop}
       onMouseDown={(e) => {
         if ((annotation.type === 'TextField' || annotation.type === 'FormTextField') && !isEditing) {
-          // Allow click to edit
+          // Select first, then allow click to edit
+          onSelect();
           return;
         }
         if (!isEditing) {
@@ -232,47 +233,103 @@ export function DraggableAnnotation({
       className={cn(
         'transition-shadow !touch-none',
         !isEditing && 'cursor-move',
-        isSelected && 'ring-2 ring-primary ring-offset-1 z-10'
+        isSelected && 'ring-2 ring-[#ff911d] ring-offset-1 z-10'
       )}
       style={{
         background: 'transparent',
-        border: annotation.type === 'TextField' && isSelected ? '1px dashed hsl(var(--primary))' : 'none',
+        border: (annotation.type === 'TextField' || annotation.type === 'FormTextField') && isSelected 
+          ? '1px dashed #ff911d' 
+          : isSelected 
+          ? '1px solid #ff911d' 
+          : 'none',
         cursor: isEditing ? 'text' : 'move',
       }}
-      enableResizing={isSelected}
+      enableResizing={isSelected && !isEditing}
       disableDragging={isEditing}
       resizeHandleStyles={{
         bottomRight: { 
-          width: 10, 
-          height: 10, 
-          background: 'hsl(var(--primary))', 
+          width: 12, 
+          height: 12, 
+          background: '#ff911d', 
+          border: '2px solid white',
           borderRadius: 2,
-          right: -5,
-          bottom: -5,
+          right: -6,
+          bottom: -6,
+          cursor: 'nwse-resize',
         },
         bottomLeft: { 
-          width: 10, 
-          height: 10, 
-          background: 'hsl(var(--primary))', 
+          width: 12, 
+          height: 12, 
+          background: '#ff911d', 
+          border: '2px solid white',
           borderRadius: 2,
-          left: -5,
-          bottom: -5,
+          left: -6,
+          bottom: -6,
+          cursor: 'nesw-resize',
         },
         topRight: { 
-          width: 10, 
-          height: 10, 
-          background: 'hsl(var(--primary))', 
+          width: 12, 
+          height: 12, 
+          background: '#ff911d', 
+          border: '2px solid white',
           borderRadius: 2,
-          right: -5,
-          top: -5,
+          right: -6,
+          top: -6,
+          cursor: 'nesw-resize',
         },
         topLeft: { 
-          width: 10, 
-          height: 10, 
-          background: 'hsl(var(--primary))', 
+          width: 12, 
+          height: 12, 
+          background: '#ff911d', 
+          border: '2px solid white',
           borderRadius: 2,
-          left: -5,
-          top: -5,
+          left: -6,
+          top: -6,
+          cursor: 'nwse-resize',
+        },
+        right: {
+          width: 6,
+          height: 12,
+          background: '#ff911d',
+          border: '1px solid white',
+          borderRadius: 1,
+          right: -3,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          cursor: 'ew-resize',
+        },
+        left: {
+          width: 6,
+          height: 12,
+          background: '#ff911d',
+          border: '1px solid white',
+          borderRadius: 1,
+          left: -3,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          cursor: 'ew-resize',
+        },
+        top: {
+          width: 12,
+          height: 6,
+          background: '#ff911d',
+          border: '1px solid white',
+          borderRadius: 1,
+          top: -3,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          cursor: 'ns-resize',
+        },
+        bottom: {
+          width: 12,
+          height: 6,
+          background: '#ff911d',
+          border: '1px solid white',
+          borderRadius: 1,
+          bottom: -3,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          cursor: 'ns-resize',
         },
       }}
     >

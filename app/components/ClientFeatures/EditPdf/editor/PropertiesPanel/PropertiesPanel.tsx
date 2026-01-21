@@ -146,15 +146,17 @@ export function PropertiesPanel({ selectedAnnotation, onUpdate, onDelete, onCrop
             >
               {Boolean((textField.link || '').trim()) ? 'Remove Hyperlink' : 'Add Hyperlink to text'}
             </Button>
-            <p className="text-xs text-[#ff911d] -mt-1">URL hyperlink must be public accessible</p>
 
             {showLinkInput && (
-              <Input
-                value={textField.link || ''}
-                onChange={(e) => onUpdate({ link: e.target.value })}
-                placeholder="https://example.com"
-                className="h-8 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]"
-              />
+              <>
+                <p className="text-xs text-[#ff911d]">URL hyperlink must be public accessible</p>
+                <Input
+                  value={textField.link || ''}
+                  onChange={(e) => onUpdate({ link: e.target.value })}
+                  placeholder="https://example.com"
+                  className="h-8 border-gray-300 text-gray-900 focus:border-[#ff911d] focus:ring-[#ff911d]"
+                />
+              </>
             )}
           </div>
 
