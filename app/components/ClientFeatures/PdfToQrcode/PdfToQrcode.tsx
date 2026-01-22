@@ -325,18 +325,44 @@ export default function PdfToQrcode() {
 				return
 			}
 
+			// Preload frame image to ensure it's loaded before capture
+			const frameImageUrl = `/frames/${selectedFrame}`
+			const frameImage = new Image()
+			frameImage.crossOrigin = "anonymous"
+			
+			await new Promise<void>((resolve, reject) => {
+				frameImage.onload = () => resolve()
+				frameImage.onerror = () => reject(new Error("Failed to load frame image"))
+				frameImage.src = frameImageUrl
+			})
+
+			// Small delay to ensure everything is rendered
+			await new Promise((resolve) => setTimeout(resolve, 100))
+
 			// @ts-ignore
 			const html2canvasModule = await import("html2canvas")
 			const html2canvas = html2canvasModule.default
 
+			// Get background color from config (frame3.png has white background)
+			const bgColor = selectedFrame === "frame3.png" ? "#ffffff" : "transparent"
+
 			const canvas = await html2canvas(frameRef.current, {
-				backgroundColor: "transparent",
+				backgroundColor: bgColor,
 				scale: 2,
 				useCORS: true,
-				allowTaint: true,
+				allowTaint: false,
 				logging: false,
 				width: frameRef.current.offsetWidth,
 				height: frameRef.current.offsetHeight,
+				onclone: (clonedDoc) => {
+					// Ensure background images are properly rendered in cloned document
+					const clonedElement = clonedDoc.querySelector('[data-frame-container]') as HTMLElement
+					if (clonedElement && frameRef.current) {
+						// Copy all computed styles to ensure background image is preserved
+						const originalStyle = frameRef.current.getAttribute("style") || ""
+						clonedElement.setAttribute("style", originalStyle)
+					}
+				},
 			})
 
 			canvas.toBlob((blob: Blob | null) => {
@@ -628,6 +654,7 @@ export default function PdfToQrcode() {
 									<div className="flex flex-col items-center justify-center space-y-6 p-4">
 										<div
 											ref={frameRef}
+											data-frame-container
 											className={`inline-block p-4 rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
 												selectedFrame === "no-frame" ? "shadow-none" : "shadow-xl hover:shadow-2xl"
 											}`}
@@ -649,7 +676,7 @@ export default function PdfToQrcode() {
 
 										<button
 											onClick={downloadBarcode}
-											className="w-full max-w-sm inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
+											className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
 										>
 											<Download className="h-5 w-5" />
 											<span>Download Barcode</span>
