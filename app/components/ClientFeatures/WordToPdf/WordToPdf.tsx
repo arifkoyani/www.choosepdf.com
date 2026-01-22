@@ -30,6 +30,7 @@ const WordToPdf = () => {
   const [downloading, setDownloading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [toEmail, setToEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +50,24 @@ const WordToPdf = () => {
     const validExtensions = ["doc", "docx"];
     const fileExtension = file.name.toLowerCase().split(".").pop();
     return validTypes.includes(file.type) || validExtensions.includes(fileExtension || "");
+  };
+
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setToEmail(value);
+    
+    if (value.trim() === "") {
+      setEmailError("");
+    } else if (!isValidEmail(value)) {
+      setEmailError("Please enter a valid email address");
+    } else {
+      setEmailError("");
+    }
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,6 +190,7 @@ const WordToPdf = () => {
     setErrorMessage("");
     setDownloading(false);
     setToEmail("");
+    setEmailError("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -201,7 +221,13 @@ const WordToPdf = () => {
       return;
     }
 
+    if (!isValidEmail(toEmail)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
     setSendingEmail(true);
+    setEmailError("");
 
     try {
       const response = await fetch("/api/send-email", {
@@ -418,21 +444,30 @@ const WordToPdf = () => {
               {/* Email Input and Send Button */}
               <div className="pt-2">
                 <h3 className="text-sm mb-3 text-gray-900">Share and Receive PDF via Email</h3>
-                <div className="flex gap-3 items-center">
-                  <input
-                    type="email"
-                    placeholder="Enter recipient email"
-                    value={toEmail}
-                    onChange={(e) => setToEmail(e.target.value)}
-                    className="border-1 border-gray-300 rounded-lg px-4 py-3 w-full focus:outline-none focus:border-[#ff911d] text-gray-900"
-                  />
-                  <Button
-                    onClick={handleSendEmail}
-                    disabled={sendingEmail || !convertResult || !toEmail}
-                    className="bg-[#f16625] text-white cursor-pointer"
-                  >
-                    {sendingEmail ? "Sending..." : "Send Email"}
-                  </Button>
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-3 items-start">
+                    <div className="flex-1">
+                      <input
+                        type="email"
+                        placeholder="Enter recipient email"
+                        value={toEmail}
+                        onChange={handleEmailChange}
+                        className={`border-1 rounded-lg px-4 py-3 w-full focus:outline-none text-gray-900 ${
+                          emailError ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-[#ff911d]"
+                        }`}
+                      />
+                      {emailError && (
+                        <p className="text-sm text-red-600 mt-1 text-left">{emailError}</p>
+                      )}
+                    </div>
+                    <Button
+                      onClick={handleSendEmail}
+                      disabled={sendingEmail || !convertResult || !toEmail || !!emailError}
+                      className="bg-[#f16625] text-white cursor-pointer"
+                    >
+                      {sendingEmail ? "Sending..." : "Send Email"}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
