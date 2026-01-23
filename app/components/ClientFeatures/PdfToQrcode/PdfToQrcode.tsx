@@ -5,8 +5,6 @@ import { useMemo, useRef, useState } from "react"
 import { Download, ImageIcon, PaintBucket, RotateCw, X, MonitorUp } from "lucide-react"
 import Spinner from "../../ui/loader/loader"
 
-type BarcodeType = "QRCode" | "DataMatrix" | "Aztec"
-
 type FrameKey = "no-frame" | "frame.png" | "frame2.png" | "frame3.png" | "frame4.png" | "frame5.png" | "frame6.png" | "frame7.png" | "frame8.png"
 
 type FrameConfig = {
@@ -20,22 +18,12 @@ type FrameConfig = {
 	}
 }
 
-const barcodeTypes: { id: BarcodeType; label: string }[] = [
-	{ id: "QRCode", label: "QRCode" },
-	{ id: "DataMatrix", label: "DataMatrix" },
-	{ id: "Aztec", label: "Aztec" },
-	
-]
-
 export default function PdfToQrcode() {
 	// PDF Upload State
 	const [pdfFile, setPdfFile] = useState<File | null>(null)
 	const [pdfUrl, setPdfUrl] = useState<string>("")
 	const [uploadingPdf, setUploadingPdf] = useState(false)
 	const pdfInputRef = useRef<HTMLInputElement>(null)
-
-	// Barcode Type Selection
-	const [selectedBarcodeType, setSelectedBarcodeType] = useState<BarcodeType>("QRCode")
 
 	// Settings
 	const [angle, setAngle] = useState<"0" | "1" | "2" | "3">("0")
@@ -548,7 +536,7 @@ export default function PdfToQrcode() {
 				const url = window.URL.createObjectURL(blob)
 				const a = document.createElement("a")
 				a.href = url
-				a.download = `barcode-${selectedBarcodeType}-no-frame.png`
+				a.download = `barcode-QRCode-no-frame.png`
 				document.body.appendChild(a)
 				a.click()
 				window.URL.revokeObjectURL(url)
@@ -601,7 +589,7 @@ export default function PdfToQrcode() {
 				const url = window.URL.createObjectURL(blob)
 				const a = document.createElement("a")
 				a.href = url
-				a.download = `barcode-${selectedBarcodeType}-${selectedFrame.replace(".png", "")}.png`
+				a.download = `barcode-QRCode-${selectedFrame.replace(".png", "")}.png`
 				document.body.appendChild(a)
 				a.click()
 				window.URL.revokeObjectURL(url)
@@ -616,7 +604,7 @@ export default function PdfToQrcode() {
 				const url = window.URL.createObjectURL(blob)
 				const a = document.createElement("a")
 				a.href = url
-				a.download = `barcode-${selectedBarcodeType}.png`
+				a.download = `barcode-QRCode.png`
 				document.body.appendChild(a)
 				a.click()
 				window.URL.revokeObjectURL(url)
@@ -796,7 +784,6 @@ export default function PdfToQrcode() {
 	const resetGenerator = () => {
 		setPdfFile(null)
 		setPdfUrl("")
-		setSelectedBarcodeType("QRCode")
 		setAngle("0")
 		setNarrowBarWidth(30)
 		setForeColor("#ff550d")
@@ -875,29 +862,6 @@ export default function PdfToQrcode() {
 								<X className="h-4 w-4" />
 								Change
 							</button>
-						</div>
-					)}
-
-					{/* Barcode Type Tabs */}
-					{pdfUrl && (
-						<div className="space-y-3">
-							<label className="text-sm font-semibold text-gray-700">Select Barcode Type</label>
-							<div className="flex flex-wrap gap-3">
-								{barcodeTypes.map((barcodeType) => (
-									<button
-										key={barcodeType.id}
-										type="button"
-										onClick={() => setSelectedBarcodeType(barcodeType.id)}
-										className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer border-2 ${
-											selectedBarcodeType === barcodeType.id
-												? "bg-[#ff911d] text-white border-[#ff911d] shadow-lg"
-												: "bg-white text-gray-700 border-gray-300 hover:border-[#ff911d] hover:bg-[#fff5f0]"
-										}`}
-									>
-										{barcodeType.label}
-									</button>
-								))}
-							</div>
 						</div>
 					)}
 
@@ -1017,10 +981,10 @@ export default function PdfToQrcode() {
 										<div style={{ transform: "scale(0.45)" }}>
 											<Spinner />
 										</div>
-										<span>Generating {selectedBarcodeType}...</span>
+										<span>Generating Barcodes...</span>
 									</div>
 								) : (
-									`Generate ${selectedBarcodeType}`
+									"Generate Barcodes"
 								)}
 							</button>
 
@@ -1067,7 +1031,7 @@ export default function PdfToQrcode() {
 															onClick={() => setSelectedFrame(frameFile)}
 															className={`cursor-pointer p-3 rounded-xl transition-all duration-300 w-full group ${
 																selectedFrame === frameFile
-																	? "ring-1 ring-[#ffb366] border border-[#ffcc99] ring-opacity-20 bg-gradient-to-br from-[#fef0e9] to-white shadow-lg scale-105"
+																	? "border border-[#ffcc99] bg-transparent"
 																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
 															}`}
 														>
@@ -1128,7 +1092,7 @@ export default function PdfToQrcode() {
 															onClick={() => setSelectedDataMatrixFrame(frameFile)}
 															className={`cursor-pointer p-3 rounded-xl transition-all duration-300 w-full group ${
 																selectedDataMatrixFrame === frameFile
-																	? "ring-1 ring-[#ffb366] border border-[#ffcc99] ring-opacity-20 bg-gradient-to-br from-[#fef0e9] to-white shadow-lg scale-105"
+																	? "border border-[#ffcc99] bg-transparent"
 																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
 															}`}
 														>
@@ -1189,7 +1153,7 @@ export default function PdfToQrcode() {
 															onClick={() => setSelectedAztecFrame(frameFile)}
 															className={`cursor-pointer p-3 rounded-xl transition-all duration-300 w-full group ${
 																selectedAztecFrame === frameFile
-																	? "ring-1 ring-[#ffb366] border border-[#ffcc99] ring-opacity-20 bg-gradient-to-br from-[#fef0e9] to-white shadow-lg scale-105"
+																	? "border border-[#ffcc99] bg-transparent"
 																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
 															}`}
 														>
