@@ -5,9 +5,9 @@ import { useMemo, useRef, useState } from "react"
 import { Download, ImageIcon, PaintBucket, RotateCw, X, MonitorUp } from "lucide-react"
 import Spinner from "../../ui/loader/loader"
 
-type BarcodeType = "QRCode" | "DataMatrix" | "Aztec" | "MaxiCode"
+type BarcodeType = "QRCode" | "DataMatrix" | "Aztec"
 
-type FrameKey = "no-frame" | "frame.png" | "frame2.png" | "frame3.png"
+type FrameKey = "no-frame" | "frame.png" | "frame2.png" | "frame3.png" | "frame4.png" | "frame5.png" | "frame6.png" | "frame7.png" | "frame8.png"
 
 type FrameConfig = {
 	container: React.CSSProperties
@@ -24,7 +24,7 @@ const barcodeTypes: { id: BarcodeType; label: string }[] = [
 	{ id: "QRCode", label: "QRCode" },
 	{ id: "DataMatrix", label: "DataMatrix" },
 	{ id: "Aztec", label: "Aztec" },
-	{ id: "MaxiCode", label: "MaxiCode" },
+	
 ]
 
 export default function PdfToQrcode() {
@@ -46,12 +46,18 @@ export default function PdfToQrcode() {
 
 	// Generation State
 	const [barcodeUrl, setBarcodeUrl] = useState<string | null>(null)
+	const [dataMatrixUrl, setDataMatrixUrl] = useState<string | null>(null)
+	const [aztecUrl, setAztecUrl] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
 	const [uploadProgress, setUploadProgress] = useState(0)
 
 	// Frame Selection
 	const [selectedFrame, setSelectedFrame] = useState<FrameKey>("no-frame")
+	const [selectedDataMatrixFrame, setSelectedDataMatrixFrame] = useState<FrameKey>("no-frame")
+	const [selectedAztecFrame, setSelectedAztecFrame] = useState<FrameKey>("no-frame")
 	const frameRef = useRef<HTMLDivElement>(null)
+	const dataMatrixFrameRef = useRef<HTMLDivElement>(null)
+	const aztecFrameRef = useRef<HTMLDivElement>(null)
 
 	const frameConfigs: Record<FrameKey, FrameConfig> = useMemo(
 		() => ({
@@ -112,7 +118,7 @@ export default function PdfToQrcode() {
 						position: "absolute",
 						top: "50%",
 						left: "50%",
-						transform: "translate(-50%, -56%)",
+						transform: "translate(-51%, -70%)",
 						width: "55px",
 						height: "55px",
 					},
@@ -181,6 +187,166 @@ export default function PdfToQrcode() {
 						height: "60px",
 					},
 					qrImage: { maxWidth: "60px", maxHeight: "60px" },
+				},
+			},
+			"frame4.png": {
+				container: {
+					width: "240px",
+					height: "280px",
+					backgroundSize: "contain",
+					backgroundRepeat: "no-repeat",
+					backgroundPosition: "center",
+					backgroundColor: "transparent",
+					position: "relative",
+				},
+				qrCode: {
+					position: "absolute",
+					top: "50%",
+					left: "50%",
+					transform: "translate(-2%, -50%)",
+					width: "115px",
+					height: "115px",
+				},
+				qrImage: { maxWidth: "185px", maxHeight: "185px" },
+				preview: {
+					container: { width: "80px", height: "96px" },
+					qrCode: {
+						position: "absolute",
+						top: "50%",
+						left: "50%",
+						transform: "translate(4%, -52%)",
+						width: "32px",
+						height: "32px",
+					},
+					qrImage: { maxWidth: "55px", maxHeight: "55px" },
+				},
+			},
+			"frame5.png": {
+				container: {
+					width: "240px",
+					height: "280px",
+					backgroundSize: "contain",
+					backgroundRepeat: "no-repeat",
+					backgroundPosition: "center",
+					backgroundColor: "transparent",
+					position: "relative",
+				},
+				qrCode: {
+					position: "absolute",
+					top: "50%",
+					left: "50%",
+					transform: "translate(-31%, -82%)",
+					width: "142px",
+					height: "142px",
+				},
+				qrImage: { maxWidth: "185px", maxHeight: "185px" },
+				preview: {
+					container: { width: "80px", height: "96px" },
+					qrCode: {
+						position: "absolute",
+						top: "50%",
+						left: "50%",
+						transform: "translate(-27%, -89%)",
+						width: "40px",
+						height: "40px",
+					},
+					qrImage: { maxWidth: "55px", maxHeight: "55px" },
+				},
+			},
+			"frame6.png": {
+				container: {
+					width: "240px",
+					height: "280px",
+					backgroundSize: "contain",
+					backgroundRepeat: "no-repeat",
+					backgroundPosition: "center",
+					backgroundColor: "transparent",
+					position: "relative",
+				},
+				qrCode: {
+					position: "absolute",
+					top: "50%",
+					left: "50%",
+					transform: "translate(-50%, -69%)",
+					width: "195px",
+					height: "195px",
+				},
+				qrImage: { maxWidth: "185px", maxHeight: "185px" },
+				preview: {
+					container: { width: "80px", height: "96px" },
+					qrCode: {
+						position: "absolute",
+						top: "50%",
+						left: "50%",
+						transform: "translate(-49%, -75%)",
+						width: "55px",
+						height: "55px",
+					},
+					qrImage: { maxWidth: "55px", maxHeight: "55px" },
+				},
+			},
+			"frame7.png": {
+				container: {
+					width: "240px",
+					height: "280px",
+					backgroundSize: "contain",
+					backgroundRepeat: "no-repeat",
+					backgroundPosition: "center",
+					backgroundColor: "transparent",
+					position: "relative",
+				},
+				qrCode: {
+					position: "absolute",
+					top: "50%",
+					left: "50%",
+					transform: "translate(-52%, -9%)",
+					width: "112px",
+					height: "112px",
+				},
+				qrImage: { maxWidth: "185px", maxHeight: "185px" },
+				preview: {
+					container: { width: "80px", height: "96px" },
+					qrCode: {
+						position: "absolute",
+						top: "50%",
+						left: "50%",
+						transform: "translate(-52%, -9%)",
+						width: "35px",
+						height: "35px",
+					},
+					qrImage: { maxWidth: "55px", maxHeight: "55px" },
+				},
+			},
+			"frame8.png": {
+				container: {
+					width: "240px",
+					height: "280px",
+					backgroundSize: "contain",
+					backgroundRepeat: "no-repeat",
+					backgroundPosition: "center",
+					backgroundColor: "transparent",
+					position: "relative",
+				},
+				qrCode: {
+					position: "absolute",
+					top: "50%",
+					left: "50%",
+					transform: "translate(-50%, -72%)",
+					width: "82px",
+					height: "82px",
+				},
+				qrImage: { maxWidth: "185px", maxHeight: "185px" },
+				preview: {
+					container: { width: "80px", height: "96px" },
+					qrCode: {
+						position: "absolute",
+						top: "50%",
+						left: "50%",
+						transform: "translate(-50%, -72%)",
+						width: "59px",
+						height: "29px",
+					},
+					qrImage: { maxWidth: "55px", maxHeight: "55px" },
 				},
 			},
 		}),
@@ -259,9 +425,10 @@ export default function PdfToQrcode() {
 		setUploadProgress(0)
 
 		try {
+			// Generate QRCode
 			const formData = new FormData()
 			formData.append("name", "barcode.png")
-			formData.append("type", selectedBarcodeType)
+			formData.append("type", "QRCode")
 			formData.append("value", pdfUrl)
 			formData.append("inline", "true")
 			formData.append("async", "false")
@@ -297,6 +464,70 @@ export default function PdfToQrcode() {
 				setBarcodeUrl(data.url)
 			} else {
 				alert(data?.message || "Barcode generation failed. Please try again.")
+			}
+
+			// Generate DataMatrix
+			const dataMatrixFormData = new FormData()
+			dataMatrixFormData.append("name", "datamatrix.png")
+			dataMatrixFormData.append("type", "DataMatrix")
+			dataMatrixFormData.append("value", pdfUrl)
+			dataMatrixFormData.append("inline", "true")
+			dataMatrixFormData.append("async", "false")
+			dataMatrixFormData.append(
+				"profiles",
+				JSON.stringify({
+					Angle: Number(angle),
+					NarrowBarWidth: narrowBarWidth,
+					ForeColor: foreColor,
+					BackColor: backColor,
+				})
+			)
+
+			if (logoFile) {
+				dataMatrixFormData.append("decorationImageFile", logoFile)
+			}
+
+			const dataMatrixResponse = await fetch("/api/pdftoqrcode", {
+				method: "POST",
+				body: dataMatrixFormData,
+			})
+
+			const dataMatrixData = await dataMatrixResponse.json()
+
+			if (dataMatrixData?.error === false && dataMatrixData?.url) {
+				setDataMatrixUrl(dataMatrixData.url)
+			}
+
+			// Generate Aztec
+			const aztecFormData = new FormData()
+			aztecFormData.append("name", "aztec.png")
+			aztecFormData.append("type", "Aztec")
+			aztecFormData.append("value", pdfUrl)
+			aztecFormData.append("inline", "true")
+			aztecFormData.append("async", "false")
+			aztecFormData.append(
+				"profiles",
+				JSON.stringify({
+					Angle: Number(angle),
+					NarrowBarWidth: narrowBarWidth,
+					ForeColor: foreColor,
+					BackColor: backColor,
+				})
+			)
+
+			if (logoFile) {
+				aztecFormData.append("decorationImageFile", logoFile)
+			}
+
+			const aztecResponse = await fetch("/api/pdftoqrcode", {
+				method: "POST",
+				body: aztecFormData,
+			})
+
+			const aztecData = await aztecResponse.json()
+
+			if (aztecData?.error === false && aztecData?.url) {
+				setAztecUrl(aztecData.url)
 			}
 		} catch (err) {
 			console.error("Error:", err)
@@ -396,6 +627,172 @@ export default function PdfToQrcode() {
 		}
 	}
 
+	const downloadDataMatrix = async () => {
+		if (!dataMatrixUrl || !dataMatrixFrameRef.current) return
+
+		try {
+			if (selectedDataMatrixFrame === "no-frame") {
+				const response = await fetch(dataMatrixUrl)
+				const blob = await response.blob()
+				const url = window.URL.createObjectURL(blob)
+				const a = document.createElement("a")
+				a.href = url
+				a.download = `datamatrix-no-frame.png`
+				document.body.appendChild(a)
+				a.click()
+				window.URL.revokeObjectURL(url)
+				document.body.removeChild(a)
+				return
+			}
+
+			const frameImageUrl = `/frames/${selectedDataMatrixFrame}`
+			const frameImage = new Image()
+			frameImage.crossOrigin = "anonymous"
+			
+			await new Promise<void>((resolve, reject) => {
+				frameImage.onload = () => resolve()
+				frameImage.onerror = () => reject(new Error("Failed to load frame image"))
+				frameImage.src = frameImageUrl
+			})
+
+			await new Promise((resolve) => setTimeout(resolve, 100))
+
+			// @ts-ignore
+			const html2canvasModule = await import("html2canvas")
+			const html2canvas = html2canvasModule.default
+
+			const bgColor = selectedDataMatrixFrame === "frame3.png" ? "#ffffff" : "transparent"
+
+			const canvas = await html2canvas(dataMatrixFrameRef.current, {
+				backgroundColor: bgColor,
+				scale: 2,
+				useCORS: true,
+				allowTaint: false,
+				logging: false,
+				width: dataMatrixFrameRef.current.offsetWidth,
+				height: dataMatrixFrameRef.current.offsetHeight,
+				onclone: (clonedDoc) => {
+					const clonedElement = clonedDoc.querySelector('[data-datamatrix-frame-container]') as HTMLElement
+					if (clonedElement && dataMatrixFrameRef.current) {
+						const originalStyle = dataMatrixFrameRef.current.getAttribute("style") || ""
+						clonedElement.setAttribute("style", originalStyle)
+					}
+				},
+			})
+
+			canvas.toBlob((blob: Blob | null) => {
+				if (!blob) return
+				const url = window.URL.createObjectURL(blob)
+				const a = document.createElement("a")
+				a.href = url
+				a.download = `datamatrix-${selectedDataMatrixFrame.replace(".png", "")}.png`
+				document.body.appendChild(a)
+				a.click()
+				window.URL.revokeObjectURL(url)
+				document.body.removeChild(a)
+			}, "image/png")
+		} catch (error) {
+			console.error("Download error:", error)
+			try {
+				const response = await fetch(dataMatrixUrl)
+				const blob = await response.blob()
+				const url = window.URL.createObjectURL(blob)
+				const a = document.createElement("a")
+				a.href = url
+				a.download = `datamatrix.png`
+				document.body.appendChild(a)
+				a.click()
+				window.URL.revokeObjectURL(url)
+				document.body.removeChild(a)
+			} catch (fallbackError) {
+				console.error("Fallback download error:", fallbackError)
+			}
+		}
+	}
+
+	const downloadAztec = async () => {
+		if (!aztecUrl || !aztecFrameRef.current) return
+
+		try {
+			if (selectedAztecFrame === "no-frame") {
+				const response = await fetch(aztecUrl)
+				const blob = await response.blob()
+				const url = window.URL.createObjectURL(blob)
+				const a = document.createElement("a")
+				a.href = url
+				a.download = `aztec-no-frame.png`
+				document.body.appendChild(a)
+				a.click()
+				window.URL.revokeObjectURL(url)
+				document.body.removeChild(a)
+				return
+			}
+
+			const frameImageUrl = `/frames/${selectedAztecFrame}`
+			const frameImage = new Image()
+			frameImage.crossOrigin = "anonymous"
+			
+			await new Promise<void>((resolve, reject) => {
+				frameImage.onload = () => resolve()
+				frameImage.onerror = () => reject(new Error("Failed to load frame image"))
+				frameImage.src = frameImageUrl
+			})
+
+			await new Promise((resolve) => setTimeout(resolve, 100))
+
+			// @ts-ignore
+			const html2canvasModule = await import("html2canvas")
+			const html2canvas = html2canvasModule.default
+
+			const bgColor = selectedAztecFrame === "frame3.png" ? "#ffffff" : "transparent"
+
+			const canvas = await html2canvas(aztecFrameRef.current, {
+				backgroundColor: bgColor,
+				scale: 2,
+				useCORS: true,
+				allowTaint: false,
+				logging: false,
+				width: aztecFrameRef.current.offsetWidth,
+				height: aztecFrameRef.current.offsetHeight,
+				onclone: (clonedDoc) => {
+					const clonedElement = clonedDoc.querySelector('[data-aztec-frame-container]') as HTMLElement
+					if (clonedElement && aztecFrameRef.current) {
+						const originalStyle = aztecFrameRef.current.getAttribute("style") || ""
+						clonedElement.setAttribute("style", originalStyle)
+					}
+				},
+			})
+
+			canvas.toBlob((blob: Blob | null) => {
+				if (!blob) return
+				const url = window.URL.createObjectURL(blob)
+				const a = document.createElement("a")
+				a.href = url
+				a.download = `aztec-${selectedAztecFrame.replace(".png", "")}.png`
+				document.body.appendChild(a)
+				a.click()
+				window.URL.revokeObjectURL(url)
+				document.body.removeChild(a)
+			}, "image/png")
+		} catch (error) {
+			console.error("Download error:", error)
+			try {
+				const response = await fetch(aztecUrl)
+				const blob = await response.blob()
+				const url = window.URL.createObjectURL(blob)
+				const a = document.createElement("a")
+				a.href = url
+				a.download = `aztec.png`
+				document.body.appendChild(a)
+				a.click()
+				window.URL.revokeObjectURL(url)
+				document.body.removeChild(a)
+			} catch (fallbackError) {
+				console.error("Fallback download error:", fallbackError)
+			}
+		}
+	}
+
 	const resetGenerator = () => {
 		setPdfFile(null)
 		setPdfUrl("")
@@ -406,12 +803,16 @@ export default function PdfToQrcode() {
 		setBackColor("#ffffff")
 		setLogoFile(null)
 		setBarcodeUrl(null)
+		setDataMatrixUrl(null)
+		setAztecUrl(null)
 		setSelectedFrame("no-frame")
+		setSelectedDataMatrixFrame("no-frame")
+		setSelectedAztecFrame("no-frame")
 		if (pdfInputRef.current) pdfInputRef.current.value = ""
 	}
 
 	// Show result view after generation
-	const showResult = barcodeUrl !== null
+	const showResult = barcodeUrl !== null || dataMatrixUrl !== null || aztecUrl !== null
 
 	return (
 		<div className="p-0 max-w-7xl mx-auto bg-transparent">
@@ -651,94 +1052,299 @@ export default function PdfToQrcode() {
 						<div className="flex-1 flex items-center justify-center min-h-0">
 							<div className="w-full h-full overflow-hidden">
 								<div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full items-start">
-									<div className="flex flex-col items-center justify-start p-4">
-										<h4 className="text-sm font-semibold text-gray-700 mb-4">Choose Frame Style</h4>
-										<div className="flex flex-col gap-4 items-center max-w-[160px]">
-											{(["no-frame", "frame.png", "frame2.png", "frame3.png"] as FrameKey[]).map((frameFile, index) => {
-												const frameConfig = frameConfigs[frameFile]
-												const frameNames = ["Normal", "Classic", "Modern", "Elegant"]
+									<div className="flex flex-col items-center justify-start p-4 space-y-6">
+										{/* QRCode Frame Selection */}
+										<div className="w-full">
+											<h4 className="text-sm font-semibold text-gray-700 mb-4">Choose QRCode Frame Style</h4>
+											<div className="grid grid-cols-3 gap-3 items-center w-full max-w-[480px]">
+												{(["no-frame", "frame.png", "frame2.png", "frame3.png", "frame4.png", "frame5.png", "frame6.png", "frame7.png", "frame8.png"] as FrameKey[]).map((frameFile, index) => {
+													const frameConfig = frameConfigs[frameFile]
+													const frameNames = ["Normal", "Classic", "Modern", "Elegant", "Frame 4", "Frame 5", "Frame 6", "Frame 7", "Frame 8"]
 
-												return (
-													<div
-														key={frameFile}
-														onClick={() => setSelectedFrame(frameFile)}
-														className={`cursor-pointer p-3 rounded-xl transition-all duration-300 w-full group ${
-															selectedFrame === frameFile
-																? "ring-4 ring-[#ff550d] border-2 border-[#ff911d] ring-opacity-30 bg-gradient-to-br from-[#fef0e9] to-white shadow-xl scale-105"
-																: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
-														}`}
-													>
+													return (
 														<div
-															className="bg-white rounded-lg border border-gray-200 mb-3 relative mx-auto shadow-sm group-hover:shadow-md transition-shadow duration-100"
-															style={{
-																backgroundImage: frameFile !== "no-frame" ? `url('/frames/${frameFile}')` : "none",
-																backgroundSize: "contain",
-																backgroundRepeat: "no-repeat",
-																backgroundPosition: "center",
-																backgroundColor: frameFile === "no-frame" ? "transparent" : "white",
-																border: frameFile === "no-frame" ? "none" : "1px solid #e5e7eb",
-																position: "relative",
-																...frameConfig.preview.container,
-															}}
+															key={frameFile}
+															onClick={() => setSelectedFrame(frameFile)}
+															className={`cursor-pointer p-3 rounded-xl transition-all duration-300 w-full group ${
+																selectedFrame === frameFile
+																	? "ring-1 ring-[#ffb366] border border-[#ffcc99] ring-opacity-20 bg-gradient-to-br from-[#fef0e9] to-white shadow-lg scale-105"
+																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
+															}`}
 														>
 															<div
-																className="absolute inset-0 flex items-center justify-center"
-																style={frameConfig.preview.qrCode}
+																className="bg-white rounded-lg border border-gray-200 mb-3 relative mx-auto shadow-sm group-hover:shadow-md transition-shadow duration-100"
+																style={{
+																	backgroundImage: frameFile !== "no-frame" ? `url('/frames/${frameFile}')` : "none",
+																	backgroundSize: "contain",
+																	backgroundRepeat: "no-repeat",
+																	backgroundPosition: "center",
+																	backgroundColor: frameFile === "no-frame" ? "transparent" : "white",
+																	border: frameFile === "no-frame" ? "none" : "1px solid #e5e7eb",
+																	position: "relative",
+																	...frameConfig.preview.container,
+																}}
 															>
-																<img
-																	src={barcodeUrl}
-																	alt="Barcode Preview"
-																	className="w-full h-full object-contain filter drop-shadow-sm"
-																	style={frameConfig.preview.qrImage}
-																/>
+																<div
+																	className="absolute inset-0 flex items-center justify-center"
+																	style={frameConfig.preview.qrCode}
+																>
+																	{barcodeUrl && (
+																		<img
+																			src={barcodeUrl}
+																			alt="QRCode Preview"
+																			className="w-full h-full object-contain filter drop-shadow-sm"
+																			style={frameConfig.preview.qrImage}
+																		/>
+																	)}
+																</div>
+															</div>
+
+															<div className="text-center">
+																<p
+																	className={`text-xs font-semibold transition-colors duration-200 ${
+																		selectedFrame === frameFile ? "text-[#ff550d]" : "text-gray-600 group-hover:text-gray-800"
+																	}`}
+																>
+																	{frameNames[index]}
+																</p>
 															</div>
 														</div>
-
-														<div className="text-center">
-															<p
-																className={`text-xs font-semibold transition-colors duration-200 ${
-																	selectedFrame === frameFile ? "text-[#ff550d]" : "text-gray-600 group-hover:text-gray-800"
-																}`}
-															>
-																{frameNames[index]}
-															</p>
-														</div>
-													</div>
-												)
-											})}
-										</div>
-									</div>
-
-									<div className="flex flex-col items-center justify-center space-y-6 p-4">
-										<div
-											ref={frameRef}
-											data-frame-container
-											className={`inline-block p-4 rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
-												selectedFrame === "no-frame" ? "shadow-none" : "shadow-xl hover:shadow-2xl"
-											}`}
-											style={{
-												backgroundImage: selectedFrame !== "no-frame" ? `url('/frames/${selectedFrame}')` : "none",
-												padding: selectedFrame === "no-frame" ? "0" : "16px",
-												...getCurrentFrameConfig().container,
-											}}
-										>
-											<div className="absolute inset-0 flex justify-center items-center" style={getCurrentFrameConfig().qrCode}>
-												<img
-													src={barcodeUrl}
-													alt="Generated Barcode"
-													className="w-full h-full object-contain filter drop-shadow-sm"
-													style={getCurrentFrameConfig().qrImage}
-												/>
+													)
+												})}
 											</div>
 										</div>
 
-										<button
-											onClick={downloadBarcode}
-											className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
-										>
-											<Download className="h-5 w-5" />
-											<span>Download Barcode</span>
-										</button>
+										{/* DataMatrix Frame Selection */}
+										<div className="w-full">
+											<h4 className="text-sm font-semibold text-gray-700 mb-4">Choose DataMatrix Frame Style</h4>
+											<div className="grid grid-cols-3 gap-3 items-center w-full max-w-[480px]">
+												{(["no-frame", "frame.png", "frame2.png", "frame3.png", "frame4.png", "frame5.png", "frame6.png", "frame7.png", "frame8.png"] as FrameKey[]).map((frameFile, index) => {
+													const frameConfig = frameConfigs[frameFile]
+													const frameNames = ["Normal", "Classic", "Modern", "Elegant", "Frame 4", "Frame 5", "Frame 6", "Frame 7", "Frame 8"]
+
+													return (
+														<div
+															key={`datamatrix-${frameFile}`}
+															onClick={() => setSelectedDataMatrixFrame(frameFile)}
+															className={`cursor-pointer p-3 rounded-xl transition-all duration-300 w-full group ${
+																selectedDataMatrixFrame === frameFile
+																	? "ring-1 ring-[#ffb366] border border-[#ffcc99] ring-opacity-20 bg-gradient-to-br from-[#fef0e9] to-white shadow-lg scale-105"
+																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
+															}`}
+														>
+															<div
+																className="bg-white rounded-lg border border-gray-200 mb-3 relative mx-auto shadow-sm group-hover:shadow-md transition-shadow duration-100"
+																style={{
+																	backgroundImage: frameFile !== "no-frame" ? `url('/frames/${frameFile}')` : "none",
+																	backgroundSize: "contain",
+																	backgroundRepeat: "no-repeat",
+																	backgroundPosition: "center",
+																	backgroundColor: frameFile === "no-frame" ? "transparent" : "white",
+																	border: frameFile === "no-frame" ? "none" : "1px solid #e5e7eb",
+																	position: "relative",
+																	...frameConfig.preview.container,
+																}}
+															>
+																<div
+																	className="absolute inset-0 flex items-center justify-center"
+																	style={frameConfig.preview.qrCode}
+																>
+																	{dataMatrixUrl && (
+																		<img
+																			src={dataMatrixUrl}
+																			alt="DataMatrix Preview"
+																			className="w-full h-full object-contain filter drop-shadow-sm"
+																			style={frameConfig.preview.qrImage}
+																		/>
+																	)}
+																</div>
+															</div>
+
+															<div className="text-center">
+																<p
+																	className={`text-xs font-semibold transition-colors duration-200 ${
+																		selectedDataMatrixFrame === frameFile ? "text-[#ff550d]" : "text-gray-600 group-hover:text-gray-800"
+																	}`}
+																>
+																	{frameNames[index]}
+																</p>
+															</div>
+														</div>
+													)
+												})}
+											</div>
+										</div>
+
+										{/* Aztec Frame Selection */}
+										<div className="w-full">
+											<h4 className="text-sm font-semibold text-gray-700 mb-4">Choose Aztec Frame Style</h4>
+											<div className="grid grid-cols-3 gap-3 items-center w-full max-w-[480px]">
+												{(["no-frame", "frame.png", "frame2.png", "frame3.png", "frame4.png", "frame5.png", "frame6.png", "frame7.png", "frame8.png"] as FrameKey[]).map((frameFile, index) => {
+													const frameConfig = frameConfigs[frameFile]
+													const frameNames = ["Normal", "Classic", "Modern", "Elegant", "Frame 4", "Frame 5", "Frame 6", "Frame 7", "Frame 8"]
+
+													return (
+														<div
+															key={`aztec-${frameFile}`}
+															onClick={() => setSelectedAztecFrame(frameFile)}
+															className={`cursor-pointer p-3 rounded-xl transition-all duration-300 w-full group ${
+																selectedAztecFrame === frameFile
+																	? "ring-1 ring-[#ffb366] border border-[#ffcc99] ring-opacity-20 bg-gradient-to-br from-[#fef0e9] to-white shadow-lg scale-105"
+																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
+															}`}
+														>
+															<div
+																className="bg-white rounded-lg border border-gray-200 mb-3 relative mx-auto shadow-sm group-hover:shadow-md transition-shadow duration-100"
+																style={{
+																	backgroundImage: frameFile !== "no-frame" ? `url('/frames/${frameFile}')` : "none",
+																	backgroundSize: "contain",
+																	backgroundRepeat: "no-repeat",
+																	backgroundPosition: "center",
+																	backgroundColor: frameFile === "no-frame" ? "transparent" : "white",
+																	border: frameFile === "no-frame" ? "none" : "1px solid #e5e7eb",
+																	position: "relative",
+																	...frameConfig.preview.container,
+																}}
+															>
+																<div
+																	className="absolute inset-0 flex items-center justify-center"
+																	style={frameConfig.preview.qrCode}
+																>
+																	{aztecUrl && (
+																		<img
+																			src={aztecUrl}
+																			alt="Aztec Preview"
+																			className="w-full h-full object-contain filter drop-shadow-sm"
+																			style={frameConfig.preview.qrImage}
+																		/>
+																	)}
+																</div>
+															</div>
+
+															<div className="text-center">
+																<p
+																	className={`text-xs font-semibold transition-colors duration-200 ${
+																		selectedAztecFrame === frameFile ? "text-[#ff550d]" : "text-gray-600 group-hover:text-gray-800"
+																	}`}
+																>
+																	{frameNames[index]}
+																</p>
+															</div>
+														</div>
+													)
+												})}
+											</div>
+										</div>
+									</div>
+
+									<div className="flex flex-col items-center justify-center space-y-8 p-4">
+										{/* QRCode Preview */}
+										{barcodeUrl && (
+											<div className="flex flex-col items-center space-y-4">
+												<h4 className="text-sm font-semibold text-gray-700">QRCode Preview</h4>
+												<div
+													ref={frameRef}
+													data-frame-container
+													className={`inline-block p-4 rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
+														selectedFrame === "no-frame" ? "shadow-none" : "shadow-xl hover:shadow-2xl"
+													}`}
+													style={{
+														backgroundImage: selectedFrame !== "no-frame" ? `url('/frames/${selectedFrame}')` : "none",
+														padding: selectedFrame === "no-frame" ? "0" : "16px",
+														...getCurrentFrameConfig().container,
+													}}
+												>
+													<div className="absolute inset-0 flex justify-center items-center" style={getCurrentFrameConfig().qrCode}>
+														<img
+															src={barcodeUrl}
+															alt="Generated QRCode"
+															className="w-full h-full object-contain filter drop-shadow-sm"
+															style={getCurrentFrameConfig().qrImage}
+														/>
+													</div>
+												</div>
+
+												<button
+													onClick={downloadBarcode}
+													className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
+												>
+													<Download className="h-5 w-5" />
+													<span>Download QRCode</span>
+												</button>
+											</div>
+										)}
+
+										{/* DataMatrix Preview */}
+										{dataMatrixUrl && (
+											<div className="flex flex-col items-center space-y-4">
+												<h4 className="text-sm font-semibold text-gray-700">DataMatrix Preview</h4>
+												<div
+													ref={dataMatrixFrameRef}
+													data-datamatrix-frame-container
+													className={`inline-block p-4 rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
+														selectedDataMatrixFrame === "no-frame" ? "shadow-none" : "shadow-xl hover:shadow-2xl"
+													}`}
+													style={{
+														backgroundImage: selectedDataMatrixFrame !== "no-frame" ? `url('/frames/${selectedDataMatrixFrame}')` : "none",
+														padding: selectedDataMatrixFrame === "no-frame" ? "0" : "16px",
+														...(frameConfigs[selectedDataMatrixFrame] || frameConfigs["no-frame"]).container,
+													}}
+												>
+													<div className="absolute inset-0 flex justify-center items-center" style={(frameConfigs[selectedDataMatrixFrame] || frameConfigs["no-frame"]).qrCode}>
+														<img
+															src={dataMatrixUrl}
+															alt="Generated DataMatrix"
+															className="w-full h-full object-contain filter drop-shadow-sm"
+															style={(frameConfigs[selectedDataMatrixFrame] || frameConfigs["no-frame"]).qrImage}
+														/>
+													</div>
+												</div>
+
+												<button
+													onClick={downloadDataMatrix}
+													className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
+												>
+													<Download className="h-5 w-5" />
+													<span>Download DataMatrix</span>
+												</button>
+											</div>
+										)}
+
+										{/* Aztec Preview */}
+										{aztecUrl && (
+											<div className="flex flex-col items-center space-y-4">
+												<h4 className="text-sm font-semibold text-gray-700">Aztec Preview</h4>
+												<div
+													ref={aztecFrameRef}
+													data-aztec-frame-container
+													className={`inline-block p-4 rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
+														selectedAztecFrame === "no-frame" ? "shadow-none" : "shadow-xl hover:shadow-2xl"
+													}`}
+													style={{
+														backgroundImage: selectedAztecFrame !== "no-frame" ? `url('/frames/${selectedAztecFrame}')` : "none",
+														padding: selectedAztecFrame === "no-frame" ? "0" : "16px",
+														...(frameConfigs[selectedAztecFrame] || frameConfigs["no-frame"]).container,
+													}}
+												>
+													<div className="absolute inset-0 flex justify-center items-center" style={(frameConfigs[selectedAztecFrame] || frameConfigs["no-frame"]).qrCode}>
+														<img
+															src={aztecUrl}
+															alt="Generated Aztec"
+															className="w-full h-full object-contain filter drop-shadow-sm"
+															style={(frameConfigs[selectedAztecFrame] || frameConfigs["no-frame"]).qrImage}
+														/>
+													</div>
+												</div>
+
+												<button
+													onClick={downloadAztec}
+													className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
+												>
+													<Download className="h-5 w-5" />
+													<span>Download Aztec</span>
+												</button>
+											</div>
+										)}
 									</div>
 								</div>
 							</div>
