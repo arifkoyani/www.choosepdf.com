@@ -651,38 +651,6 @@ export default function PdfToQrcode() {
 						<div className="flex-1 flex items-center justify-center min-h-0">
 							<div className="w-full h-full overflow-hidden">
 								<div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full items-start">
-									<div className="flex flex-col items-center justify-center space-y-6 p-4">
-										<div
-											ref={frameRef}
-											data-frame-container
-											className={`inline-block p-4 rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
-												selectedFrame === "no-frame" ? "shadow-none" : "shadow-xl hover:shadow-2xl"
-											}`}
-											style={{
-												backgroundImage: selectedFrame !== "no-frame" ? `url('/frames/${selectedFrame}')` : "none",
-												padding: selectedFrame === "no-frame" ? "0" : "16px",
-												...getCurrentFrameConfig().container,
-											}}
-										>
-											<div className="absolute inset-0 flex justify-center items-center" style={getCurrentFrameConfig().qrCode}>
-												<img
-													src={barcodeUrl}
-													alt="Generated Barcode"
-													className="w-full h-full object-contain filter drop-shadow-sm"
-													style={getCurrentFrameConfig().qrImage}
-												/>
-											</div>
-										</div>
-
-										<button
-											onClick={downloadBarcode}
-											className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
-										>
-											<Download className="h-5 w-5" />
-											<span>Download Barcode</span>
-										</button>
-									</div>
-
 									<div className="flex flex-col items-center justify-start p-4">
 										<h4 className="text-sm font-semibold text-gray-700 mb-4">Choose Frame Style</h4>
 										<div className="flex flex-col gap-4 items-center max-w-[160px]">
@@ -739,6 +707,38 @@ export default function PdfToQrcode() {
 												)
 											})}
 										</div>
+									</div>
+
+									<div className="flex flex-col items-center justify-center space-y-6 p-4">
+										<div
+											ref={frameRef}
+											data-frame-container
+											className={`inline-block p-4 rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
+												selectedFrame === "no-frame" ? "shadow-none" : "shadow-xl hover:shadow-2xl"
+											}`}
+											style={{
+												backgroundImage: selectedFrame !== "no-frame" ? `url('/frames/${selectedFrame}')` : "none",
+												padding: selectedFrame === "no-frame" ? "0" : "16px",
+												...getCurrentFrameConfig().container,
+											}}
+										>
+											<div className="absolute inset-0 flex justify-center items-center" style={getCurrentFrameConfig().qrCode}>
+												<img
+													src={barcodeUrl}
+													alt="Generated Barcode"
+													className="w-full h-full object-contain filter drop-shadow-sm"
+													style={getCurrentFrameConfig().qrImage}
+												/>
+											</div>
+										</div>
+
+										<button
+											onClick={downloadBarcode}
+											className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
+										>
+											<Download className="h-5 w-5" />
+											<span>Download Barcode</span>
+										</button>
 									</div>
 								</div>
 							</div>
