@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useMemo, useRef, useState } from "react"
-import { Download, ImageIcon, PaintBucket, RotateCw, X, MonitorUp } from "lucide-react"
+import { Download, ImageIcon, PaintBucket, RotateCw, X, MonitorUp, CircleCheck } from "lucide-react"
 import Spinner from "../../ui/loader/loader"
 
 type FrameKey = "no-frame" | "frame.png" | "frame2.png" | "frame3.png" | "frame4.png" | "frame5.png" | "frame6.png" | "frame7.png" | "frame8.png"
@@ -1008,7 +1008,7 @@ export default function PdfToQrcode() {
 			) : (
 				/* Result View - Show only barcode with frames */
 				<div className="space-y-6">
-					<div className="bg-gradient-to-br from-gray-50 to-white flex flex-col rounded-2xl border border-gray-200 p-6 overflow-hidden">
+					<div className="bg-white flex flex-col rounded-2xl border border-gray-200 p-6 overflow-hidden">
 						<div className="text-center mb-6">
 							<h3 className="text-xl font-semibold text-gray-800">Generated Barcode</h3>
 						</div>
@@ -1029,7 +1029,7 @@ export default function PdfToQrcode() {
 														<div
 															key={frameFile}
 															onClick={() => setSelectedFrame(frameFile)}
-															className={`cursor-pointer p-3 rounded-xl transition-all duration-300 w-full group ${
+															className={`p-3 rounded-xl transition-all duration-300 w-full group ${
 																selectedFrame === frameFile
 																	? "border border-[#ffcc99] bg-transparent"
 																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
@@ -1090,7 +1090,7 @@ export default function PdfToQrcode() {
 														<div
 															key={`datamatrix-${frameFile}`}
 															onClick={() => setSelectedDataMatrixFrame(frameFile)}
-															className={`cursor-pointer p-3 rounded-xl transition-all duration-300 w-full group ${
+															className={`p-3 rounded-xl transition-all duration-300 w-full group ${
 																selectedDataMatrixFrame === frameFile
 																	? "border border-[#ffcc99] bg-transparent"
 																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
@@ -1151,7 +1151,7 @@ export default function PdfToQrcode() {
 														<div
 															key={`aztec-${frameFile}`}
 															onClick={() => setSelectedAztecFrame(frameFile)}
-															className={`cursor-pointer p-3 rounded-xl transition-all duration-300 w-full group ${
+															className={`p-3 rounded-xl transition-all duration-300 w-full group ${
 																selectedAztecFrame === frameFile
 																	? "border border-[#ffcc99] bg-transparent"
 																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
@@ -1227,6 +1227,11 @@ export default function PdfToQrcode() {
 														/>
 													</div>
 												</div>
+													<div className="w-full flex items-center justify-center  bg-[#e9fdea]">
+														<CircleCheck className="h-4 w-4 text-[#4caf56]" />
+												<p className="text-sm text-[#4caf56] px-2 py-1 rounded-lg  text-center">Great! Your QR code is easy to scan.</p>
+
+													</div>
 
 												<button
 													onClick={downloadBarcode}
@@ -1263,7 +1268,11 @@ export default function PdfToQrcode() {
 														/>
 													</div>
 												</div>
+												<div className="w-full flex items-center justify-center  bg-[#e9fdea]">
+													<CircleCheck className="h-4 w-4 text-[#4caf56]" />
+												<p className="text-sm text-[#4caf56] px-2 py-1 rounded-lg  text-center">Great! Your DataMatrix is easy to scan.</p>
 
+												</div>
 												<button
 													onClick={downloadDataMatrix}
 													className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
@@ -1299,7 +1308,11 @@ export default function PdfToQrcode() {
 														/>
 													</div>
 												</div>
+												<div className="w-full flex items-center justify-center  bg-[#e9fdea]">
+													<CircleCheck className="h-4 w-4 text-[#4caf56]" />
+												<p className="text-sm text-[#4caf56] px-2 py-1 rounded-lg  text-center">Great! Your Aztec is easy to scan.</p>
 
+												</div>
 												<button
 													onClick={downloadAztec}
 													className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
