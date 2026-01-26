@@ -54,10 +54,10 @@ export default function RecentPostsCard() {
   if (loading) {
     return (
       <Card className="p-6 bg-white">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <FileText className="w-5 h-5 text-[#ff911d]" />
           Recent Posts
-        </h3>
+        </h2>
         <p className="text-sm text-gray-500">Loading...</p>
       </Card>
     );
@@ -65,10 +65,10 @@ export default function RecentPostsCard() {
 
   return (
     <Card className="p-6 bg-white">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <FileText className="w-5 h-5 text-[#ff911d]" />
         Recent Posts
-      </h3>
+      </h2>
       <div className="space-y-4">
         {articles.length === 0 ? (
           <p className="text-sm text-gray-500">No recent posts available.</p>

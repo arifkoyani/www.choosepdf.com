@@ -492,7 +492,7 @@ export default function Main() {
 	}, [])
 
 	return (
-		<div className="flex flex-col items-center bg-[#f4f4f5] justify-start pt-20 px-2 min-h-screen text-center px-4">
+		<main className="flex flex-col items-center bg-[#f4f4f5] justify-start pt-20 px-2 min-h-screen text-center px-4">
 			<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 select-text">
 				Every tool you need to work with PDFs in one place
 			</h1>
@@ -500,17 +500,19 @@ export default function Main() {
 				Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
 			</h2>
             
-            <div className="flex flex-wrap gap-8 mt-14 justify-center">
+            <div className="flex flex-wrap gap-8 mt-14 justify-center" role="group" aria-label="PDF tool categories">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
+                        type="button"
+                        aria-pressed={activeTab === tab.id}
                         onClick={() => {
                             isManualTabSelection.current = true
                             setActiveTab(tab.id)
                         }}
-                        className={`px-4 py-2 cursor-pointer border border-gray-300 shadow-xl rounded-2xl text-sm font-medium transition-all duration-200 select-text ${
+                        className={`px-4 py-2 cursor-pointer  border border-gray-300 shadow-xl rounded-2xl text-sm font-medium transition-all duration-200 select-text ${
                             activeTab === tab.id
-                                ? 'bg-[#ff911d] text-white shadow-xl border-none'
+                                ? 'bg-[#d35400] text-white shadow-xl border-none'
                                 : 'bg-[#fff5f0] text-gray-700 hover:text-gray-900'
                         }`}
                     >
@@ -523,19 +525,24 @@ export default function Main() {
             <div className="w-full max-w-[806px] mt-14 mb-18 md:mb-24 lg:mb-32 relative">
                 <BeamBorder>
                     <div className="relative flex items-center justify-center">
+                        <label htmlFor="search-input" className="sr-only">
+                            Search 100+ tools features
+                        </label>
                         {!searchQuery && (
                             <div className="absolute flex items-center gap-3 pointer-events-none z-10 top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
-                                <span className="text-gray-400 text-base whitespace-nowrap">Search 100+ tools features...</span>
+                                <span className="text-gray-600 text-base whitespace-nowrap">Search 100+ tools features...</span>
                             </div>
                         )}
                         <Search 
-                            className={`absolute top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 z-10 pointer-events-none transition-all duration-700 ease-in-out ${
+                            className={`absolute top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 z-10 pointer-events-none transition-all duration-700 ease-in-out ${
                                 searchQuery 
                                     ? 'hidden' 
                                     : 'left-1/2 -translate-x-[calc(50%+130px)]'
-                            }`} 
+                            }`}
+                            aria-hidden="true"
                         />
                         <input
+                            id="search-input"
                             ref={searchInputRef}
                             type="text"
                             placeholder=""
@@ -551,6 +558,12 @@ export default function Main() {
                                     setShowSuggestions(true)
                                 }
                             }}
+                            role="combobox"
+                            aria-label="Search 100+ tools features"
+                            aria-autocomplete="list"
+                            aria-expanded={showSuggestions}
+                            aria-controls="search-suggestions"
+                            aria-haspopup="listbox"
                             className={`w-full py-4 rounded-2xl border-0 focus:outline-none focus:ring-0 text-gray-900 transition-all duration-300 ease-in-out bg-transparent caret-[#ff901d] ${
                                 searchQuery ? 'px-4 pr-12 text-center' : 'px-12 text-center'
                             }`}
@@ -560,7 +573,7 @@ export default function Main() {
                             <button
                                 type="button"
                                 onClick={handleClearSearch}
-                                className="absolute top-1/2 shadow-xl  -translate-y-1/2 right-4 z-20 p-1.5 text-white hover:text-white/80 transition-colors duration-200 rounded-xl hover:bg-[#ff911d]/90 focus:outline-none focus:ring-2 focus:ring-[#ff911d] focus:ring-offset-2 bg-[#ff911d]/85 cursor-pointer"
+                                className="absolute top-1/2 shadow-xl  -translate-y-1/2 right-4 z-20 p-1.5 text-white hover:text-white/80 transition-colors duration-200 rounded-xl hover:bg-[#d35400]/90 focus:outline-none focus:ring-2 focus:ring-[#d35400] focus:ring-offset-2 bg-[#d35400]/85 cursor-pointer"
                                 aria-label="Clear search"
                             >
                                 <X className="w-5 h-5" />
@@ -572,19 +585,24 @@ export default function Main() {
                 {/* Autocomplete Suggestions */}
                 {showSuggestions && suggestions.length > 0 && (
                     <div
+                        id="search-suggestions"
                         ref={suggestionsRef}
-                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-transparent rounded-xl max-h-80 overflow-y-auto z-50 w-full max-w-md"
+                        role="listbox"
+                        aria-label="Search suggestions"
+                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-transparent rounded-xl max-h-80 overflow-y-auto z-50 w-full max-w-md  border border-gray-200"
                     >
                         {suggestions.map((suggestion, index) => (
                             <button
                                 key={index}
                                 type="button"
+                                role="option"
+                                aria-selected={index === selectedSuggestionIndex}
                                 onClick={() => handleSuggestionClick(suggestion)}
                                 onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                                className={`w-full px-4 py-0 text-center text-sm cursor-pointer transition-colors duration-150 select-text ${
+                                className={`w-full px-4  text-center text-sm cursor-pointer transition-colors duration-150 select-text ${
                                     index === selectedSuggestionIndex
-                                        ? 'text-[#ff911d]'
-                                        : 'text-gray-700 hover:text-gray-900'
+                                        ? 'text-[#d35400] bg-transparent'
+                                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                                 } ${index === 0 ? 'rounded-t-xl' : ''} ${
                                     index === suggestions.length - 1 ? 'rounded-b-xl' : ''
                                 }`}
@@ -598,14 +616,13 @@ export default function Main() {
            
            {/* Cards grid */}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-y-2 mt-14 mb-10 w-fit gap-x-10 px-10 md:px-10" >
+            <section id="tools-grid" aria-label="PDF tools" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-y-2 mt-14 mb-10 w-fit gap-x-10 px-10 md:px-10" >
                 {sortedCards.map(card => card.component)}
-            </div>
-			<div>
-
+            </section>
+			{/* <section aria-label="Recent blog posts">
 				<RecentPostsCard />
-			</div>
-		</div>
+			</section> */}
+		</main>
 	)
 }
 
