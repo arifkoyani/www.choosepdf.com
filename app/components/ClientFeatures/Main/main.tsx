@@ -573,7 +573,7 @@ export default function Main() {
                             <button
                                 type="button"
                                 onClick={handleClearSearch}
-                                className="absolute top-1/2 shadow-xl  -translate-y-1/2 right-4 z-20 p-1.5 text-white hover:text-white/80 transition-colors duration-200 rounded-xl hover:bg-[#d35400]/90 focus:outline-none focus:ring-2 focus:ring-[#d35400] focus:ring-offset-2 bg-[#d35400]/85 cursor-pointer"
+                                className="absolute top-1/2 shadow-xl  -translate-y-1/2 right-4 z-20 p-1.5 text-white hover:text-white/80 transition-colors duration-200 rounded-xl hover:bg-[#d35400]/90 focus:outline-none focus:ring-2 focus:ring-[#d35400] focus:ring-offset-2 bg-[#ff550d] cursor-pointer"
                                 aria-label="Clear search"
                             >
                                 <X className="w-5 h-5" />
@@ -589,7 +589,7 @@ export default function Main() {
                         ref={suggestionsRef}
                         role="listbox"
                         aria-label="Search suggestions"
-                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-transparent rounded-xl max-h-80 overflow-y-auto z-50 w-full max-w-md  border border-gray-200"
+                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2  rounded-xl max-h-80 overflow-y-auto z-50 w-full max-w-md  border border-gray-200"
                     >
                         {suggestions.map((suggestion, index) => (
                             <button
