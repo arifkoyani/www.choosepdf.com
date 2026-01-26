@@ -715,7 +715,7 @@ export default function PdfToQrcode() {
 								<div className="flex items-start justify-between gap-2">
 									<div className="flex-1">
 										<h4 className="text-sm sm:text-base font-semibold text-red-800 mb-1">
-											{error.type === "api" && "Fail Check Your Connects Error OR refresh page"}
+											{error.type === "api" && "Fail Check Your Connection OR refresh page"}
 											{error.type === "network" && "Network Error"}
 											{error.type === "timeout" && "Request Timeout"}
 											{error.type === "upload" && "Upload Failed"}
