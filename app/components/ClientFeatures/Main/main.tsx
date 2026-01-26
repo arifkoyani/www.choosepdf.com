@@ -64,7 +64,6 @@ export default function Main() {
 		{ id: 'convert-from', label: 'Convert from PDF' },
 		{ id: 'security', label: 'PDF Security' },
 		{ id: 'edit', label: 'Edit PDF' },
-		{ id: 'excel-conversion', label: 'Excel Conversion' },
 	]
 
 	// Define all cards with their categories
@@ -117,7 +116,7 @@ export default function Main() {
 		{ id: 'chat-to-pdf', component: <ChatToPdf key="chat-to-pdf" />, category: 'all' },
 		{ id: 'ai-invoice-parser', component: <AIInvoiceParser key="ai-invoice-parser" />, category: 'all' },
 		// Excel Conversion
-		{ id: 'excel-to-pdf', component: <ExcelToPdf key="excel-to-pdf" />, category: 'excel-conversion' },
+		{ id: 'excel-to-pdf', component: <ExcelToPdf key="excel-to-pdf" />, category: 'all' },
 		// General
 		{ id: 'extract-attachments-from-pdf', component: <ExtractAttachmentsFromPdf key="extract-attachments-from-pdf" />, category: 'all' },
 		{ id: 'pdf-to-qrcode', component: <PdfToQrcode key="pdf-to-qrcode" />, category: 'all' },
@@ -589,7 +588,7 @@ export default function Main() {
                         ref={suggestionsRef}
                         role="listbox"
                         aria-label="Search suggestions"
-                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2  rounded-xl max-h-80 overflow-y-auto z-50 w-full max-w-md  border border-gray-200"
+                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2  rounded-xl  max-h-80 overflow-y-auto z-50 w-full max-w-md "
                     >
                         {suggestions.map((suggestion, index) => (
                             <button
