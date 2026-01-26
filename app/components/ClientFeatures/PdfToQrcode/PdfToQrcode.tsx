@@ -1,8 +1,7 @@
 "use client"
-
 import type React from "react"
 import { useMemo, useRef, useState } from "react"
-import { Download, ImageIcon, PaintBucket, RotateCw, X, MonitorUp, CircleCheck } from "lucide-react"
+import { Download, ImageIcon, PaintBucket, RotateCw, X, MonitorUp, CircleCheck, AlertCircle } from "lucide-react"
 import Spinner from "../../ui/loader/loader"
 
 type FrameKey = "no-frame" | "frame.png" | "frame2.png" | "frame3.png" | "frame4.png" | "frame5.png" | "frame6.png" | "frame7.png" | "frame8.png"
@@ -34,18 +33,15 @@ export default function PdfToQrcode() {
 
 	// Generation State
 	const [barcodeUrl, setBarcodeUrl] = useState<string | null>(null)
-	const [dataMatrixUrl, setDataMatrixUrl] = useState<string | null>(null)
-	const [aztecUrl, setAztecUrl] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
 	const [uploadProgress, setUploadProgress] = useState(0)
 
+	// Error State
+	const [error, setError] = useState<{ message: string; type: "api" | "network" | "timeout" | "upload" | "validation" } | null>(null)
+
 	// Frame Selection
 	const [selectedFrame, setSelectedFrame] = useState<FrameKey>("no-frame")
-	const [selectedDataMatrixFrame, setSelectedDataMatrixFrame] = useState<FrameKey>("no-frame")
-	const [selectedAztecFrame, setSelectedAztecFrame] = useState<FrameKey>("no-frame")
 	const frameRef = useRef<HTMLDivElement>(null)
-	const dataMatrixFrameRef = useRef<HTMLDivElement>(null)
-	const aztecFrameRef = useRef<HTMLDivElement>(null)
 
 	const frameConfigs: Record<FrameKey, FrameConfig> = useMemo(
 		() => ({
@@ -357,37 +353,59 @@ export default function PdfToQrcode() {
 			if (isValidPdfFile(file)) {
 				setUploadingPdf(true)
 				setPdfFile(file)
+				setError(null)
 
 				const formData = new FormData()
 				formData.append("file", file)
 
 				try {
-					const response = await fetch("/api/upload", {
+					// Add timeout (30 seconds for file upload)
+					const uploadPromise = fetch("/api/upload", {
 						method: "POST",
 						body: formData,
 					})
 
+					const timeoutPromise = createTimeoutPromise(30000)
+
+					const response = await Promise.race([uploadPromise, timeoutPromise])
+
 					if (!response.ok) {
-						throw new Error("Upload failed")
+						const errorData = await response.json().catch(() => ({}))
+						const errorMessage = errorData?.message || `Upload failed with status ${response.status}`
+						setError({ message: errorMessage, type: "api" })
+						setPdfFile(null)
+						return
 					}
 
 					const data = await response.json()
 
 					if (data.error === false && data.url) {
 						setPdfUrl(data.url)
+						setError(null)
 					} else {
-						alert("PDF upload failed. Please try again.")
+						const errorMessage = data?.message || "PDF upload failed. Please try again."
+						setError({ message: errorMessage, type: "upload" })
 						setPdfFile(null)
 					}
 				} catch (error) {
 					console.error("Upload error:", error)
-					alert("PDF upload failed. Please try again.")
+					if (error instanceof Error) {
+						if (error.message === "Request timeout") {
+							setError({ message: "Upload timeout. Please check your connection and try again.", type: "timeout" })
+						} else if (error instanceof TypeError && error.message.includes("fetch")) {
+							setError({ message: "Network error. Please check your internet connection and try again.", type: "network" })
+						} else {
+							setError({ message: error.message || "PDF upload failed. Please try again.", type: "upload" })
+						}
+					} else {
+						setError({ message: "PDF upload failed. Please try again.", type: "upload" })
+					}
 					setPdfFile(null)
 				} finally {
 					setUploadingPdf(false)
 				}
 			} else {
-				alert("Please select a valid PDF file (.pdf)")
+				setError({ message: "Please select a valid PDF file (.pdf)", type: "validation" })
 			}
 		}
 		if (pdfInputRef.current) pdfInputRef.current.value = ""
@@ -403,14 +421,28 @@ export default function PdfToQrcode() {
 		setLogoFile(null)
 	}
 
+	const clearError = () => {
+		setError(null)
+	}
+
+	// Helper function to create timeout promise
+	const createTimeoutPromise = (timeoutMs: number) => {
+		return new Promise<never>((_, reject) => {
+			setTimeout(() => reject(new Error("Request timeout")), timeoutMs)
+		})
+	}
+
 	const generateBarcode = async () => {
 		if (!pdfUrl) {
-			alert("Please upload a PDF file first")
+			setError({ message: "Please upload a PDF file first", type: "validation" })
 			return
 		}
 
 		setLoading(true)
 		setUploadProgress(0)
+		setError(null)
+
+		let progressInterval: NodeJS.Timeout | null = null
 
 		try {
 			// Generate QRCode
@@ -434,92 +466,57 @@ export default function PdfToQrcode() {
 				formData.append("decorationImageFile", logoFile)
 			}
 
-			const progressInterval = setInterval(() => {
+			progressInterval = setInterval(() => {
 				setUploadProgress((prev) => (prev >= 90 ? 90 : prev + 10))
 			}, 120)
 
-			const response = await fetch("/api/pdftoqrcode", {
+			// Add timeout (60 seconds for barcode generation)
+			const fetchPromise = fetch("/api/pdftoqrcode", {
 				method: "POST",
 				body: formData,
 			})
 
-			clearInterval(progressInterval)
+			const timeoutPromise = createTimeoutPromise(60000)
+
+			const response = await Promise.race([fetchPromise, timeoutPromise])
+
+			if (progressInterval) {
+				clearInterval(progressInterval)
+			}
 			setUploadProgress(100)
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({}))
+				const errorMessage = errorData?.message || `Barcode generation failed with status ${response.status}`
+				setError({ message: errorMessage, type: "api" })
+				return
+			}
 
 			const data = await response.json()
 
 			if (data?.error === false && data?.url) {
 				setBarcodeUrl(data.url)
+				setError(null)
 			} else {
-				alert(data?.message || "Barcode generation failed. Please try again.")
-			}
-
-			// Generate DataMatrix
-			const dataMatrixFormData = new FormData()
-			dataMatrixFormData.append("name", "datamatrix.png")
-			dataMatrixFormData.append("type", "DataMatrix")
-			dataMatrixFormData.append("value", pdfUrl)
-			dataMatrixFormData.append("inline", "true")
-			dataMatrixFormData.append("async", "false")
-			dataMatrixFormData.append(
-				"profiles",
-				JSON.stringify({
-					Angle: Number(angle),
-					NarrowBarWidth: narrowBarWidth,
-					ForeColor: foreColor,
-					BackColor: backColor,
-				})
-			)
-
-			if (logoFile) {
-				dataMatrixFormData.append("decorationImageFile", logoFile)
-			}
-
-			const dataMatrixResponse = await fetch("/api/pdftoqrcode", {
-				method: "POST",
-				body: dataMatrixFormData,
-			})
-
-			const dataMatrixData = await dataMatrixResponse.json()
-
-			if (dataMatrixData?.error === false && dataMatrixData?.url) {
-				setDataMatrixUrl(dataMatrixData.url)
-			}
-
-			// Generate Aztec
-			const aztecFormData = new FormData()
-			aztecFormData.append("name", "aztec.png")
-			aztecFormData.append("type", "Aztec")
-			aztecFormData.append("value", pdfUrl)
-			aztecFormData.append("inline", "true")
-			aztecFormData.append("async", "false")
-			aztecFormData.append(
-				"profiles",
-				JSON.stringify({
-					Angle: Number(angle),
-					NarrowBarWidth: narrowBarWidth,
-					ForeColor: foreColor,
-					BackColor: backColor,
-				})
-			)
-
-			if (logoFile) {
-				aztecFormData.append("decorationImageFile", logoFile)
-			}
-
-			const aztecResponse = await fetch("/api/pdftoqrcode", {
-				method: "POST",
-				body: aztecFormData,
-			})
-
-			const aztecData = await aztecResponse.json()
-
-			if (aztecData?.error === false && aztecData?.url) {
-				setAztecUrl(aztecData.url)
+				const errorMessage = data?.message || "Barcode generation failed. Please try again."
+				setError({ message: errorMessage, type: "api" })
 			}
 		} catch (err) {
 			console.error("Error:", err)
-			alert("Barcode generation failed. Please try again.")
+			if (progressInterval) {
+				clearInterval(progressInterval)
+			}
+			if (err instanceof Error) {
+				if (err.message === "Request timeout") {
+					setError({ message: "Request timeout. The operation took too long. Please try again.", type: "timeout" })
+				} else if (err instanceof TypeError && err.message.includes("fetch")) {
+					setError({ message: "Network error. Please check your internet connection and try again.", type: "network" })
+				} else {
+					setError({ message: err.message || "Barcode generation failed. Please try again.", type: "api" })
+				}
+			} else {
+				setError({ message: "Barcode generation failed. Please try again.", type: "api" })
+			}
 		} finally {
 			setLoading(false)
 			setTimeout(() => setUploadProgress(0), 800)
@@ -527,7 +524,10 @@ export default function PdfToQrcode() {
 	}
 
 	const downloadBarcode = async () => {
-		if (!barcodeUrl || !frameRef.current) return
+		if (!barcodeUrl || !frameRef.current) {
+			setError({ message: "QRCode not available for download", type: "validation" })
+			return
+		}
 
 		try {
 			if (selectedFrame === "no-frame") {
@@ -544,19 +544,30 @@ export default function PdfToQrcode() {
 				return
 			}
 
-			// Preload frame image to ensure it's loaded before capture
+			// Preload both frame image and QRCode image to ensure they're loaded
 			const frameImageUrl = `/frames/${selectedFrame}`
 			const frameImage = new Image()
 			frameImage.crossOrigin = "anonymous"
-			
-			await new Promise<void>((resolve, reject) => {
-				frameImage.onload = () => resolve()
-				frameImage.onerror = () => reject(new Error("Failed to load frame image"))
-				frameImage.src = frameImageUrl
-			})
 
-			// Small delay to ensure everything is rendered
-			await new Promise((resolve) => setTimeout(resolve, 100))
+			// Preload QRCode image
+			const qrCodeImage = new Image()
+			qrCodeImage.crossOrigin = "anonymous"
+
+			await Promise.all([
+				new Promise<void>((resolve, reject) => {
+					frameImage.onload = () => resolve()
+					frameImage.onerror = () => reject(new Error("Failed to load frame image"))
+					frameImage.src = frameImageUrl
+				}),
+				new Promise<void>((resolve, reject) => {
+					qrCodeImage.onload = () => resolve()
+					qrCodeImage.onerror = () => reject(new Error("Failed to load QRCode image"))
+					qrCodeImage.src = barcodeUrl
+				}),
+			])
+
+			// Wait a bit longer to ensure everything is rendered
+			await new Promise((resolve) => setTimeout(resolve, 300))
 
 			// @ts-ignore
 			const html2canvasModule = await import("html2canvas")
@@ -565,11 +576,15 @@ export default function PdfToQrcode() {
 			// Get background color from config (frame3.png has white background)
 			const bgColor = selectedFrame === "frame3.png" ? "#ffffff" : "transparent"
 
+			if (!frameRef.current) {
+				throw new Error("Frame container not found")
+			}
+
 			const canvas = await html2canvas(frameRef.current, {
 				backgroundColor: bgColor,
 				scale: 2,
 				useCORS: true,
-				allowTaint: false,
+				allowTaint: true, // Changed to true to allow cross-origin images
 				logging: false,
 				width: frameRef.current.offsetWidth,
 				height: frameRef.current.offsetHeight,
@@ -577,29 +592,59 @@ export default function PdfToQrcode() {
 					// Ensure background images are properly rendered in cloned document
 					const clonedElement = clonedDoc.querySelector('[data-frame-container]') as HTMLElement
 					if (clonedElement && frameRef.current) {
-						// Copy all computed styles to ensure background image is preserved
-						const originalStyle = frameRef.current.getAttribute("style") || ""
-						clonedElement.setAttribute("style", originalStyle)
+						// Get computed styles from original element
+						const originalElement = frameRef.current
+						const computedStyle = window.getComputedStyle(originalElement)
+						
+						// Copy all relevant styles
+						clonedElement.style.width = computedStyle.width
+						clonedElement.style.height = computedStyle.height
+						clonedElement.style.backgroundImage = computedStyle.backgroundImage
+						clonedElement.style.backgroundSize = computedStyle.backgroundSize
+						clonedElement.style.backgroundRepeat = computedStyle.backgroundRepeat
+						clonedElement.style.backgroundPosition = computedStyle.backgroundPosition
+						clonedElement.style.backgroundColor = computedStyle.backgroundColor
+						clonedElement.style.position = computedStyle.position
+						
+						// Ensure QRCode image is loaded in cloned document
+						const clonedImg = clonedElement.querySelector("img") as HTMLImageElement
+						if (clonedImg) {
+							clonedImg.src = barcodeUrl
+							clonedImg.crossOrigin = "anonymous"
+						}
 					}
 				},
 			})
 
-			canvas.toBlob((blob: Blob | null) => {
-				if (!blob) return
-				const url = window.URL.createObjectURL(blob)
-				const a = document.createElement("a")
-				a.href = url
-				a.download = `barcode-QRCode-${selectedFrame.replace(".png", "")}.png`
-				document.body.appendChild(a)
-				a.click()
-				window.URL.revokeObjectURL(url)
-				document.body.removeChild(a)
-			}, "image/png")
+			canvas.toBlob(
+				(blob: Blob | null) => {
+					if (!blob) {
+						setError({ message: "Failed to generate image blob", type: "api" })
+						return
+					}
+					const url = window.URL.createObjectURL(blob)
+					const a = document.createElement("a")
+					a.href = url
+					a.download = `barcode-QRCode-${selectedFrame.replace(".png", "")}.png`
+					document.body.appendChild(a)
+					a.click()
+					window.URL.revokeObjectURL(url)
+					document.body.removeChild(a)
+				},
+				"image/png",
+				1.0
+			)
 		} catch (error) {
 			console.error("Download error:", error)
-			// fallback: download raw barcode
+			setError({
+				message: error instanceof Error ? error.message : "Failed to download QRCode with frame. Trying fallback...",
+				type: "api",
+			})
+			
+			// Fallback: download raw barcode
 			try {
 				const response = await fetch(barcodeUrl)
+				if (!response.ok) throw new Error("Failed to fetch barcode")
 				const blob = await response.blob()
 				const url = window.URL.createObjectURL(blob)
 				const a = document.createElement("a")
@@ -611,172 +656,10 @@ export default function PdfToQrcode() {
 				document.body.removeChild(a)
 			} catch (fallbackError) {
 				console.error("Fallback download error:", fallbackError)
-			}
-		}
-	}
-
-	const downloadDataMatrix = async () => {
-		if (!dataMatrixUrl || !dataMatrixFrameRef.current) return
-
-		try {
-			if (selectedDataMatrixFrame === "no-frame") {
-				const response = await fetch(dataMatrixUrl)
-				const blob = await response.blob()
-				const url = window.URL.createObjectURL(blob)
-				const a = document.createElement("a")
-				a.href = url
-				a.download = `datamatrix-no-frame.png`
-				document.body.appendChild(a)
-				a.click()
-				window.URL.revokeObjectURL(url)
-				document.body.removeChild(a)
-				return
-			}
-
-			const frameImageUrl = `/frames/${selectedDataMatrixFrame}`
-			const frameImage = new Image()
-			frameImage.crossOrigin = "anonymous"
-			
-			await new Promise<void>((resolve, reject) => {
-				frameImage.onload = () => resolve()
-				frameImage.onerror = () => reject(new Error("Failed to load frame image"))
-				frameImage.src = frameImageUrl
-			})
-
-			await new Promise((resolve) => setTimeout(resolve, 100))
-
-			// @ts-ignore
-			const html2canvasModule = await import("html2canvas")
-			const html2canvas = html2canvasModule.default
-
-			const bgColor = selectedDataMatrixFrame === "frame3.png" ? "#ffffff" : "transparent"
-
-			const canvas = await html2canvas(dataMatrixFrameRef.current, {
-				backgroundColor: bgColor,
-				scale: 2,
-				useCORS: true,
-				allowTaint: false,
-				logging: false,
-				width: dataMatrixFrameRef.current.offsetWidth,
-				height: dataMatrixFrameRef.current.offsetHeight,
-				onclone: (clonedDoc) => {
-					const clonedElement = clonedDoc.querySelector('[data-datamatrix-frame-container]') as HTMLElement
-					if (clonedElement && dataMatrixFrameRef.current) {
-						const originalStyle = dataMatrixFrameRef.current.getAttribute("style") || ""
-						clonedElement.setAttribute("style", originalStyle)
-					}
-				},
-			})
-
-			canvas.toBlob((blob: Blob | null) => {
-				if (!blob) return
-				const url = window.URL.createObjectURL(blob)
-				const a = document.createElement("a")
-				a.href = url
-				a.download = `datamatrix-${selectedDataMatrixFrame.replace(".png", "")}.png`
-				document.body.appendChild(a)
-				a.click()
-				window.URL.revokeObjectURL(url)
-				document.body.removeChild(a)
-			}, "image/png")
-		} catch (error) {
-			console.error("Download error:", error)
-			try {
-				const response = await fetch(dataMatrixUrl)
-				const blob = await response.blob()
-				const url = window.URL.createObjectURL(blob)
-				const a = document.createElement("a")
-				a.href = url
-				a.download = `datamatrix.png`
-				document.body.appendChild(a)
-				a.click()
-				window.URL.revokeObjectURL(url)
-				document.body.removeChild(a)
-			} catch (fallbackError) {
-				console.error("Fallback download error:", fallbackError)
-			}
-		}
-	}
-
-	const downloadAztec = async () => {
-		if (!aztecUrl || !aztecFrameRef.current) return
-
-		try {
-			if (selectedAztecFrame === "no-frame") {
-				const response = await fetch(aztecUrl)
-				const blob = await response.blob()
-				const url = window.URL.createObjectURL(blob)
-				const a = document.createElement("a")
-				a.href = url
-				a.download = `aztec-no-frame.png`
-				document.body.appendChild(a)
-				a.click()
-				window.URL.revokeObjectURL(url)
-				document.body.removeChild(a)
-				return
-			}
-
-			const frameImageUrl = `/frames/${selectedAztecFrame}`
-			const frameImage = new Image()
-			frameImage.crossOrigin = "anonymous"
-			
-			await new Promise<void>((resolve, reject) => {
-				frameImage.onload = () => resolve()
-				frameImage.onerror = () => reject(new Error("Failed to load frame image"))
-				frameImage.src = frameImageUrl
-			})
-
-			await new Promise((resolve) => setTimeout(resolve, 100))
-
-			// @ts-ignore
-			const html2canvasModule = await import("html2canvas")
-			const html2canvas = html2canvasModule.default
-
-			const bgColor = selectedAztecFrame === "frame3.png" ? "#ffffff" : "transparent"
-
-			const canvas = await html2canvas(aztecFrameRef.current, {
-				backgroundColor: bgColor,
-				scale: 2,
-				useCORS: true,
-				allowTaint: false,
-				logging: false,
-				width: aztecFrameRef.current.offsetWidth,
-				height: aztecFrameRef.current.offsetHeight,
-				onclone: (clonedDoc) => {
-					const clonedElement = clonedDoc.querySelector('[data-aztec-frame-container]') as HTMLElement
-					if (clonedElement && aztecFrameRef.current) {
-						const originalStyle = aztecFrameRef.current.getAttribute("style") || ""
-						clonedElement.setAttribute("style", originalStyle)
-					}
-				},
-			})
-
-			canvas.toBlob((blob: Blob | null) => {
-				if (!blob) return
-				const url = window.URL.createObjectURL(blob)
-				const a = document.createElement("a")
-				a.href = url
-				a.download = `aztec-${selectedAztecFrame.replace(".png", "")}.png`
-				document.body.appendChild(a)
-				a.click()
-				window.URL.revokeObjectURL(url)
-				document.body.removeChild(a)
-			}, "image/png")
-		} catch (error) {
-			console.error("Download error:", error)
-			try {
-				const response = await fetch(aztecUrl)
-				const blob = await response.blob()
-				const url = window.URL.createObjectURL(blob)
-				const a = document.createElement("a")
-				a.href = url
-				a.download = `aztec.png`
-				document.body.appendChild(a)
-				a.click()
-				window.URL.revokeObjectURL(url)
-				document.body.removeChild(a)
-			} catch (fallbackError) {
-				console.error("Fallback download error:", fallbackError)
+				setError({
+					message: "Failed to download QRCode. Please try again.",
+					type: "api",
+				})
 			}
 		}
 	}
@@ -790,40 +673,77 @@ export default function PdfToQrcode() {
 		setBackColor("#ffffff")
 		setLogoFile(null)
 		setBarcodeUrl(null)
-		setDataMatrixUrl(null)
-		setAztecUrl(null)
 		setSelectedFrame("no-frame")
-		setSelectedDataMatrixFrame("no-frame")
-		setSelectedAztecFrame("no-frame")
+		setError(null)
 		if (pdfInputRef.current) pdfInputRef.current.value = ""
 	}
 
-	// Show result view after generation
-	const showResult = barcodeUrl !== null || dataMatrixUrl !== null || aztecUrl !== null
-
 	return (
-		<div className="p-0 max-w-7xl mx-auto bg-transparent">
-			<div className="text-center space-y-2 mb-0">
-				<div className="flex flex-wrap justify-center items-center mx-auto text-neutral-600 text-2xl sm:text-3xl md:text-4xl lg:text-5xl gap-2">
+		<div className="px-2 sm:px-4 md:px-6 lg:px-0 max-w-7xl mx-auto bg-transparent relative">
+			<div className="text-center space-y-1 sm:space-y-2 mb-4 sm:mb-6 md:mb-8">
+				<div className="flex flex-wrap justify-center items-center mx-auto text-neutral-600 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl gap-1 sm:gap-2">
 					Barcode Generator
 				</div>
-				<p className="text-gray-600">Generate barcode from PDF with styles, logo and frames</p>
+				<p className="text-xs sm:text-sm md:text-base text-gray-600 px-2">Generate barcode from PDF with styles, logo and frames</p>
 			</div>
 
-			{!showResult ? (
-				<div className="space-y-6 relative min-h-[520px]">
-					{/* Overlay loader (Generate click) - covers ONLY this details section, not navbar */}
-					{loading && (
-						<div className="absolute inset-0 z-50 bg-[#fef0e9]/90 backdrop-blur-sm flex items-center justify-center rounded-2xl">
-							<Spinner />
+			{/* Modal Loader Overlay */}
+			{loading && (
+				<div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
+					<div className="bg-transparent rounded-xl sm:rounded-2xl max-w-md w-full">
+						<div className="flex bg-transparent flex-col items-center justify-center gap-3 sm:gap-4">
+							<div className="bg-transparent">
+								<Spinner />
+							</div>
+							<div className="text-center bg-transparent">
+								<h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">Generating QRCode...</h3>
+							</div>
 						</div>
-					)}
+					</div>
+				</div>
+			)}
 
+			{/* Error Message UI */}
+			{error && (
+				<div className="mb-4 sm:mb-5 md:mb-6">
+					<div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-3 sm:p-4 shadow-sm">
+						<div className="flex items-start gap-3">
+							<div className="flex-shrink-0">
+								<AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
+							</div>
+							<div className="flex-1 min-w-0">
+								<div className="flex items-start justify-between gap-2">
+									<div className="flex-1">
+										<h4 className="text-sm sm:text-base font-semibold text-red-800 mb-1">
+											{error.type === "api" && "Fail Check Your Connects Error OR refresh page"}
+											{error.type === "network" && "Network Error"}
+											{error.type === "timeout" && "Request Timeout"}
+											{error.type === "upload" && "Upload Failed"}
+											{error.type === "validation" && "Validation Error"}
+										</h4>
+										<p className="text-xs sm:text-sm text-red-700">{error.message}</p>
+									</div>
+									<button
+										onClick={clearError}
+										className="flex-shrink-0 p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors"
+										aria-label="Close error"
+									>
+										<X className="h-4 w-4" />
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{!barcodeUrl ? (
+				<div className="space-y-4 sm:space-y-5 md:space-y-6 relative min-h-[400px] sm:min-h-[480px] md:min-h-[520px]">
 					{/* PDF Upload Section (hide after upload) */}
 					{!pdfUrl ? (
-						<div className="space-y-3">
-							<label className="text-sm font-semibold text-gray-700">Upload PDF File</label>
-							<div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#ff550d] transition-colors">
+						<div className="space-y-2 sm:space-y-3">
+							<label className="text-xs sm:text-sm font-semibold text-gray-700">Upload PDF File</label>
+							<div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 md:p-8 text-center hover:border-[#ff550d] transition-colors">
 								<input
 									ref={pdfInputRef}
 									type="file"
@@ -834,32 +754,38 @@ export default function PdfToQrcode() {
 								/>
 								<label htmlFor="pdf-upload" className="cursor-pointer">
 									{uploadingPdf ? (
-										<div className="flex flex-col items-center justify-center gap-3">
-											<div style={{ transform: "scale(0.6)" }}>
+										<div className="flex flex-col items-center justify-center gap-2 sm:gap-3">
+											<div style={{ transform: "scale(0.5) sm:scale(0.6)" }}>
 												<Spinner />
 											</div>
-											<p className="text-gray-600">Uploading PDF...</p>
+											<p className="text-sm sm:text-base text-gray-600">Uploading PDF...</p>
 										</div>
 									) : (
 										<>
-											<MonitorUp className="mx-auto h-12 w-12 text-[#ff550d] mb-4" />
-											<p className="text-gray-600">Click to upload a PDF file</p>
-											<p className="text-sm text-gray-400 mt-1">PDF files only</p>
+											<MonitorUp className="mx-auto h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-[#ff550d] mb-2 sm:mb-3 md:mb-4" />
+											<p className="text-sm sm:text-base text-gray-600">Click to upload a PDF file</p>
+											<p className="text-xs sm:text-sm text-gray-400 mt-1">PDF files only</p>
 										</>
 									)}
 								</label>
 							</div>
 						</div>
 					) : (
-						<div className="flex items-center justify-between bg-white/70 border border-gray-200 rounded-xl px-4 py-3">
-							<p className="text-sm text-gray-700">
-								<span className="font-semibold">PDF uploaded:</span> {pdfFile?.name || "Your file"}
-							</p>
+						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 bg-white rounded-lg border border-gray-100 shadow-sm px-3 sm:px-4 py-2.5 sm:py-3 hover:shadow-md transition-all duration-200">
+							<div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 w-full sm:w-auto">
+								<div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#ff550d] to-[#ff911d] rounded-lg flex items-center justify-center">
+									<MonitorUp className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+								</div>
+								<div className="flex-1 min-w-0">
+									<p className="text-xs text-gray-500 font-medium uppercase tracking-wide">PDF uploaded</p>
+									<p className="text-xs sm:text-sm text-gray-900 font-medium truncate mt-0.5">{pdfFile?.name || "Your file"}</p>
+								</div>
+							</div>
 							<button
 								onClick={removePdf}
-								className="inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+								className="flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 w-full sm:w-auto justify-center sm:justify-start"
 							>
-								<X className="h-4 w-4" />
+								<X className="h-3.5 w-3.5" />
 								Change
 							</button>
 						</div>
@@ -868,61 +794,67 @@ export default function PdfToQrcode() {
 					{/* Settings Section */}
 					{pdfUrl && (
 						<>
-							<div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200">
-								<h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-									<PaintBucket className="h-5 w-5" />
-									Styling
-								</h3>
-								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-									<div className="space-y-2">
-										<label className="text-sm font-semibold text-gray-700">Foreground</label>
-										<div className="flex items-center gap-2">
+							<div className="bg-white rounded-lg sm:rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4 md:space-y-5">
+								<div className="flex items-center gap-2 pb-2 sm:pb-3 border-b border-gray-100">
+									<div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#ff550d] to-[#ff911d] rounded-lg flex items-center justify-center">
+										<PaintBucket className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
+									</div>
+									<h3 className="text-sm sm:text-base font-semibold text-gray-900">Styling</h3>
+								</div>
+
+								<div className="grid grid-cols-2 gap-3 sm:gap-4">
+									<div className="space-y-1.5 sm:space-y-2">
+										<label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Foreground</label>
+										<div className="relative">
 											<input
 												type="color"
 												value={foreColor}
 												onChange={(e) => setForeColor(e.target.value)}
-												className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+												className="w-full sm:w-16 h-9 sm:h-10 rounded-lg border border-gray-200 cursor-pointer hover:border-[#ff550d] transition-colors shadow-sm"
 											/>
 										</div>
 									</div>
 
-									<div className="space-y-2">
-										<label className="text-sm font-semibold text-gray-700">Background</label>
-										<div className="flex items-center gap-2">
+									<div className="space-y-1.5 sm:space-y-2">
+										<label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Background</label>
+										<div className="relative">
 											<input
 												type="color"
 												value={backColor}
 												onChange={(e) => setBackColor(e.target.value)}
-												className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+												className="w-full sm:w-16 h-9 sm:h-10 rounded-lg border border-gray-200 cursor-pointer hover:border-[#ff550d] transition-colors shadow-sm"
 											/>
 										</div>
 									</div>
 								</div>
 
-								<div className="space-y-3 mt-6">
-									<label className="text-sm font-semibold text-gray-700">Barcode Pixel Size: {narrowBarWidth}</label>
+								<div className="space-y-1.5 sm:space-y-2 pt-1 sm:pt-2">
+									<div className="flex items-center justify-between gap-2">
+										<label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Barcode Pixel Size</label>
+										<span className="text-xs sm:text-sm font-semibold text-gray-900 bg-gray-50 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md whitespace-nowrap">{narrowBarWidth}</span>
+									</div>
 									<input
 										type="range"
 										min={1}
 										max={100}
 										value={narrowBarWidth}
 										onChange={(e) => setNarrowBarWidth(Number(e.target.value))}
-										className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+										className="w-full h-1 sm:h-1.5 bg-gray-100 rounded-full appearance-none cursor-pointer slider"
 										style={{
 											background: `linear-gradient(to right, #ff550d 0%, #ff911d ${narrowBarWidth}%, #e5e7eb ${narrowBarWidth}%, #e5e7eb 100%)`,
 										}}
 									/>
 								</div>
 
-								<div className="space-y-2 mt-6">
-									<label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-										<RotateCw className="h-4 w-4" />
+								<div className="space-y-1.5 sm:space-y-2 pt-1 sm:pt-2">
+									<label className="text-xs font-medium text-gray-600 uppercase tracking-wide flex items-center gap-1.5 sm:gap-2">
+										<RotateCw className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
 										Rotation
 									</label>
 									<select
 										value={angle}
 										onChange={(e) => setAngle(e.target.value as "0" | "1" | "2" | "3")}
-										className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-[#ff550d] focus:outline-none transition-colors"
+										className="w-full h-10 sm:h-11 px-2.5 sm:px-3 text-xs sm:text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg focus:border-[#ff550d] focus:ring-2 focus:ring-[#ff550d]/20 focus:outline-none transition-all cursor-pointer hover:border-gray-300"
 									>
 										<option value="0">0° (Normal)</option>
 										<option value="1">90° (Right)</option>
@@ -932,11 +864,11 @@ export default function PdfToQrcode() {
 								</div>
 							</div>
 
-							<div className="space-y-3">
-								<label className="text-sm font-semibold text-gray-700">Logo Image (Optional)</label>
+							<div className="bg-white rounded-lg sm:rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4 md:p-5">
+								<label className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2 sm:mb-3 block">Logo Image <span className="text-gray-400 normal-case">(Optional)</span></label>
 
 								{!logoFile ? (
-									<div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#ff550d] transition-colors">
+									<div className="border border-dashed border-gray-200 rounded-lg p-4 sm:p-5 md:p-6 text-center hover:border-[#ff550d] hover:bg-[#fff5f0]/30 transition-all duration-200 cursor-pointer group">
 										<input
 											type="file"
 											accept="image/*"
@@ -945,26 +877,30 @@ export default function PdfToQrcode() {
 											id="logo-upload"
 										/>
 										<label htmlFor="logo-upload" className="cursor-pointer">
-											<ImageIcon className="mx-auto h-12 w-12 text-[#ff550d] mb-4" />
-											<p className="text-gray-600">Click to upload a logo image</p>
-											<p className="text-sm text-gray-400 mt-1">PNG, JPG up to 10MB</p>
+											<div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 bg-gradient-to-br from-[#ff550d] to-[#ff911d] rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
+												<ImageIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+											</div>
+											<p className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Click to upload logo</p>
+											<p className="text-xs text-gray-400">PNG, JPG up to 10MB</p>
 										</label>
 									</div>
 								) : (
-									<div className="bg-gray-50 rounded-xl p-4 space-y-3">
-										<div className="flex items-center justify-between">
-											<div className="flex items-center space-x-3">
-												<ImageIcon className="h-8 w-8 text-[#ff550d]" />
-												<div>
-													<p className="font-medium text-gray-900">{logoFile.name}</p>
-													<p className="text-sm text-gray-500">Will upload on Generate</p>
+									<div className="bg-gray-50 rounded-lg p-2.5 sm:p-3 border border-gray-100">
+										<div className="flex items-center justify-between gap-2">
+											<div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+												<div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#ff550d] to-[#ff911d] rounded-lg flex items-center justify-center">
+													<ImageIcon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+												</div>
+												<div className="flex-1 min-w-0">
+													<p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{logoFile.name}</p>
+													<p className="text-xs text-gray-500 mt-0.5">Will upload on Generate</p>
 												</div>
 											</div>
 											<button
 												onClick={removeLogo}
-												className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+												className="flex-shrink-0 p-1 sm:p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
 											>
-												<X className="h-5 w-5" />
+												<X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 											</button>
 										</div>
 									</div>
@@ -974,53 +910,73 @@ export default function PdfToQrcode() {
 							<button
 								onClick={generateBarcode}
 								disabled={loading || !pdfUrl}
-								className="w-full py-4 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+								className="w-full h-11 sm:h-12 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white text-sm sm:text-base font-semibold rounded-lg hover:from-[#e6490b] hover:to-[#e6820a] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
 							>
-								{loading ? (
-									<div className="flex items-center justify-center gap-3">
-										<div style={{ transform: "scale(0.45)" }}>
-											<Spinner />
-										</div>
-										<span>Generating Barcodes...</span>
-									</div>
-								) : (
-									"Generate Barcodes"
-								)}
+								Generate Barcodes
 							</button>
 
-							{loading && (
-								<div className="space-y-2">
-									<div className="flex justify-between text-sm text-gray-600">
-										<span>Generating barcode...</span>
-										<span>{uploadProgress}%</span>
-									</div>
-									<div className="w-full bg-gray-200 rounded-full h-2">
-										<div
-											className="bg-gradient-to-r from-[#ff550d] to-[#ff911d] h-2 rounded-full transition-all duration-300"
-											style={{ width: `${uploadProgress}%` }}
-										/>
-									</div>
-								</div>
-							)}
 						</>
 					)}
 				</div>
 			) : (
-				/* Result View - Show only barcode with frames */
-				<div className="space-y-6">
-					<div className="bg-white flex flex-col rounded-2xl border border-gray-200 p-6 overflow-hidden">
-						<div className="text-center mb-6">
-							<h3 className="text-xl font-semibold text-gray-800">Generated Barcode</h3>
+				/* Result View - Show QRCode with frames */
+				<div className="space-y-4 sm:space-y-5 md:space-y-6 mt-4 sm:mt-5 md:mt-6">
+					<div className="bg-white flex flex-col rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-200 p-3 sm:p-4 md:p-6 overflow-hidden">
+						<div className="text-center mb-4 sm:mb-5 md:mb-6">
+							<h3 className="text-lg sm:text-xl font-semibold text-gray-800">Generated Barcode</h3>
 						</div>
 
 						<div className="flex-1 flex items-center justify-center min-h-0">
 							<div className="w-full h-full overflow-hidden">
-								<div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full items-start">
-									<div className="flex flex-col items-center justify-start p-4 space-y-6">
+								<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 md:gap-6 h-full items-start">
+									{/* QRCode Preview - First on mobile, second on desktop */}
+									<div className="flex flex-col items-center justify-center space-y-4 sm:space-y-6 md:space-y-8 p-2 sm:p-3 md:p-4 order-1 lg:order-2">
+										{/* QRCode Preview */}
+										{barcodeUrl && (
+											<div className="flex flex-col items-center space-y-3 sm:space-y-4 w-full">
+												<h4 className="text-xs sm:text-sm font-semibold text-gray-700">QRCode Preview</h4>
+												<div
+													ref={frameRef}
+													data-frame-container
+													className={`inline-block p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl md:rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
+														selectedFrame === "no-frame" ? "shadow-none p-0" : "shadow-xl hover:shadow-2xl p-2 sm:p-3 md:p-4"
+													}`}
+													style={{
+														backgroundImage: selectedFrame !== "no-frame" ? `url('/frames/${selectedFrame}')` : "none",
+														...getCurrentFrameConfig().container,
+													}}
+												>
+													<div className="absolute inset-0 flex justify-center items-center" style={getCurrentFrameConfig().qrCode}>
+														<img
+															src={barcodeUrl}
+															alt="Generated QRCode"
+															className="w-full h-full object-contain filter drop-shadow-sm"
+															style={getCurrentFrameConfig().qrImage}
+														/>
+													</div>
+												</div>
+												<div className="w-full flex items-center justify-center bg-[#e9fdea] rounded-lg px-2 sm:px-3 py-1.5 sm:py-2">
+													<CircleCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#4caf56] flex-shrink-0" />
+													<p className="text-xs sm:text-sm text-[#4caf56] px-2 py-1 text-center">Great! Your QR code is easy to scan.</p>
+												</div>
+
+												<button
+													onClick={downloadBarcode}
+													className="w-full max-w-full sm:max-w-sm cursor-pointer inline-flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
+												>
+													<Download className="h-4 w-4 sm:h-5 sm:w-5" />
+													<span>Download QRCode</span>
+												</button>
+											</div>
+										)}
+									</div>
+
+									{/* Choose Frame Style - Second on mobile, first on desktop */}
+									<div className="flex flex-col items-center justify-start p-2 sm:p-3 md:p-4 space-y-4 sm:space-y-5 md:space-y-6 order-2 lg:order-1">
 										{/* QRCode Frame Selection */}
 										<div className="w-full">
-											<h4 className="text-sm font-semibold text-gray-700 mb-4">Choose QRCode Frame Style</h4>
-											<div className="grid grid-cols-3 gap-3 items-center w-full max-w-[480px]">
+											<h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-3 sm:mb-4">Choose Frame Style</h4>
+											<div className="grid grid-cols-3 gap-2 sm:gap-2.5 md:gap-3 items-center w-full max-w-full md:max-w-[480px] mx-auto">
 												{(["no-frame", "frame.png", "frame2.png", "frame3.png", "frame4.png", "frame5.png", "frame6.png", "frame7.png", "frame8.png"] as FrameKey[]).map((frameFile, index) => {
 													const frameConfig = frameConfigs[frameFile]
 													const frameNames = ["Normal", "Classic", "Modern", "Elegant", "Frame 4", "Frame 5", "Frame 6", "Frame 7", "Frame 8"]
@@ -1029,7 +985,7 @@ export default function PdfToQrcode() {
 														<div
 															key={frameFile}
 															onClick={() => setSelectedFrame(frameFile)}
-															className={`p-3 rounded-xl transition-all duration-300 w-full group ${
+															className={`p-1.5 sm:p-2 md:p-3 rounded-lg sm:rounded-xl transition-all duration-300 w-full group ${
 																selectedFrame === frameFile
 																	? "border border-[#ffcc99] bg-transparent"
 																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
@@ -1065,7 +1021,7 @@ export default function PdfToQrcode() {
 
 															<div className="text-center">
 																<p
-																	className={`text-xs font-semibold transition-colors duration-200 ${
+																	className={`text-[10px] sm:text-xs font-semibold transition-colors duration-200 ${
 																		selectedFrame === frameFile ? "text-[#ff550d]" : "text-gray-600 group-hover:text-gray-800"
 																	}`}
 																>
@@ -1077,251 +1033,6 @@ export default function PdfToQrcode() {
 												})}
 											</div>
 										</div>
-
-										{/* DataMatrix Frame Selection */}
-										<div className="w-full">
-											<h4 className="text-sm font-semibold text-gray-700 mb-4">Choose DataMatrix Frame Style</h4>
-											<div className="grid grid-cols-3 gap-3 items-center w-full max-w-[480px]">
-												{(["no-frame", "frame.png", "frame2.png", "frame3.png", "frame4.png", "frame5.png", "frame6.png", "frame7.png", "frame8.png"] as FrameKey[]).map((frameFile, index) => {
-													const frameConfig = frameConfigs[frameFile]
-													const frameNames = ["Normal", "Classic", "Modern", "Elegant", "Frame 4", "Frame 5", "Frame 6", "Frame 7", "Frame 8"]
-
-													return (
-														<div
-															key={`datamatrix-${frameFile}`}
-															onClick={() => setSelectedDataMatrixFrame(frameFile)}
-															className={`p-3 rounded-xl transition-all duration-300 w-full group ${
-																selectedDataMatrixFrame === frameFile
-																	? "border border-[#ffcc99] bg-transparent"
-																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
-															}`}
-														>
-															<div
-																className="bg-white rounded-lg border border-gray-200 mb-3 relative mx-auto shadow-sm group-hover:shadow-md transition-shadow duration-100"
-																style={{
-																	backgroundImage: frameFile !== "no-frame" ? `url('/frames/${frameFile}')` : "none",
-																	backgroundSize: "contain",
-																	backgroundRepeat: "no-repeat",
-																	backgroundPosition: "center",
-																	backgroundColor: frameFile === "no-frame" ? "transparent" : "white",
-																	border: frameFile === "no-frame" ? "none" : "1px solid #e5e7eb",
-																	position: "relative",
-																	...frameConfig.preview.container,
-																}}
-															>
-																<div
-																	className="absolute inset-0 flex items-center justify-center"
-																	style={frameConfig.preview.qrCode}
-																>
-																	{dataMatrixUrl && (
-																		<img
-																			src={dataMatrixUrl}
-																			alt="DataMatrix Preview"
-																			className="w-full h-full object-contain filter drop-shadow-sm"
-																			style={frameConfig.preview.qrImage}
-																		/>
-																	)}
-																</div>
-															</div>
-
-															<div className="text-center">
-																<p
-																	className={`text-xs font-semibold transition-colors duration-200 ${
-																		selectedDataMatrixFrame === frameFile ? "text-[#ff550d]" : "text-gray-600 group-hover:text-gray-800"
-																	}`}
-																>
-																	{frameNames[index]}
-																</p>
-															</div>
-														</div>
-													)
-												})}
-											</div>
-										</div>
-
-										{/* Aztec Frame Selection */}
-										<div className="w-full">
-											<h4 className="text-sm font-semibold text-gray-700 mb-4">Choose Aztec Frame Style</h4>
-											<div className="grid grid-cols-3 gap-3 items-center w-full max-w-[480px]">
-												{(["no-frame", "frame.png", "frame2.png", "frame3.png", "frame4.png", "frame5.png", "frame6.png", "frame7.png", "frame8.png"] as FrameKey[]).map((frameFile, index) => {
-													const frameConfig = frameConfigs[frameFile]
-													const frameNames = ["Normal", "Classic", "Modern", "Elegant", "Frame 4", "Frame 5", "Frame 6", "Frame 7", "Frame 8"]
-
-													return (
-														<div
-															key={`aztec-${frameFile}`}
-															onClick={() => setSelectedAztecFrame(frameFile)}
-															className={`p-3 rounded-xl transition-all duration-300 w-full group ${
-																selectedAztecFrame === frameFile
-																	? "border border-[#ffcc99] bg-transparent"
-																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
-															}`}
-														>
-															<div
-																className="bg-white rounded-lg border border-gray-200 mb-3 relative mx-auto shadow-sm group-hover:shadow-md transition-shadow duration-100"
-																style={{
-																	backgroundImage: frameFile !== "no-frame" ? `url('/frames/${frameFile}')` : "none",
-																	backgroundSize: "contain",
-																	backgroundRepeat: "no-repeat",
-																	backgroundPosition: "center",
-																	backgroundColor: frameFile === "no-frame" ? "transparent" : "white",
-																	border: frameFile === "no-frame" ? "none" : "1px solid #e5e7eb",
-																	position: "relative",
-																	...frameConfig.preview.container,
-																}}
-															>
-																<div
-																	className="absolute inset-0 flex items-center justify-center"
-																	style={frameConfig.preview.qrCode}
-																>
-																	{aztecUrl && (
-																		<img
-																			src={aztecUrl}
-																			alt="Aztec Preview"
-																			className="w-full h-full object-contain filter drop-shadow-sm"
-																			style={frameConfig.preview.qrImage}
-																		/>
-																	)}
-																</div>
-															</div>
-
-															<div className="text-center">
-																<p
-																	className={`text-xs font-semibold transition-colors duration-200 ${
-																		selectedAztecFrame === frameFile ? "text-[#ff550d]" : "text-gray-600 group-hover:text-gray-800"
-																	}`}
-																>
-																	{frameNames[index]}
-																</p>
-															</div>
-														</div>
-													)
-												})}
-											</div>
-										</div>
-									</div>
-
-									<div className="flex flex-col items-center justify-center space-y-8 p-4">
-										{/* QRCode Preview */}
-										{barcodeUrl && (
-											<div className="flex flex-col items-center space-y-4">
-												<h4 className="text-sm font-semibold text-gray-700">QRCode Preview</h4>
-												<div
-													ref={frameRef}
-													data-frame-container
-													className={`inline-block p-4 rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
-														selectedFrame === "no-frame" ? "shadow-none" : "shadow-xl hover:shadow-2xl"
-													}`}
-													style={{
-														backgroundImage: selectedFrame !== "no-frame" ? `url('/frames/${selectedFrame}')` : "none",
-														padding: selectedFrame === "no-frame" ? "0" : "16px",
-														...getCurrentFrameConfig().container,
-													}}
-												>
-													<div className="absolute inset-0 flex justify-center items-center" style={getCurrentFrameConfig().qrCode}>
-														<img
-															src={barcodeUrl}
-															alt="Generated QRCode"
-															className="w-full h-full object-contain filter drop-shadow-sm"
-															style={getCurrentFrameConfig().qrImage}
-														/>
-													</div>
-												</div>
-													<div className="w-full flex items-center justify-center  bg-[#e9fdea]">
-														<CircleCheck className="h-4 w-4 text-[#4caf56]" />
-												<p className="text-sm text-[#4caf56] px-2 py-1 rounded-lg  text-center">Great! Your QR code is easy to scan.</p>
-
-													</div>
-
-												<button
-													onClick={downloadBarcode}
-													className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
-												>
-													<Download className="h-5 w-5" />
-													<span>Download QRCode</span>
-												</button>
-											</div>
-										)}
-
-										{/* DataMatrix Preview */}
-										{dataMatrixUrl && (
-											<div className="flex flex-col items-center space-y-4">
-												<h4 className="text-sm font-semibold text-gray-700">DataMatrix Preview</h4>
-												<div
-													ref={dataMatrixFrameRef}
-													data-datamatrix-frame-container
-													className={`inline-block p-4 rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
-														selectedDataMatrixFrame === "no-frame" ? "shadow-none" : "shadow-xl hover:shadow-2xl"
-													}`}
-													style={{
-														backgroundImage: selectedDataMatrixFrame !== "no-frame" ? `url('/frames/${selectedDataMatrixFrame}')` : "none",
-														padding: selectedDataMatrixFrame === "no-frame" ? "0" : "16px",
-														...(frameConfigs[selectedDataMatrixFrame] || frameConfigs["no-frame"]).container,
-													}}
-												>
-													<div className="absolute inset-0 flex justify-center items-center" style={(frameConfigs[selectedDataMatrixFrame] || frameConfigs["no-frame"]).qrCode}>
-														<img
-															src={dataMatrixUrl}
-															alt="Generated DataMatrix"
-															className="w-full h-full object-contain filter drop-shadow-sm"
-															style={(frameConfigs[selectedDataMatrixFrame] || frameConfigs["no-frame"]).qrImage}
-														/>
-													</div>
-												</div>
-												<div className="w-full flex items-center justify-center  bg-[#e9fdea]">
-													<CircleCheck className="h-4 w-4 text-[#4caf56]" />
-												<p className="text-sm text-[#4caf56] px-2 py-1 rounded-lg  text-center">Great! Your DataMatrix is easy to scan.</p>
-
-												</div>
-												<button
-													onClick={downloadDataMatrix}
-													className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
-												>
-													<Download className="h-5 w-5" />
-													<span>Download DataMatrix</span>
-												</button>
-											</div>
-										)}
-
-										{/* Aztec Preview */}
-										{aztecUrl && (
-											<div className="flex flex-col items-center space-y-4">
-												<h4 className="text-sm font-semibold text-gray-700">Aztec Preview</h4>
-												<div
-													ref={aztecFrameRef}
-													data-aztec-frame-container
-													className={`inline-block p-4 rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
-														selectedAztecFrame === "no-frame" ? "shadow-none" : "shadow-xl hover:shadow-2xl"
-													}`}
-													style={{
-														backgroundImage: selectedAztecFrame !== "no-frame" ? `url('/frames/${selectedAztecFrame}')` : "none",
-														padding: selectedAztecFrame === "no-frame" ? "0" : "16px",
-														...(frameConfigs[selectedAztecFrame] || frameConfigs["no-frame"]).container,
-													}}
-												>
-													<div className="absolute inset-0 flex justify-center items-center" style={(frameConfigs[selectedAztecFrame] || frameConfigs["no-frame"]).qrCode}>
-														<img
-															src={aztecUrl}
-															alt="Generated Aztec"
-															className="w-full h-full object-contain filter drop-shadow-sm"
-															style={(frameConfigs[selectedAztecFrame] || frameConfigs["no-frame"]).qrImage}
-														/>
-													</div>
-												</div>
-												<div className="w-full flex items-center justify-center  bg-[#e9fdea]">
-													<CircleCheck className="h-4 w-4 text-[#4caf56]" />
-												<p className="text-sm text-[#4caf56] px-2 py-1 rounded-lg  text-center">Great! Your Aztec is easy to scan.</p>
-
-												</div>
-												<button
-													onClick={downloadAztec}
-													className="w-full max-w-sm cursor-pointer inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#ff550d] to-[#ff911d] text-white font-semibold rounded-xl hover:from-[#e6490b] hover:to-[#e6820a] transition-all duration-300 shadow-lg hover:shadow-xl"
-												>
-													<Download className="h-5 w-5" />
-													<span>Download Aztec</span>
-												</button>
-											</div>
-										)}
 									</div>
 								</div>
 							</div>
@@ -1330,7 +1041,7 @@ export default function PdfToQrcode() {
 
 					<button
 						onClick={resetGenerator}
-						className="w-full py-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all duration-200 border-2 border-gray-300"
+						className="w-full h-11 sm:h-12 py-2.5 sm:py-3 md:py-4 bg-gray-100 text-gray-700 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl hover:bg-gray-200 transition-all duration-200 border-2 border-gray-300"
 					>
 						Generate Another Barcode
 					</button>
