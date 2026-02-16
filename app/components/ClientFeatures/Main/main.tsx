@@ -1,6 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, Check } from 'lucide-react'
 import MergeAnyToPdf from './cards/ModifyAPdf/MergeAnyToPdf/MergeAnyToPdf'
 import PdfDeletePages from './cards/ModifyAPdf/pdf-delete-pages/PdfDeletePages'
 import PdfsToPdf from './cards/ModifyAPdf/MergePdfs/MergePdfs'
@@ -498,6 +498,22 @@ export default function Main() {
 			<h2 className="text-lg md:text-xl mt-6 lg:mt-6 lg:text-2xl text-gray-600 max-w-3xl mb-8 select-text">
 				Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
 			</h2>
+            
+            {/* Feature Highlights */}
+            <div className="flex flex-wrap gap-3 md:gap-4 justify-center items-center mt-4 mb-2">
+                <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-200">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" strokeWidth={2.5} />
+                    <span className="text-xs md:text-sm font-medium text-gray-900">100% Free</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-200">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" strokeWidth={2.5} />
+                    <span className="text-xs md:text-sm font-medium text-gray-900">No Sign-up</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-200">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" strokeWidth={2.5} />
+                    <span className="text-xs md:text-sm font-medium text-gray-900">Secure & Private</span>
+                </div>
+            </div>
             
             <div className="flex flex-wrap gap-8 mt-14 justify-center" role="group" aria-label="PDF tool categories">
                 {tabs.map((tab) => (
