@@ -1,8 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { Search, X, Check } from 'lucide-react'
-import Link from 'next/link'
-import Image from 'next/image'
 import MergeAnyToPdf from './cards/ModifyAPdf/MergeAnyToPdf/MergeAnyToPdf'
 import PdfDeletePages from './cards/ModifyAPdf/pdf-delete-pages/PdfDeletePages'
 import PdfsToPdf from './cards/ModifyAPdf/MergePdfs/MergePdfs'
@@ -649,6 +647,7 @@ export default function Main() {
 			
 			{/* Blog Section */}
 			<LandingPageBlogCards />
+			{/* <RecentPostsCard/> */}
 		</main>
 		<Footer />
 		</>

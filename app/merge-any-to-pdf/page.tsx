@@ -1,5 +1,5 @@
-import MergeAnyToPdf from "../components/ClientFeatures/MergeAnyToPdf/MergeAnyToPdf";
+import MergeClient from "../components/ClientFeatures/MergeAnyToPdf/MergeAnyToPdfClient";
 export default function MergeAnyToPdfPage() {
-	return <MergeAnyToPdf />
+	return <MergeClient />
 }
 
