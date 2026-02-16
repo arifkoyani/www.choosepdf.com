@@ -6,7 +6,7 @@ const MergeAnyToPdf = dynamic(
   () => import('./MergeAnyToPdf'),
   {
     loading: () => (
-      <div className="min-h-[calc(100vh-65px)] bg-[#f4f4f5] flex flex-col items-center justify-center py-8">
+      <div className="min-h-[calc(100vh-65px)] bg-[#f4f4f5] flex flex-col items-center" style={{ paddingTop: 'calc(40vh - 95px)' }}>
         <Spinner />
         <p className="text-sm text-gray-600 mt-4">Loading Merge Any to PDF...</p>
       </div>
