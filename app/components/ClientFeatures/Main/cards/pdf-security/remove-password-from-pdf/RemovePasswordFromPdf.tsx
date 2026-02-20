@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 export default function RemovePasswordFromPdf() {
 	return (
-		<div className="mt-8">
+		<div>
 			<Link href="/remove-password-from-pdf">
 				<button className="bg-white h-60 flex flex-col items-start gap-2 rounded-xl shadow-sm p-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
 				<Image 

@@ -634,7 +634,7 @@ export default function Main() {
            
            {/* Cards grid */}
 
-            <section id="tools-grid" aria-label="PDF tools" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-y-2 mt-14 mb-10 w-fit gap-x-10 px-10 md:px-10" >
+            <section id="tools-grid" aria-label="PDF tools" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-14 mb-5 w-fit px-10 md:px-10" >
                 {sortedCards.map(card => (
                     <div key={card.id} className="tool-card-wrapper">
                         {/* Card content */}
