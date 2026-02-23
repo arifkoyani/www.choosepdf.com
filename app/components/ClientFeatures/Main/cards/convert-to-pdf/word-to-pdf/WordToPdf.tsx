@@ -1,18 +1,14 @@
-import { FileCode } from "lucide-react";
-import Link from "next/link";
+import { FileText } from "lucide-react";
+import ToolCard from "../../ToolCard";
 
 export default function WordToPdf() {
 	return (
-		<div>
-			<Link href="/word-to-pdf">
-				<button className="bg-white h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
-					<FileCode   className="w-8 h-12 text-[#ff911d] "  strokeWidth={1} />
-					<h1 className="text-2xl font-bold text-gray-900 ">Word to PDF</h1>
-					<p className="text-gray-600 text-base text-justify">
-						Convert Word to PDF with the easiest PDF Word to PDF service.
-					</p>
-				</button>
-			</Link>
-		</div>
-	)
+		<ToolCard
+			href="/word-to-pdf"
+			title="Word to PDF"
+			description="Convert Word documents to PDF"
+			icon={<FileText className="w-6 h-6" />}
+			iconGradient="teal"
+		/>
+	);
 }

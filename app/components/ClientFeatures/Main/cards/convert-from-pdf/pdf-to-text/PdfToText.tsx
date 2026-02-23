@@ -1,22 +1,14 @@
-import { Slash} from "lucide-react";
-import Link from "next/link";
+import { FileText } from "lucide-react";
+import ToolCard from "../../ToolCard";
 
 export default function PdfToText() {
 	return (
-		<div>
-			<Link href="/pdf-to-text">
-				<button className="bg-white h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
-					<Slash   className="w-8 h-12 text-[#ff911d] "  strokeWidth={1} />
-					<h1 className="text-2xl font-bold text-gray-900 ">PDF To Text</h1>
-					<p className="text-gray-600 text-base text-justify">
-						Convert PDF to Text  with the easiest PDF PDF to Text Classifier service.
-					</p>
-				</button>
-			</Link>
-		</div>
-	)
+		<ToolCard
+			href="/pdf-to-text"
+			title="PDF to Text"
+			description="Extract text from PDF files"
+			icon={<FileText className="w-6 h-6" />}
+			iconGradient="lime"
+		/>
+	);
 }
-
-
-
-

@@ -1,23 +1,14 @@
-import { FileCheck } from "lucide-react";
-import Link from "next/link";
+import { FileSpreadsheet } from "lucide-react";
+import ToolCard from "../../ToolCard";
 
 export default function PdfToXls() {
 	return (
-		<div>
-			<Link href="/pdf-to-xls">
-				<button className="bg-white h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
-					<FileCheck    className="w-8 h-12 text-[#ff911d] "  strokeWidth={1} />
-					<h1 className="text-2xl font-bold text-gray-900 ">PDF to XLS</h1>
-					<p className="text-gray-600 text-base text-justify">
-						Convert PDF to  XLS with the easiest PDF PDF to excel service.
-					</p>
-				</button>
-			</Link>
-		</div>
-	)
+		<ToolCard
+			href="/pdf-to-xls"
+			title="PDF to XLS"
+			description="Convert PDF to Excel XLS"
+			icon={<FileSpreadsheet className="w-6 h-6" />}
+			iconGradient="green"
+		/>
+	);
 }
-
-
-
-
-

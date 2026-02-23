@@ -1,19 +1,14 @@
-import { FileCheckCorner } from "lucide-react";
-import Link from "next/link";
+import { Archive } from "lucide-react";
+import ToolCard from "../../ToolCard";
 
 export default function CompressPdf() {
 	return (
-		<div>
-			<Link href="/compress-pdf">
-				<button className="bg-white h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
-					<FileCheckCorner className="w-8 h-12 text-[#ff911d]"  strokeWidth={1} />
-					<h1 className="text-2xl font-bold text-gray-900 mb-3">Compress PDF</h1>
-					<p className="text-gray-600 text-base text-justify">
-						Compress PDFs in the order you want with the easiest PDF compressor.
-					</p>
-				</button>
-			</Link>
-		</div>
-	)
+		<ToolCard
+			href="/compress-pdf"
+			title="Compress PDF"
+			description="Reduce PDF file size efficiently"
+			icon={<Archive className="w-6 h-6" />}
+			iconGradient="blue"
+		/>
+	);
 }
-

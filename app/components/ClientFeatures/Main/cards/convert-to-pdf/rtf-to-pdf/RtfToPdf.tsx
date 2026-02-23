@@ -1,25 +1,14 @@
-import Link from "next/link";
-import Image from "next/image";
+import { FileText } from "lucide-react";
+import ToolCard from "../../ToolCard";
 
 export default function RtfToPdf() {
 	return (
-		<div>
-			<Link href="/rtf-to-pdf">
-				<button className="bg-white h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
-					<Image 
-						src="/icons/rtf_10235140.svg" // your SVG file in public folder
-						alt="RTF to PDF Icon"
-						width={62} // adjust as needed
-						height={64} // adjust as needed
-						className="self-start"
-					/>
-					<h1 className="text-2xl font-bold text-gray-900 ">RTF to PDF</h1>
-					<p className="text-gray-600 text-base text-justify">
-						Convert RTF to PDF with the easiest PDF RTF to PDF service.
-					</p>
-				</button>
-			</Link>
-		</div>
-	)
+		<ToolCard
+			href="/rtf-to-pdf"
+			title="RTF to PDF"
+			description="Convert RTF documents to PDF"
+			icon={<FileText className="w-6 h-6" />}
+			iconGradient="teal"
+		/>
+	);
 }
-

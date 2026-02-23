@@ -1,18 +1,14 @@
-import { RotateCcwKey } from "lucide-react";
-import Link from "next/link";
+import { RotateCw } from "lucide-react";
+import ToolCard from "../../ToolCard";
 
 export default function RotateSelectedPages() {
 	return (
-		<div>
-			<Link href="/rotate-pdf-selected-pages">
-				<button className="bg-white  h-60 flex flex-col items-start gap-2 justify-center rounded-xl shadow-sm p-6 border border-[#f3f2f9] hover:border-[#ff911d] hover:shadow-md transition-all duration-200 cursor-pointer">
-					<RotateCcwKey className="w-8 h-12 text-[#ff911d] "  strokeWidth={1} />
-					<h1 className="text-2xl font-bold text-gray-900 ">Rotate Selected Pages</h1>
-					<p className="text-gray-600 text-base text-justify">
-						Rotate selected pages in the order you want with the easiest PDF Rotate.
-					</p>
-				</button>
-			</Link>
-		</div>
-	)
+		<ToolCard
+			href="/rotate-pdf-selected-pages"
+			title="Rotate Selected Pages"
+			description="Rotate specific PDF pages"
+			icon={<RotateCw className="w-6 h-6" />}
+			iconGradient="yellow"
+		/>
+	);
 }
