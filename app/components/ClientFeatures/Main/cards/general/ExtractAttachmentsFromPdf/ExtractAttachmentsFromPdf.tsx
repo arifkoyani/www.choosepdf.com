@@ -6,7 +6,7 @@ export default function ExtractAttachmentsFromPdf() {
 		<ToolCard
 			href="/extract-attachments-from-pdf"
 			title="Extract Attachments"
-			description="Extract files from PDF attachments"
+			description="Extract files from PDF"
 			icon={<Paperclip className="w-6 h-6" />}
 			iconGradient="slate"
 		/>

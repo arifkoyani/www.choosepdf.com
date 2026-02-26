@@ -41,9 +41,9 @@ export default function ToolCard({
 		<div>
 			<Link
 				href={href}
-				className="tool-card-hover  flex items-center justify-center  block px-4 py-14 bg-white rounded-4xl border border-neutral-300 shadow-xs hover:border-orange-200 transition-all duration-200"
+				className="tool-card-hover  flex items-center justify-center  block px-8 py-10 bg-white rounded-4xl gap-6 border border-neutral-300 shadow-xs hover:border-orange-200 transition-all duration-200"
 			>
-				<div className="flex items-start gap-4">
+				<div className="flex items-start gap-2">
 					<div
 						className={`flex-shrink-0 w-12 h-12 ${iconBoxClass} rounded-xl flex items-center justify-center`}
 					>
