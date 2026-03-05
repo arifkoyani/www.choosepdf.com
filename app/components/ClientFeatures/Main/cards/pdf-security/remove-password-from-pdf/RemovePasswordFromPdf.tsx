@@ -6,7 +6,7 @@ export default function RemovePasswordFromPdf() {
 		<ToolCard
 			href="/remove-password-from-pdf"
 			title="Remove Password"
-			description="Unlock password-protected PDFs"
+			description="Unlock protected PDFs"
 			icon={<Unlock className="w-6 h-6" />}
 			iconGradient="red"
 		/>

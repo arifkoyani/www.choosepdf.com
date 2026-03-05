@@ -6,9 +6,9 @@ export default function ChatToPdf() {
 		<ToolCard
 			href="/chat-to-pdf-using-ai"
 			title="Chat to PDF"
-			description="AI-powered PDF conversations"
+			description="AI-powered PDF"
 			icon={<MessageCircle className="w-6 h-6" />}
-			iconGradient="pink"
+			iconGradient="orange"
 			badgeClassName="bg-pink-100 text-pink-700"
 		/>
 	);
