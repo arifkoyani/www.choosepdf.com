@@ -6,7 +6,7 @@ export default function ScanToPdf() {
 		<ToolCard
 			href="/scan-to-pdf"
 			title="Scan to PDF"
-			description="Scan documents and save PDF"
+			description="Scan documents Into PDF"
 			icon={<ScanLine className="w-6 h-6" />}
 			iconGradient="orange"
 		/>

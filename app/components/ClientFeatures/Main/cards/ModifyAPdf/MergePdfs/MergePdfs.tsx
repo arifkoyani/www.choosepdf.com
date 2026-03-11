@@ -6,7 +6,7 @@ export default function MergePdfs() {
 		<ToolCard
 			href="/merge-pdfs"
 			title="Merge PDFs"
-			description="Combine multiple PDFs into one"
+			description="Combine multiple PDFs"
 			icon={<Files className="w-6 h-6" />}
 			iconGradient="orange"
 		/>

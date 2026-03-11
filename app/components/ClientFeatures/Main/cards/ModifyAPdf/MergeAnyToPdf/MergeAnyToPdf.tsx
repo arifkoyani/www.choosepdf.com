@@ -6,7 +6,7 @@ export default function MergeAnyToPdf() {
 		<ToolCard
 			href="/merge-any-to-pdf"
 			title="Merge Any to PDF"
-			description="Combine multiple files into pdf"
+			description="Combine multiple files pdf"
 			icon={<FileText className="w-6 h-6" />}
 			iconGradient="orange"
 		/>

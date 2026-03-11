@@ -6,7 +6,7 @@ export default function SplitPdfbySearch() {
 		<ToolCard
 			href="/split-pdf-by-search"
 			title="Split PDF by Text"
-			description="Split PDF based on text content"
+			description="Split PDF based on text"
 			icon={<FileText className="w-6 h-6" />}
 			iconGradient="purple"
 		/>

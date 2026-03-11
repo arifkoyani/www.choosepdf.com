@@ -6,7 +6,7 @@ export default function CompressPdf() {
 		<ToolCard
 			href="/compress-pdf"
 			title="Compress PDF"
-			description="Reduce PDF file size efficiently"
+			description="Reduce PDF size efficiently"
 			icon={<Archive className="w-6 h-6" />}
 			iconGradient="blue"
 		/>

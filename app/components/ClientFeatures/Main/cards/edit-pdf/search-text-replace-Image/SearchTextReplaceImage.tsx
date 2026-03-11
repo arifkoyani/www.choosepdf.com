@@ -6,7 +6,7 @@ export default function SearchTextReplaceImage() {
 		<ToolCard
 			href="/search-text-replace-image-in-pdf"
 			title="Replace with Image"
-			description="Replace text with images in PDF"
+			description="Replace text with images PDF"
 			icon={<ImagePlus className="w-6 h-6" />}
 			iconGradient="amber"
 		/>

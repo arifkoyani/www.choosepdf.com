@@ -6,7 +6,7 @@ export default function PdfDeletePages() {
 		<ToolCard
 			href="/delete-pages-from-pdf"
 			title="Delete Pages"
-			description="Remove unwanted PDF pages"
+			description="Remove pages in PDF"
 			icon={<Trash2 className="w-6 h-6" />}
 			iconGradient="red"
 		/>
