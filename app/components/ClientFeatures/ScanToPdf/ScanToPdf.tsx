@@ -17,6 +17,8 @@ import { toast } from "sonner";
 
 type AppState = "select" | "uploading" | "ready-to-convert" | "converting" | "ready";
 
+const MAX_IMAGES = 20;
+
 interface UploadedFile {
   id: string;
   name: string;
@@ -57,12 +59,18 @@ const ScanToPdf = () => {
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
-      void uploadFiles(files);
+      if (files.length > MAX_IMAGES) {
+        toast.error(`You can scan up to ${MAX_IMAGES} images at a time.`);
+        const limitedFiles = Array.from(files).slice(0, MAX_IMAGES);
+        void uploadFiles(limitedFiles);
+      } else {
+        void uploadFiles(files);
+      }
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const uploadFiles = async (files: FileList) => {
+  const uploadFiles = async (files: FileList | File[]) => {
     setState("uploading");
     setErrorMessage("");
 
