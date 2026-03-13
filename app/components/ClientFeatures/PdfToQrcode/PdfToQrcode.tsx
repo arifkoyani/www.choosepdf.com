@@ -476,7 +476,7 @@ export default function PdfToQrcode() {
 				body: formData,
 			})
 
-			const timeoutPromise = createTimeoutPromise(60000)
+			const timeoutPromise: Promise<never> = createTimeoutPromise(60000)
 
 			const response = await Promise.race([fetchPromise, timeoutPromise])
 
