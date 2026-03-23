@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { Type } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function SplitPdfbySearch() {
@@ -7,7 +7,7 @@ export default function SplitPdfbySearch() {
 			href="/split-pdf-by-search"
 			title="Split PDF by Text"
 			description="Split PDF based on text"
-			icon={<FileText className="w-6 h-6" />}
+			icon={<Type className="w-6 h-6" />}
 			iconGradient="purple"
 		/>
 	);

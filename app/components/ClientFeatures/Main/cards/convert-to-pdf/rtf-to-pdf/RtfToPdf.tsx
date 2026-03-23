@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { FileType} from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function RtfToPdf() {
@@ -7,7 +7,7 @@ export default function RtfToPdf() {
 			href="/rtf-to-pdf"
 			title="RTF to PDF"
 			description="Convert RTF Files to PDF"
-			icon={<FileText className="w-6 h-6" />}
+			icon={<FileType className="w-6 h-6" />}
 			iconGradient="teal"
 		/>
 	);

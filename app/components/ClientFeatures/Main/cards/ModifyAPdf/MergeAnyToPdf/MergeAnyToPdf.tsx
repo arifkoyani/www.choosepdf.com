@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { Combine  } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function MergeAnyToPdf() {
@@ -7,7 +7,7 @@ export default function MergeAnyToPdf() {
 			href="/merge-any-to-pdf"
 			title="Merge Any to PDF"
 			description="Combine multiple files pdf"
-			icon={<FileText className="w-6 h-6" />}
+			icon={<Combine  className="w-6 h-6" />}
 			iconGradient="orange"
 		/>
 	);

@@ -1,4 +1,4 @@
-import { Files } from "lucide-react";
+import { Layers } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function MergePdfs() {
@@ -7,7 +7,7 @@ export default function MergePdfs() {
 			href="/merge-pdfs"
 			title="Merge PDFs"
 			description="Combine multiple PDFs"
-			icon={<Files className="w-6 h-6" />}
+			icon={<Layers className="w-6 h-6" />}
 			iconGradient="orange"
 		/>
 	);

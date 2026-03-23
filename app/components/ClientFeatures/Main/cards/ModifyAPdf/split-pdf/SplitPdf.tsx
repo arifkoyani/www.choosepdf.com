@@ -1,4 +1,4 @@
-import { SplitSquareVertical } from "lucide-react";
+import { Scissors } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function SplitPdf() {
@@ -7,7 +7,7 @@ export default function SplitPdf() {
 			href="/split-pdf"
 			title="Split PDF"
 			description="Extract pages from PDF files"
-			icon={<SplitSquareVertical className="w-6 h-6" />}
+			icon={<Scissors className="w-6 h-6" />}
 			iconGradient="purple"
 		/>
 	);

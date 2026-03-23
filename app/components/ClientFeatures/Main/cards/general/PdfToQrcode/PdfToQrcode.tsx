@@ -7,7 +7,7 @@ export default function PdfToQrcode() {
 			href="/pdf-to-qrcode"
 			title="PDF to QR Code"
 			description="Generate QR codes for PDFs"
-			icon={<QrCode className="w-6 h-6" />}
+			icon={<QrCode className="w-6 h-6bg-slate-50 text-slate-600" />}
 			iconGradient="slate"
 		/>
 	);

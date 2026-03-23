@@ -1,4 +1,4 @@
-import { RotateCw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function RotatePagesUsingaI() {
@@ -7,7 +7,7 @@ export default function RotatePagesUsingaI() {
 			href="/rotate-pdf-pages-using-ai"
 			title="Rotate Pages AI"
 			description="Auto-rotate pages using AI"
-			icon={<RotateCw className="w-6 h-6" />}
+			icon={<RotateCcw className="w-6 h-6" />}
 			iconGradient="yellow"
 		/>
 	);

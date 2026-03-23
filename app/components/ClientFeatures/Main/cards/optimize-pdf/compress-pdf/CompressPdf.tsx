@@ -1,4 +1,4 @@
-import { Archive } from "lucide-react";
+import { Minimize2 } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function CompressPdf() {
@@ -7,7 +7,7 @@ export default function CompressPdf() {
 			href="/compress-pdf"
 			title="Compress PDF"
 			description="Reduce PDF size efficiently"
-			icon={<Archive className="w-6 h-6" />}
+			icon={<Minimize2 className="w-6 h-6" />}
 			iconGradient="blue"
 		/>
 	);

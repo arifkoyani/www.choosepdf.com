@@ -7,7 +7,7 @@ export default function EditPdf() {
 			href="/edit-pdf"
 			title="Edit PDF"
 			description="Edit PDF content directly"
-			icon={<Pencil className="w-6 h-6" />}
+			icon={<Pencil className="w-6 h-6 " />}
 			iconGradient="amber"
 		/>
 	);

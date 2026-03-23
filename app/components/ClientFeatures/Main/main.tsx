@@ -494,7 +494,7 @@ export default function Main() {
 
 	return (
 		<>
-		<main className="flex flex-col items-center bg-[#f4f4f5] justify-start pt-20 px-2 min-h-screen text-center px-4">
+<main className="flex flex-col items-center justify-between bg-[#f4f4f5] pt-20 px-4 min-h-screen text-center">
 			<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 select-text">
 				Every tool you need to work with PDFs in one place
 			</h1>
@@ -634,7 +634,7 @@ export default function Main() {
            
            {/* Cards grid */}
 
-            <section id="tools-grid" aria-label="PDF tools" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-14 mb-5 w-fit px-10 md:px-10" >
+            <section id="tools-grid" aria-label="PDF tools" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-14 mb-5 w-fit px-10 md:px-10" >
                 {sortedCards.map(card => (
                     <div key={card.id} className="tool-card-wrapper">
                         {/* Card content */}

@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export default function LandingPageBlogCards() {
 	return (
-		<section className="max-h-[800px] bg-neutral-50 py-12 sm:py-16 lg:py-20 overflow-hidden w-full">
+		<section className="max-h-[800px] bg-[#f4f4f5] py-12 sm:py-16 lg:py-20 overflow-hidden w-full">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="text-center mb-12">
 					<h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-900 mb-4">Latest from Our Blog</h2>

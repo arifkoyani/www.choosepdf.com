@@ -1,4 +1,4 @@
-import { FileSpreadsheet } from "lucide-react";
+import { Table } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function PdfToXlsx() {
@@ -7,7 +7,7 @@ export default function PdfToXlsx() {
 			href="/pdf-to-xlsx"
 			title="PDF to XLSX"
 			description="Convert PDF to Excel XLSX"
-			icon={<FileSpreadsheet className="w-6 h-6" />}
+			icon={<Table className="w-6 h-6" />}
 			iconGradient="green"
 		/>
 	);

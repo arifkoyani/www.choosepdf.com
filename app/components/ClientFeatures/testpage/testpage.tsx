@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 
-const PDF_API_KEY = "ehsan@quohr.com_AZQ0sClJfl5idlJOfd7lg4bJGPmxa48dUDBcONw3PVIVjd77XFnwZ52qd3GrHwYR";
+// const PDF_API_KEY = "ehsan@quohr.com_AZQ0sClJfl5idlJOfd7lg4bJGPmxa48dUDBcONw3PVIVjd77XFnwZ52qd3GrHwYR";
 const PDF_URL = "https://bytescale.com/docs/upload-api/getting-started.pdf";
 
 interface RequestResult {
@@ -30,11 +30,13 @@ async function sendBarcodeRequest(index: number): Promise<RequestResult> {
         // decorationImage: "https://example.com/logo.png"  // optional
       }),
     });
+
     const duration = Date.now() - start;
     if (!res.ok) {
       const text = await res.text();
       return { index, success: false, duration, error: `HTTP ${res.status}: ${text}` };
     }
+    console.log(res,"this is data")
     const json = await res.json();
     return {
       index,
@@ -87,8 +89,8 @@ function runBatched(
 }
 
 export default function RateLimiterPage() {
-  const [totalRequests, setTotalRequests] = useState(50);
-  const [perSecond, setPerSecond] = useState(20);
+  const [totalRequests, setTotalRequests] = useState(10);
+  const [perSecond, setPerSecond] = useState(5);
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<RequestResult[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -382,6 +384,7 @@ export default function RateLimiterPage() {
                       <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         <span style={{ color: "#1e2d40" }}>url </span>
                         <span style={{ color: "#3d8a5e" }}>{r.data.url || "—"}</span>
+                        <span style={{ color: "#3d8a5e" }}>{r.data.name}</span>
                       </div>
                       <div>
                         <span style={{ color: "#1e2d40" }}>name </span>{r.data.name}

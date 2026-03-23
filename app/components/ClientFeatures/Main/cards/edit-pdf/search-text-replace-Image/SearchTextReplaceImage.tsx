@@ -1,4 +1,4 @@
-import { ImagePlus } from "lucide-react";
+import { Image } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function SearchTextReplaceImage() {
@@ -7,7 +7,7 @@ export default function SearchTextReplaceImage() {
 			href="/search-text-replace-image-in-pdf"
 			title="Replace with Image"
 			description="Replace text with images PDF"
-			icon={<ImagePlus className="w-6 h-6" />}
+			icon={<Image className="w-6 h-6" />}
 			iconGradient="amber"
 		/>
 	);

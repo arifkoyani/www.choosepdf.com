@@ -1,4 +1,4 @@
-import { Image } from "lucide-react";
+import { FileImage } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function JpgToPdf() {
@@ -7,7 +7,7 @@ export default function JpgToPdf() {
 			href="/jpg-to-pdf"
 			title="JPG to PDF"
 			description="Convert JPG images to PDF"
-			icon={<Image className="w-6 h-6" />}
+			icon={<FileImage className="w-6 h-6" />}
 			iconGradient="teal"
 		/>
 	);

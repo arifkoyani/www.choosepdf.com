@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Eye } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function SearchablePdf() {
@@ -7,7 +7,7 @@ export default function SearchablePdf() {
 			href="/make-pdf-searchable"
 			title="Make Searchable"
 			description="Enable text search in PDF"
-			icon={<Search className="w-6 h-6" />}
+			icon={<Eye className="w-6 h-6" />}
 			iconGradient="cyan"
 		/>
 	);

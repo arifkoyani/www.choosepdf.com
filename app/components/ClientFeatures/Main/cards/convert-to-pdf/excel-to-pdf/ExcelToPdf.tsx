@@ -1,4 +1,4 @@
-import { FileSpreadsheet } from "lucide-react";
+import { Table } from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function ExcelToPdf() {
@@ -7,7 +7,7 @@ export default function ExcelToPdf() {
 			href="/excel-to-pdf"
 			title="Excel to PDF"
 			description="Convert Excel files to PDF"
-			icon={<FileSpreadsheet className="w-6 h-6" />}
+			icon={<Table className="w-6 h-6" />}
 			iconGradient="teal"
 		/>
 	);

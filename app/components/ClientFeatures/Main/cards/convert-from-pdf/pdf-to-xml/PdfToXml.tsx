@@ -1,4 +1,4 @@
-import { Code } from "lucide-react";
+import { FileCode} from "lucide-react";
 import ToolCard from "../../ToolCard";
 
 export default function PdfToXml() {
@@ -7,7 +7,7 @@ export default function PdfToXml() {
 			href="/pdf-to-xml"
 			title="PDF to XML"
 			description="Convert PDF to XML format"
-			icon={<Code className="w-6 h-6" />}
+			icon={<FileCode className="w-6 h-6" />}
 			iconGradient="green"
 		/>
 	);
