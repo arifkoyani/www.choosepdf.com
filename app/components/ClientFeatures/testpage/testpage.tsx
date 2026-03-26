@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 
 // const PDF_API_KEY = "ehsan@quohr.com_AZQ0sClJfl5idlJOfd7lg4bJGPmxa48dUDBcONw3PVIVjd77XFnwZ52qd3GrHwYR";
-const PDF_URL = "https://bytescale.com/docs/upload-api/getting-started.pdf";
+const PDF_URL = "https://pdfco-test-files.s3.us-west-2.amazonaws.com/pdf-to-csv/sample.pdf";
 
 interface RequestResult {
   index: number;
@@ -22,8 +22,8 @@ async function sendBarcodeRequest(index: number): Promise<RequestResult> {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        name: "barcode.png",      // optional, defaults to "barcode.png"
-        type: "DataMatrix",       // required
+        name: "qrcode.png",      // optional, defaults to "barcode.png"
+        type: "QRCode",       // required
         value: PDF_URL,           // required
         inline: false,            // optional, defaults to true
         async: false,             // optional, defaults to false
@@ -36,7 +36,7 @@ async function sendBarcodeRequest(index: number): Promise<RequestResult> {
       const text = await res.text();
       return { index, success: false, duration, error: `HTTP ${res.status}: ${text}` };
     }
-    console.log(res,"this is data")
+    console.log(res, "this is data")
     const json = await res.json();
     return {
       index,

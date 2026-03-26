@@ -365,6 +365,7 @@ export default function PdfToQrcode() {
 						body: formData,
 					})
 
+
 					const timeoutPromise = createTimeoutPromise(30000)
 
 					const response = await Promise.race([uploadPromise, timeoutPromise])
@@ -445,7 +446,7 @@ export default function PdfToQrcode() {
 		let progressInterval: NodeJS.Timeout | null = null
 
 		try {
-			// Generate QRCode
+			// Build request payload
 			const formData = new FormData()
 			formData.append("name", "barcode.png")
 			formData.append("type", "QRCode")
@@ -470,7 +471,7 @@ export default function PdfToQrcode() {
 				setUploadProgress((prev) => (prev >= 90 ? 90 : prev + 10))
 			}, 120)
 
-			// Add timeout (60 seconds for barcode generation)
+			// Call API (rate limiting handled server-side)
 			const fetchPromise = fetch("/api/pdftoqrcode", {
 				method: "POST",
 				body: formData,
@@ -478,7 +479,16 @@ export default function PdfToQrcode() {
 
 			const timeoutPromise: Promise<never> = createTimeoutPromise(60000)
 
-			const response = await Promise.race([fetchPromise, timeoutPromise])
+			let response = await Promise.race([fetchPromise, timeoutPromise])
+
+			// Auto-retry once on 429 (rate limited) after a short wait
+			if (response.status === 429) {
+				await new Promise((resolve) => setTimeout(resolve, 1500))
+				response = await Promise.race([
+					fetch("/api/pdftoqrcode", { method: "POST", body: formData }),
+					createTimeoutPromise(60000),
+				])
+			}
 
 			if (progressInterval) {
 				clearInterval(progressInterval)
@@ -595,7 +605,7 @@ export default function PdfToQrcode() {
 						// Get computed styles from original element
 						const originalElement = frameRef.current
 						const computedStyle = window.getComputedStyle(originalElement)
-						
+
 						// Copy all relevant styles
 						clonedElement.style.width = computedStyle.width
 						clonedElement.style.height = computedStyle.height
@@ -605,7 +615,7 @@ export default function PdfToQrcode() {
 						clonedElement.style.backgroundPosition = computedStyle.backgroundPosition
 						clonedElement.style.backgroundColor = computedStyle.backgroundColor
 						clonedElement.style.position = computedStyle.position
-						
+
 						// Ensure QRCode image is loaded in cloned document
 						const clonedImg = clonedElement.querySelector("img") as HTMLImageElement
 						if (clonedImg) {
@@ -640,7 +650,7 @@ export default function PdfToQrcode() {
 				message: error instanceof Error ? error.message : "Failed to download QRCode with frame. Trying fallback...",
 				type: "api",
 			})
-			
+
 			// Fallback: download raw barcode
 			try {
 				const response = await fetch(barcodeUrl)
@@ -776,10 +786,10 @@ export default function PdfToQrcode() {
 								<div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#ff550d] to-[#ff911d] rounded-lg flex items-center justify-center">
 									<MonitorUp className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
 								</div>
-								<div className="flex-1 min-w-0">
-									<p className="text-xs text-gray-500 font-medium uppercase tracking-wide">PDF uploaded</p>
-									<p className="text-xs sm:text-sm text-gray-900 font-medium truncate mt-0.5">{pdfFile?.name || "Your file"}</p>
-								</div>
+								<a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity">
+								<p className="text-xs text-gray-500 font-medium uppercase tracking-wide">PDF uploaded</p>
+								<p className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium truncate mt-0.5 underline">{pdfFile?.name || "Your file"}</p>
+							</a>
 							</div>
 							<button
 								onClick={removePdf}
@@ -938,9 +948,8 @@ export default function PdfToQrcode() {
 												<div
 													ref={frameRef}
 													data-frame-container
-													className={`inline-block p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl md:rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${
-														selectedFrame === "no-frame" ? "shadow-none p-0" : "shadow-xl hover:shadow-2xl p-2 sm:p-3 md:p-4"
-													}`}
+													className={`inline-block p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl md:rounded-2xl transition-shadow duration-300 qr-frame-container flex-shrink-0 ${selectedFrame === "no-frame" ? "shadow-none p-0" : "shadow-xl hover:shadow-2xl p-2 sm:p-3 md:p-4"
+														}`}
 													style={{
 														backgroundImage: selectedFrame !== "no-frame" ? `url('/frames/${selectedFrame}')` : "none",
 														...getCurrentFrameConfig().container,
@@ -985,11 +994,10 @@ export default function PdfToQrcode() {
 														<div
 															key={frameFile}
 															onClick={() => setSelectedFrame(frameFile)}
-															className={`p-1.5 sm:p-2 md:p-3 rounded-lg sm:rounded-xl transition-all duration-300 w-full group ${
-																selectedFrame === frameFile
-																	? "border border-[#ffcc99] bg-transparent"
-																	: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
-															}`}
+															className={`p-1.5 sm:p-2 md:p-3 rounded-lg sm:rounded-xl transition-all duration-300 w-full group ${selectedFrame === frameFile
+																? "border border-[#ffcc99] bg-transparent"
+																: "hover:bg-gradient-to-br hover:from-gray-50 hover:to-white hover:shadow-lg border border-gray-200 hover:border-gray-300 transform"
+																}`}
 														>
 															<div
 																className="bg-white rounded-lg border border-gray-200 mb-3 relative mx-auto shadow-sm group-hover:shadow-md transition-shadow duration-100"
@@ -1021,9 +1029,8 @@ export default function PdfToQrcode() {
 
 															<div className="text-center">
 																<p
-																	className={`text-[10px] sm:text-xs font-semibold transition-colors duration-200 ${
-																		selectedFrame === frameFile ? "text-[#ff550d]" : "text-gray-600 group-hover:text-gray-800"
-																	}`}
+																	className={`text-[10px] sm:text-xs font-semibold transition-colors duration-200 ${selectedFrame === frameFile ? "text-[#ff550d]" : "text-gray-600 group-hover:text-gray-800"
+																		}`}
 																>
 																	{frameNames[index]}
 																</p>

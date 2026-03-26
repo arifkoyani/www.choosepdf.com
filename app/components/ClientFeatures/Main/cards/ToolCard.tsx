@@ -47,7 +47,7 @@ export default function ToolCard({
 					<div
 						className={`flex-shrink-0 w-12 h-12 ${iconBoxClass} rounded-xl flex items-center justify-center`}
 					>
-						<span className="w-6 h-6 text-white  [&>svg]:w-6 [&>svg]:h-6 [&>svg]:text-white">
+						<span className="w-6 h-6  [&>svg]:w-6 [&>svg]:h-6 [&>svg]:text-white">
 							{icon}
 						</span>
 					</div>
