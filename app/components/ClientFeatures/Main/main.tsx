@@ -495,7 +495,7 @@ export default function Main() {
 	return (
 		<>
 <main className="flex flex-col items-center justify-between bg-[#f4f4f5] pt-20 px-4 min-h-screen text-center">
-			<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 select-text">
+			<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-4 select-text">
 				Every tool you need to work with PDFs in one place
 			</h1>
 			<h2 className="text-lg md:text-xl mt-6 lg:mt-6 lg:text-2xl text-gray-600 max-w-3xl mb-8 select-text">

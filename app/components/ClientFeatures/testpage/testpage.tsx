@@ -89,8 +89,8 @@ function runBatched(
 }
 
 export default function RateLimiterPage() {
-  const [totalRequests, setTotalRequests] = useState(10);
-  const [perSecond, setPerSecond] = useState(5);
+  const [totalRequests, setTotalRequests] = useState(50);
+  const [perSecond, setPerSecond] = useState(20);
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<RequestResult[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);

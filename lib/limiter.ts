@@ -2,7 +2,7 @@ import redis from "./redis";
 
 const RATE_LIMIT_KEY = "pdftoqrcode:ratelimit";
 const MAX_REQUESTS_PER_SECOND = parseInt(
-  process.env.RATE_LIMIT_PER_SECOND || "5",
+  process.env.RATE_LIMIT_PER_SECOND || "2",
   10
 );
 
