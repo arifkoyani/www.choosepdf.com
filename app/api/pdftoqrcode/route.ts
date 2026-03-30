@@ -1,51 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
-import { checkRateLimit } from '@/lib/limiter';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
 const PDF_TO_QRCODE_URL = process.env.CHOOSE_PDF_PDF_TO_QRCODE_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_PDF_TO_QRCODE_URL || "https://api.pdf.co/v1/barcode/generate";
 
-// ── Helper: upload decoration image to Supabase ──────────────────────────────
-async function uploadToSupabase(file: File) {
-  const arrayBuffer = await file.arrayBuffer();
-  const fileBuffer = Buffer.from(arrayBuffer);
-
-  const timestamp = Date.now();
-  const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-  const filePath = `uploads/${timestamp}-${sanitizedName}`;
-
-  const { data, error } = await supabase
-    .storage
-    .from('server')
-    .upload(filePath, fileBuffer, {
-      contentType: file.type,
-      upsert: false,
-    });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  const { data: publicUrlData } = supabase
-    .storage
-    .from('server')
-    .getPublicUrl(data.path);
-
-  return publicUrlData.publicUrl;
-}
-
-// ── Helper: sleep ────────────────────────────────────────────────────────────
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// POST /api/pdftoqrcode
-//
-// Processes barcode generation with Redis-based rate limiting.
-// Waits for a rate-limit slot (up to ~5s) before calling PDF.co.
-// Returns the result directly — no polling needed.
-// ─────────────────────────────────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get('content-type') || '';
@@ -57,8 +14,6 @@ export async function POST(request: NextRequest) {
     let asyncFlag: boolean | undefined;
     let profiles: string | undefined;
     let decorationImage: string | undefined;
-
-    // Support both JSON and multipart/form-data
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
 
@@ -75,9 +30,8 @@ export async function POST(request: NextRequest) {
       const logoFile = formData.get('decorationImageFile');
       const decorationImageRaw = formData.get('decorationImage') as string;
 
-      // If a file is provided, upload it to Supabase and use its public URL
       if (logoFile && logoFile instanceof File && logoFile.size > 0) {
-        decorationImage = await uploadToSupabase(logoFile);
+        // decoration image file handling removed (Supabase upload removed)
       } else if (decorationImageRaw) {
         decorationImage = decorationImageRaw;
       }
@@ -111,31 +65,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: true, message: 'ChoosePDF API not configured' },
         { status: 500 }
-      );
-    }
-
-    // ── Rate Limiting: wait for a slot (up to ~5 seconds) ──────────────────
-    let allowed = false;
-    for (let attempt = 0; attempt < 10; attempt++) {
-      allowed = await checkRateLimit();
-      if (allowed) break;
-      console.log(`[pdftoqrcode] Rate limited, waiting 500ms (attempt ${attempt + 1}/10)`);
-      await sleep(500);
-    }
-
-    if (!allowed) {
-      return NextResponse.json(
-        {
-          error: true,
-          message: 'Rate limit exceeded. Please try again in a moment.',
-          retryAfter: 1,
-        },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': '1',
-          },
-        }
       );
     }
 
