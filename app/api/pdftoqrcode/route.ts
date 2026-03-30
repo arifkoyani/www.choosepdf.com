@@ -1,9 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ratelimit, waitForSlot, releaseSlot, waitForPdfcoSlot } from '@/lib/queueSystem';
+import { generateId } from '@/utils/uuid';
 
 const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE_PDF_API_KEY || "";
 const PDF_TO_QRCODE_URL = process.env.CHOOSE_PDF_PDF_TO_QRCODE_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_PDF_TO_QRCODE_URL || "https://api.pdf.co/v1/barcode/generate";
 
 export async function POST(request: NextRequest) {
+  // ── Rate Limit (per user/IP) ───────────────────────────────────────────────
+  const ip = request.headers.get('x-forwarded-for') ?? 'anonymous';
+  const { success: allowed } = await ratelimit.limit(ip);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: true, message: 'Too many requests', retryAfter: '1 minute' },
+      { status: 429 }
+    );
+  }
+
+  // ── Global Queue (max 2 concurrent) ───────────────────────────────────────
+  const jobId = generateId();
+  const gotSlot = await waitForSlot(jobId, 120000);
+  if (!gotSlot) {
+    return NextResponse.json(
+      { error: true, message: 'Server busy, please try again shortly' },
+      { status: 503 }
+    );
+  }
+
   try {
     const contentType = request.headers.get('content-type') || '';
 
@@ -87,6 +109,15 @@ export async function POST(request: NextRequest) {
       payload.decorationImage = decorationImage;
     }
 
+    // ── PDF.co global rate limit (max 2/sec) ──────────────────────────────
+    const pdfcoReady = await waitForPdfcoSlot(30000);
+    if (!pdfcoReady) {
+      return NextResponse.json(
+        { error: true, message: 'Server busy, please try again shortly' },
+        { status: 503 }
+      );
+    }
+
     // ── Call PDF.co API ────────────────────────────────────────────────────
     const res = await fetch(PDF_TO_QRCODE_URL, {
       method: "POST",
@@ -155,5 +186,7 @@ export async function POST(request: NextRequest) {
       { error: true, message: 'Internal server error' },
       { status: 500 }
     );
+  } finally {
+    await releaseSlot(jobId);
   }
 }

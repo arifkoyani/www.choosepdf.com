@@ -6,9 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "test:limiter": "tsx lib/testLimiter.ts",
-    "worker": "tsx workers/queueWorker.ts"
+    "lint": "eslint"
   },
   "dependencies": {
     "@mantine/core": "^8.3.8",
@@ -25,6 +23,8 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.39.0",
     "@tabler/icons-react": "^3.35.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.37.0",
     "bottleneck": "^2.19.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
