@@ -32,16 +32,29 @@ const QUEUE_KEY = "pdftoqrcode:active-jobs";
 const MAX_CONCURRENT = 2;
 const JOB_TTL_SECONDS = 30;
 
+// Single Lua script: zremrangebyscore + zcard + zadd in ONE Redis round trip (was 3)
+const ACQUIRE_SLOT_SCRIPT = `
+local now    = tonumber(ARGV[1])
+local ttl_ms = tonumber(ARGV[2])
+local max    = tonumber(ARGV[3])
+local job_id = ARGV[4]
+redis.call('ZREMRANGEBYSCORE', KEYS[1], 0, now - ttl_ms)
+local count = redis.call('ZCARD', KEYS[1])
+if count < max then
+  redis.call('ZADD', KEYS[1], now, job_id)
+  return 1
+end
+return 0
+`;
+
 export async function acquireSlot(jobId: string): Promise<boolean> {
   const now = Date.now();
-  await redis.zremrangebyscore(QUEUE_KEY, 0, now - JOB_TTL_SECONDS * 1000);
-  const runningCount = await redis.zcard(QUEUE_KEY);
-
-  if (runningCount < MAX_CONCURRENT) {
-    await redis.zadd(QUEUE_KEY, { score: now, member: jobId });
-    return true;
-  }
-  return false;
+  const result = await redis.eval(
+    ACQUIRE_SLOT_SCRIPT,
+    [QUEUE_KEY],
+    [String(now), String(JOB_TTL_SECONDS * 1000), String(MAX_CONCURRENT), jobId]
+  ) as number;
+  return result === 1;
 }
 
 export async function releaseSlot(jobId: string): Promise<void> {
@@ -58,3 +71,15 @@ export async function waitForSlot(jobId: string, maxWaitMs = 60000): Promise<boo
   }
   return false;
 }
+
+
+// To increase capacity
+// Change this one line in lib/queueSystem.ts:
+
+
+// // Currently:
+// limiter: Ratelimit.slidingWindow(2, "1 s"),
+
+// // If PDF.co plan allows 5/sec:
+// limiter: Ratelimit.slidingWindow(5, "1 s"),
+// That would multiply all numbers above by 2.5x (e.g. 432,000 req/day).
