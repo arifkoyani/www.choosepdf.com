@@ -18,14 +18,9 @@ export const pdfcoRatelimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(2, "1 s"),
 });
 
-export async function waitForPdfcoSlot(maxWaitMs = 30000): Promise<boolean> {
-  const deadline = Date.now() + maxWaitMs;
-  while (Date.now() < deadline) {
-    const { success } = await pdfcoRatelimit.limit("pdfco-global");
-    if (success) return true;
-    await new Promise((r) => setTimeout(r, 500));
-  }
-  return false;
+export async function waitForPdfcoSlot(): Promise<boolean> {
+  const { success } = await pdfcoRatelimit.limit("pdfco-global");
+  return success;
 }
 
 const QUEUE_KEY = "pdftoqrcode:active-jobs";
@@ -61,15 +56,8 @@ export async function releaseSlot(jobId: string): Promise<void> {
   await redis.zrem(QUEUE_KEY, jobId);
 }
 
-export async function waitForSlot(jobId: string, maxWaitMs = 60000): Promise<boolean> {
-  const startTime = Date.now();
-
-  while (Date.now() - startTime < maxWaitMs) {
-    const acquired = await acquireSlot(jobId);
-    if (acquired) return true;
-    await new Promise((r) => setTimeout(r, 500));
-  }
-  return false;
+export async function waitForSlot(jobId: string): Promise<boolean> {
+  return await acquireSlot(jobId);
 }
 
 

@@ -6,19 +6,25 @@ const API_KEY = process.env.CHOOSE_PDF_API_KEY || process.env.NEXT_PUBLIC_CHOOSE
 const PDF_TO_QRCODE_URL = process.env.CHOOSE_PDF_PDF_TO_QRCODE_URL || process.env.NEXT_PUBLIC_CHOOSE_PDF_PDF_TO_QRCODE_URL || "https://api.pdf.co/v1/barcode/generate";
 
 export async function POST(request: NextRequest) {
-  // ── Rate Limit (per user/IP) ───────────────────────────────────────────────
+  const t0 = Date.now();
   const ip = request.headers.get('x-forwarded-for') ?? 'anonymous';
-  const { success: allowed } = await ratelimit.limit(ip);
+  const jobId = generateId();
+
+  // ── Rate Limit + Slot — run in parallel ──────────────────────────────────
+  const [{ success: allowed }, gotSlot] = await Promise.all([
+    ratelimit.limit(ip),
+    waitForSlot(jobId),
+  ]);
+  console.log(`[pdftoqrcode] rateLimit+slot: ${Date.now() - t0}ms`);
+
   if (!allowed) {
+    if (gotSlot) await releaseSlot(jobId);
     return NextResponse.json(
       { error: true, message: 'Too many requests', retryAfter: '1 minute' },
       { status: 429 }
     );
   }
 
-  // ── Global Queue (max 2 concurrent) ───────────────────────────────────────
-  const jobId = generateId();
-  const gotSlot = await waitForSlot(jobId, 120000);
   if (!gotSlot) {
     return NextResponse.json(
       { error: true, message: 'Server busy, please try again shortly' },
@@ -110,7 +116,9 @@ export async function POST(request: NextRequest) {
     }
 
     // ── PDF.co global rate limit (max 2/sec) ──────────────────────────────
-    const pdfcoReady = await waitForPdfcoSlot(30000);
+    const t1 = Date.now();
+    const pdfcoReady = await waitForPdfcoSlot();
+    console.log(`[pdftoqrcode] pdfcoSlot: ${Date.now() - t1}ms`);
     if (!pdfcoReady) {
       return NextResponse.json(
         { error: true, message: 'Server busy, please try again shortly' },
@@ -119,6 +127,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Call PDF.co API ────────────────────────────────────────────────────
+    const t2 = Date.now();
     const res = await fetch(PDF_TO_QRCODE_URL, {
       method: "POST",
       headers: {
@@ -148,6 +157,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log(`[pdftoqrcode] PDF.co call: ${Date.now() - t2}ms`);
+    console.log(`[pdftoqrcode] total so far: ${Date.now() - t0}ms`);
     console.log('[pdftoqrcode] PDF.co response:', data);
 
     // Handle error response
